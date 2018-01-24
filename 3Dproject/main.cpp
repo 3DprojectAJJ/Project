@@ -14,9 +14,6 @@
 #include <stdlib.h>
 
 #include "Camera.h"
-#include "imgui\imgui.h"
-#include "imgui\imgui_impl_glfw_gl3.h"
-
 
 int width = 1024;
 int height = 768;
@@ -33,9 +30,6 @@ glm::mat4 Projection;
 glm::mat4 Model;
 
 Camera cam;
-
-ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
 
 void createTriangle()
 {
@@ -155,7 +149,7 @@ void createCube()
 
 void render()
 {
-	glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+	glClearColor(0.0f, 0.0f, 0.9f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(gShaderProgram);
 
@@ -333,9 +327,6 @@ int main()
 		return -1;
 	}
 
-	//imguiInit();
-	ImGui_ImplGlfwGL3_Init(Window, true);
-
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(Window, GLFW_STICKY_KEYS, GL_TRUE);
 	loadShaders();
@@ -348,9 +339,6 @@ int main()
 	glDepthFunc(GL_LESS);
 	double time = glfwGetTime();
 	float lastTime = 0;
-
-	bool show_another_window = false;
-
 	do {
 		time = glfwGetTime();
 		float deltaTime = time - lastTime;
@@ -359,37 +347,7 @@ int main()
 		Model *= glm::rotate(0.05f* (float)deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
 		mvp = Projection*glm::mat4(glm::lookAt(cam.GetPos(),cam.GetPos() + cam.GetTarget(),cam.GetUp()))*Model; // use to rotate the cube
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
-
-
-		ImGui_ImplGlfwGL3_NewFrame();
-
-		// 1. Show a simple window.
-		// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".
-		{
-			static float f = 0.0f;
-			ImGui::Text("Hello, world!");                           // Some text (you can use a format string too)
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float as a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats as a color
-			if (ImGui::Button("Another Window"))
-				show_another_window ^= 1;
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		}
-
-		// 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name the window.
-		if (show_another_window)
-		{
-			ImGui::Begin("Another Window", &show_another_window);
-			ImGui::Text("Hello from another window!");
-			ImGui::End();
-		}
-
-
-
-
 		render();
-
-		ImGui::Render();
-		
 		// Swap buffers
 		glfwSwapBuffers(Window);
 		glfwPollEvents();
