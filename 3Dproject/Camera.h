@@ -8,7 +8,7 @@ class Camera
 public:
 	Camera();
 	Camera(const glm::vec3& pos, const glm::vec3 & target, const glm::vec3 up);
-	bool OnKeyboard(int key);
+	bool OnKeyboard(int key, float dt);
 	void OnMouse(int x, int y);
 	const glm::vec3 GetPos() const;
 	const glm::vec3 GetTarget() const;

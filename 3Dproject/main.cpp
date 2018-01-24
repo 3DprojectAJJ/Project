@@ -276,26 +276,26 @@ glm::mat4 makeMatrices()
 	return mvp;
 }
 
-void movementToCamera()
+void movementToCamera(float dt)
 {
 	if (glfwGetKey(Window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		cam.OnKeyboard(0);
+		cam.OnKeyboard(0, dt);
 	}
 
 	if (glfwGetKey(Window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		cam.OnKeyboard(1);
+		cam.OnKeyboard(1, dt);
 	}
 
 	if (glfwGetKey(Window, GLFW_KEY_LEFT) == GLFW_PRESS)
 	{
-		cam.OnKeyboard(2);
+		cam.OnKeyboard(2, dt);
 	}
 
 	if (glfwGetKey(Window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
-		cam.OnKeyboard(3);
+		cam.OnKeyboard(3, dt);
 	}
 }
 
@@ -337,16 +337,21 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
+	double time = glfwGetTime();
+	float lastTime = 0;
 	do {
-		movementToCamera();
+		time = glfwGetTime();
+		float deltaTime = time - lastTime;
+		movementToCamera(deltaTime);
 		//mvp = makeMatrices();
-		Model *= glm::rotate(0.05f, glm::vec3(0.0f, 1.0f, 0.0f));
+		Model *= glm::rotate(0.05f* (float)deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
 		mvp = Projection*glm::mat4(glm::lookAt(cam.GetPos(),cam.GetPos() + cam.GetTarget(),cam.GetUp()))*Model; // use to rotate the cube
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 		render();
 		// Swap buffers
 		glfwSwapBuffers(Window);
 		glfwPollEvents();
+		lastTime = time;
 
 	} // Check if the ESC key was pressed or the window was closed
 	while (glfwGetKey(Window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(Window) == 0);

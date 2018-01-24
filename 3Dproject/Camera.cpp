@@ -14,7 +14,7 @@ Camera::Camera(const glm::vec3 & pos, const glm::vec3 & target, const glm::vec3 
 	this->up = up;
 }
 
-bool Camera::OnKeyboard(int key)
+bool Camera::OnKeyboard(int key, float dt)
 {
 	bool res = false;
 	glm::vec3 movVec;
@@ -23,25 +23,25 @@ bool Camera::OnKeyboard(int key)
 	case 0:
 		movVec= target;
 		movVec /= (float)movVec.length();
-		pos += movVec;
+		pos += movVec*dt;
 		res = true;
 		break;
 	case 1:
 		movVec = target;
 		movVec /= (float)movVec.length();
-		pos -= movVec;
+		pos -= movVec*dt;
 		res = true;
 		break;
 	case 2:
 		glm::vec3 left = glm::cross(up, target);
 		left = left /(float)left.length();
-		pos += left;
+		pos += left*dt;
 		res = true;
 		break;
 	case 3:
 		glm::vec3 right = glm::cross(target, up);
 		right = right / (float)left.length();
-		pos += right;
+		pos += right*dt;
 		res = true;
 		break;
 	}

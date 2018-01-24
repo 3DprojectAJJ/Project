@@ -1,8 +1,6 @@
-﻿  Camera.cpp
-  Generating Code...
-  Compiling...
-  main.cpp
+﻿  main.cpp
 c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\minwindef.h(130): warning C4005: 'APIENTRY': macro redefinition
   c:\users\boss\documents\github\project\3dproject\include\glfw\glfw3.h(98): note: see previous definition of 'APIENTRY'
-  Generating Code...
+c:\users\boss\documents\github\project\3dproject\main.cpp(344): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\boss\documents\github\project\3dproject\main.cpp(354): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   3Dproject.vcxproj -> C:\Users\BOSS\Documents\GitHub\project\x64\Debug\3Dproject.exe
