@@ -33,13 +33,13 @@ bool Camera::OnKeyboard(int key)
 		res = true;
 		break;
 	case 2:
-		glm::vec3 left = glm::cross(target, up);
+		glm::vec3 left = glm::cross(up, target);
 		left = left /(float)left.length();
 		pos += left;
 		res = true;
 		break;
 	case 3:
-		glm::vec3 right = glm::cross(up, target);
+		glm::vec3 right = glm::cross(target, up);
 		right = right / (float)left.length();
 		pos += right;
 		res = true;
@@ -47,6 +47,10 @@ bool Camera::OnKeyboard(int key)
 	}
 
 	return res;
+}
+
+void Camera::OnMouse(int x, int y)
+{
 }
 
 const glm::vec3 Camera::GetPos() const

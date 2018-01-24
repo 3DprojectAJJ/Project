@@ -262,7 +262,7 @@ glm::mat4 makeMatrices()
 	// Camera matrix
 	glm::mat4 View = glm::lookAt(
 		cam.GetPos(), // Camera is at (4,3,3), in World Space
-		glm::vec3(0,0,0), // and looks at the origin
+		cam.GetPos() + cam.GetTarget(), // and looks at the origin
 		cam.GetUp()  // Head is up (set to 0,-1,0 to look upside-down)
 	);
 	// Model matrix : an identity matrix (model will be at the origin)
@@ -341,7 +341,7 @@ int main()
 		movementToCamera();
 		//mvp = makeMatrices();
 		Model *= glm::rotate(0.05f, glm::vec3(0.0f, 1.0f, 0.0f));
-		mvp = Projection*glm::mat4(glm::lookAt(cam.GetPos(),cam.GetTarget(),cam.GetUp()))*Model; // use to rotate the cube
+		mvp = Projection*glm::mat4(glm::lookAt(cam.GetPos(),cam.GetPos() + cam.GetTarget(),cam.GetUp()))*Model; // use to rotate the cube
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 		render();
 		// Swap buffers
