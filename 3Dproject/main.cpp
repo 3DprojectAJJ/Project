@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "Camera.h"
 #include "imgui\imgui.h"
 #include "imgui\imgui_impl_glfw_gl3.h"
 
@@ -20,6 +21,9 @@
 
 int width = 1024;
 int height = 768;
+
+glm::mat4 Projection;
+glm::mat4 Model;
 
 GLFWwindow* Window;
 GLuint VertexArrayID;
@@ -30,6 +34,7 @@ GLuint MatrixID;
 
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+Camera cam;
 
 void createTriangle()
 {
@@ -255,18 +260,18 @@ void loadShaders()
 glm::mat4 makeMatrices()
 {
 	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
-	glm::mat4 Projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+	Projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 	// Or, for an ortho camera :
 	//glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
 
 	// Camera matrix
 	glm::mat4 View = glm::lookAt(
-		glm::vec3(4, 3, 3), // Camera is at (4,3,3), in World Space
-		glm::vec3(0, 0, 0), // and looks at the origin
-		glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
+		cam.GetPos(), // Camera is at (4,3,3), in World Space
+		cam.GetPos() + cam.GetTarget(), // and looks at the origin
+		cam.GetUp()  // Head is up (set to 0,-1,0 to look upside-down)
 	);
 	// Model matrix : an identity matrix (model will be at the origin)
-	glm::mat4 Model = glm::mat4(1.0f);
+	Model = glm::mat4(1.0f);
 	// Our ModelViewProjection : multiplication of our 3 matrices
 	glm::mat4 mvp = Projection * View * Model; // Remember, matrix multiplication is the other way around
 
@@ -274,6 +279,29 @@ glm::mat4 makeMatrices()
 	// Only during the initialisation
 	MatrixID = glGetUniformLocation(gShaderProgram, "MVP");
 	return mvp;
+}
+
+void movementToCamera(float dt)
+{
+	if (glfwGetKey(Window, GLFW_KEY_UP) == GLFW_PRESS)
+	{
+		cam.OnKeyboard(0, dt);
+	}
+
+	if (glfwGetKey(Window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		cam.OnKeyboard(1, dt);
+	}
+
+	if (glfwGetKey(Window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		cam.OnKeyboard(2, dt);
+	}
+
+	if (glfwGetKey(Window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		cam.OnKeyboard(3, dt);
+	}
 }
 
 int main()
@@ -285,8 +313,8 @@ int main()
 	}
 
 	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // We want OpenGL 3.3
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // We want OpenGL 3.3
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // We don't want the old OpenGL 
 
@@ -319,9 +347,15 @@ int main()
 	glDepthFunc(GL_LESS);
 
 	bool show_another_window = false;
-
+	double time = glfwGetTime();
+	float lastTime = 0;
 	do {
-		mvp *= glm::rotate(0.05f, glm::vec3(0.0f, 1.0f, 0.0f));
+		time = glfwGetTime();
+		float deltaTime = time - lastTime;
+		movementToCamera(deltaTime);
+		Model *= glm::rotate(0.05f* (float)deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
+		mvp = Projection*glm::mat4(glm::lookAt(cam.GetPos(), cam.GetPos() + cam.GetTarget(), cam.GetUp()))*Model;
+
 		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 
 
@@ -357,7 +391,7 @@ int main()
 		// Swap buffers
 		glfwSwapBuffers(Window);
 		glfwPollEvents();
-
+		lastTime = time;
 	} // Check if the ESC key was pressed or the window was closed
 	while (glfwGetKey(Window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(Window) == 0);
 
