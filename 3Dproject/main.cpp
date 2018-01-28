@@ -36,6 +36,31 @@ ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 Camera cam;
 
+int initGLFW()
+{
+	if (!glfwInit())
+	{
+		fprintf(stderr, "Failed to initialize GLFW\n");
+		return -1;
+	}
+
+	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // We want OpenGL 3.3
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // We don't want the old OpenGL 
+
+																   // Open a window and create its OpenGL context
+	Window = glfwCreateWindow(width, height, "3DProject", NULL, NULL);
+	if (Window == NULL) {
+		fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
+		glfwTerminate();
+		return -1;
+	}
+	glfwMakeContextCurrent(Window); // Initialize GLEW
+	return 0;
+}
+
 void createTriangle()
 {
 
@@ -185,6 +210,10 @@ void render()
 	// Draw the Cube!
 	glDrawArrays(GL_TRIANGLES, 0, 3*12); // Starting from vertex 0; 3 vertices total -> 1 triangle
 	glDisableVertexAttribArray(0);
+
+	glm::mat4 mvp = Projection*glm::mat4(glm::lookAt(cam.GetPos(), cam.GetPos() + cam.GetTarget(), cam.GetUp()))*Model;
+
+	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 }
 
 void loadShaders()
@@ -304,28 +333,70 @@ void movementToCamera(float dt)
 	}
 }
 
+void orientationToCamera()
+{}
+
+void guiWindow(bool * showAnotherWindow)
+{
+	ImGui_ImplGlfwGL3_NewFrame();
+
+	// 1. Show a simple window.
+	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".
+	{
+		static float f = 0.0f;
+		ImGui::Text("Hello, world!");                           // Some text (you can use a format string too)
+		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float as a slider from 0.0f to 1.0f
+		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats as a color
+		if (ImGui::Button("Another Window"))
+			*showAnotherWindow ^= 1;
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	}
+
+	// 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name the window.
+	if (*showAnotherWindow)
+	{
+		ImGui::Begin("Another Window", showAnotherWindow);
+		ImGui::Text("Hello from another window!");
+		ImGui::End();
+	}
+
+	ImGui::Render();
+}
+
+void mainLoop()
+{
+	bool show_another_window = false;
+	double time = glfwGetTime();
+	float lastTime = 0;
+
+	// Ensure we can capture the escape key being pressed below
+	glfwSetInputMode(Window, GLFW_STICKY_KEYS, GL_TRUE);
+	do {
+		time = glfwGetTime();
+		float deltaTime = time - lastTime;
+
+		movementToCamera(deltaTime);
+
+		Model *= glm::rotate(0.05f* (float)deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
+
+		render();
+
+		guiWindow(&show_another_window);
+		// Swap buffers
+		glfwSwapBuffers(Window);
+		glfwPollEvents();
+		lastTime = time;
+	} // Check if the ESC key was pressed or the window was closed
+	while (glfwGetKey(Window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(Window) == 0);
+}
+
 int main()
 {
-	if (!glfwInit())
+	if (initGLFW() == -1)
 	{
-		fprintf(stderr, "Failed to initialize GLFW\n");
 		return -1;
 	}
 
-	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // We want OpenGL 3.3
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // We don't want the old OpenGL 
-
-																   // Open a window and create its OpenGL context
-	Window = glfwCreateWindow(width, height, "3DProject", NULL, NULL);
-	if (Window == NULL) {
-		fprintf(stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n");
-		glfwTerminate();
-		return -1;
-	}
-	glfwMakeContextCurrent(Window); // Initialize GLEW
 	glewExperimental = true; // Needed in core profile
 	if (glewInit() != GLEW_OK) {
 		fprintf(stderr, "Failed to initialize GLEW\n");
@@ -335,65 +406,23 @@ int main()
 	//imguiInit();
 	ImGui_ImplGlfwGL3_Init(Window, true);
 
-	// Ensure we can capture the escape key being pressed below
-	glfwSetInputMode(Window, GLFW_STICKY_KEYS, GL_TRUE);
+	// Reads the shaders and makes a program out of them.
 	loadShaders();
-	//createTriangle();
+
+	// Creates the vertices and color for the cube, binds to layout locations
 	createCube();
-	glm::mat4 mvp = makeMatrices();
+
+	// sets values to world, view and projection matrices and gets the uniform "WVP"s id.
+	makeMatrices();
+
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
+
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
 
-	bool show_another_window = false;
-	double time = glfwGetTime();
-	float lastTime = 0;
-	do {
-		time = glfwGetTime();
-		float deltaTime = time - lastTime;
-		movementToCamera(deltaTime);
-		Model *= glm::rotate(0.05f* (float)deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
-		mvp = Projection*glm::mat4(glm::lookAt(cam.GetPos(), cam.GetPos() + cam.GetTarget(), cam.GetUp()))*Model;
-
-		glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
-
-
-		ImGui_ImplGlfwGL3_NewFrame();
-
-		// 1. Show a simple window.
-		// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".
-		{
-			static float f = 0.0f;
-			ImGui::Text("Hello, world!");                           // Some text (you can use a format string too)
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float as a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats as a color
-			if (ImGui::Button("Another Window"))
-				show_another_window ^= 1;
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		}
-
-		// 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name the window.
-		if (show_another_window)
-		{
-			ImGui::Begin("Another Window", &show_another_window);
-			ImGui::Text("Hello from another window!");
-			ImGui::End();
-		}
-
-
-
-
-		render();
-
-		ImGui::Render();
-		
-		// Swap buffers
-		glfwSwapBuffers(Window);
-		glfwPollEvents();
-		lastTime = time;
-	} // Check if the ESC key was pressed or the window was closed
-	while (glfwGetKey(Window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(Window) == 0);
+	// does it need explanation?
+	mainLoop();
 
 	return 0;
 }
