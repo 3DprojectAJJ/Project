@@ -1,6 +1,4 @@
-﻿  main.cpp
-c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\minwindef.h(130): warning C4005: 'APIENTRY': macro redefinition
-  c:\users\tim\desktop\3dproggprojekt\3dproject\include\glfw\glfw3.h(98): note: see previous definition of 'APIENTRY'
-c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(376): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(388): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+﻿  Camera.cpp
+c:\users\tim\desktop\3dproggprojekt\3dproject\camera.cpp(57): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\tim\desktop\3dproggprojekt\3dproject\camera.cpp(58): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   3Dproject.vcxproj -> C:\Users\tim\Desktop\3DProggProjekt\x64\Debug\3Dproject.exe

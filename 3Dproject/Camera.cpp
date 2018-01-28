@@ -49,8 +49,23 @@ bool Camera::OnKeyboard(int key, float dt)
 	return res;
 }
 
-void Camera::OnMouse(int x, int y)
+void Camera::OnMouse(double x, double y , float dt)
 {
+	horizontalAngle += dt*float(lastMousePos.x - x);
+	verticalAngle += dt*float(lastMousePos.y - y);
+
+	lastMousePos.x = x;
+	lastMousePos.y = y;
+
+	target = glm::normalize(glm::vec3(cos(verticalAngle)*sin(horizontalAngle), sin(verticalAngle), cos(verticalAngle) * cos(horizontalAngle)));
+
+	glm::vec3 right = glm::vec3(
+		sin(horizontalAngle - 3.14f / 2.0f),
+		0,
+		cos(horizontalAngle - 3.14f / 2.0f)
+	);
+
+	up = glm::cross(right, target);
 }
 
 const glm::vec3 Camera::GetPos() const

@@ -331,6 +331,11 @@ void movementToCamera(float dt)
 	{
 		cam.OnKeyboard(3, dt);
 	}
+
+	double xPos, yPos;
+	glfwGetCursorPos(Window, &xPos, &yPos);
+	
+	cam.OnMouse(xPos, yPos, dt);
 }
 
 void orientationToCamera()
@@ -373,7 +378,7 @@ void mainLoop()
 	glfwSetInputMode(Window, GLFW_STICKY_KEYS, GL_TRUE);
 	do {
 		time = glfwGetTime();
-		float deltaTime = time - lastTime;
+		float deltaTime = (float)time - lastTime;
 
 		movementToCamera(deltaTime);
 
@@ -385,7 +390,7 @@ void mainLoop()
 		// Swap buffers
 		glfwSwapBuffers(Window);
 		glfwPollEvents();
-		lastTime = time;
+		lastTime = (float)time;
 	} // Check if the ESC key was pressed or the window was closed
 	while (glfwGetKey(Window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(Window) == 0);
 }

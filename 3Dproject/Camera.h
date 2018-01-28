@@ -9,7 +9,7 @@ public:
 	Camera();
 	Camera(const glm::vec3& pos, const glm::vec3 & target, const glm::vec3 up);
 	bool OnKeyboard(int key, float dt);
-	void OnMouse(int x, int y);
+	void OnMouse(double x, double y, float dt);
 	const glm::vec3 GetPos() const;
 	const glm::vec3 GetTarget() const;
 	const glm::vec3 GetUp() const;
@@ -18,6 +18,9 @@ private:
 	glm::vec3 pos;
 	glm::vec3 target;
 	glm::vec3 up;
+	glm::vec2 lastMousePos;
+	float horizontalAngle = 3.14f;
+	float verticalAngle = 0.0f;
 };
 
 #endif
