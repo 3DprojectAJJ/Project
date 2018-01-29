@@ -7,11 +7,17 @@ Camera::Camera()
 	up = glm::vec3(0, 1, 0);
 }
 
-Camera::Camera(const glm::vec3 & pos, const glm::vec3 & target, const glm::vec3 up)
+Camera::Camera(const glm::vec3 & pos, const glm::vec3 & target, const glm::vec3 up, const glm::vec2 mousePos)
 {
+	lastMousePos = mousePos;
 	this->pos = pos;
 	this->target = target;
 	this->up = up;
+}
+
+void Camera::SetMousePos(glm::vec2 mousePos)
+{
+	lastMousePos = mousePos;
 }
 
 bool Camera::OnKeyboard(int key, float dt)
@@ -54,6 +60,15 @@ void Camera::OnMouse(double x, double y , float dt)
 	horizontalAngle += dt*float(lastMousePos.x - x);
 	verticalAngle += dt*float(lastMousePos.y - y);
 
+	if (horizontalAngle > 3.14 * 2)
+		horizontalAngle -= 3.14 * 2;
+	else if (horizontalAngle < 0)
+		horizontalAngle += 3.14 * 2;
+	if (verticalAngle > 3.14 * 2)
+		verticalAngle -= 3.14 * 2;
+	else if(verticalAngle < 0)
+		verticalAngle += 3.14 * 2;
+
 	lastMousePos.x = x;
 	lastMousePos.y = y;
 
@@ -81,4 +96,9 @@ const glm::vec3 Camera::GetTarget() const
 const glm::vec3 Camera::GetUp() const
 {
 	return up;
+}
+
+const glm::vec2 Camera::GetAngles() const
+{
+	return glm::vec2(horizontalAngle,verticalAngle);
 }

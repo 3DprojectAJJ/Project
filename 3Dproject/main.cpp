@@ -354,7 +354,7 @@ void guiWindow(bool * showAnotherWindow)
 		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats as a color
 		if (ImGui::Button("Another Window"))
 			*showAnotherWindow ^= 1;
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)\nHorisontal: %f\nVertical: %f", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate,cam.GetAngles().x,cam.GetAngles().y);
 	}
 
 	// 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name the window.
@@ -425,6 +425,11 @@ int main()
 
 	// Accept fragment if it closer to the camera than the former one
 	glDepthFunc(GL_LESS);
+
+	//Make sure we dont change the camera direction when program starts
+	double x, y;
+	glfwGetCursorPos(Window, &x, &y);
+	cam.SetMousePos(glm::vec2(x, y));
 
 	// does it need explanation?
 	mainLoop();
