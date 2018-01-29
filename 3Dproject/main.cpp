@@ -17,7 +17,7 @@
 #include "imgui\imgui.h"
 #include "imgui\imgui_impl_glfw_gl3.h"
 
-
+#pragma warning(disable:4996)
 
 int width = 1024;
 int height = 768;
@@ -35,6 +35,78 @@ GLuint MatrixID;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 Camera cam;
+
+struct Vertex
+{
+	glm::vec3 pos;
+	glm::vec2 tex;
+	Vertex() {}
+
+	Vertex(glm::vec3 otherPos, glm::vec2 otherTex)
+	{
+		pos = otherPos;
+		tex = otherTex;
+	}
+};
+
+GLuint loadImage(const char * imagepath) {
+
+	unsigned char header[54];
+	unsigned int dataPos;
+	unsigned int width, height;
+	unsigned int imageSize;
+
+	unsigned char * data;
+
+	FILE * file = fopen(imagepath, "rb");
+	if (!file)
+	{
+		printf("Image could not be opened\n");
+		return -1;
+	}
+
+	if (fread(header, 1, 54, file) != 54)
+	{
+		printf("Not a correct BMP file\n");
+		return -1;
+	}
+
+	if (header[0] != 'B' || header[1] != 'M') {
+		printf("Not a correct BMP file\n");
+		return -1;
+	}
+
+	// Read ints from the byte array
+	dataPos = *(int*)&(header[0x0A]);
+	imageSize = *(int*)&(header[0x22]);
+	width = *(int*)&(header[0x12]);
+	height = *(int*)&(header[0x16]);
+
+	// Some BMP files are misformatted, guess missing information
+	if (imageSize == 0)
+		imageSize = width*height * 3; // 3 : one byte for each Red, Green and Blue component
+	if (dataPos == 0)
+		dataPos = 54; // The BMP header is done that way
+
+	// Create a buffer
+	data = new unsigned char[imageSize];
+
+	// Read the actual data from the file into the buffer
+	fread(data, 1, imageSize, file);
+
+	//Everything is in memory now, the file can be closed
+	fclose(file);
+
+	GLuint textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	delete[] data;
+	return textureID;
+}
 
 int initGLFW()
 {
@@ -338,9 +410,6 @@ void movementToCamera(float dt)
 	cam.OnMouse(xPos, yPos, dt);
 }
 
-void orientationToCamera()
-{}
-
 void guiWindow(bool * showAnotherWindow)
 {
 	ImGui_ImplGlfwGL3_NewFrame();
@@ -431,6 +500,7 @@ int main()
 	glfwGetCursorPos(Window, &x, &y);
 	cam.SetMousePos(glm::vec2(x, y));
 
+	int tst = loadImage("tstTex.bmp");
 	// does it need explanation?
 	mainLoop();
 
