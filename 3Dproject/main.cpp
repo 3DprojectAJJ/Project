@@ -30,7 +30,13 @@ GLuint VertexArrayID;
 GLuint Vertexbuffer;
 GLuint colorbuffer;
 GLuint gShaderProgram;
+GLuint quad_programID;
 GLuint MatrixID;
+GLuint FramebufferName = 0;
+GLuint renderedTexture;
+GLuint quad_vertexbuffer;
+GLuint texID;
+GLuint timeID;
 
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -287,8 +293,40 @@ void render()
 
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 }
+void differedRender() {
+	// Use our shader
+	glUseProgram(quad_programID);
+	// Clear the screen
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-void loadShaders()
+	// Bind our texture in Texture Unit 0
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, renderedTexture);
+	// Set our "renderedTexture" sampler to use Texture Unit 0
+	glUniform1i(texID, 0);
+
+	glUniform1f(timeID, (float)(glfwGetTime()*10.0f));
+
+	// 1rst attribute buffer : vertices
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+	glVertexAttribPointer(
+		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		3,                  // size
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // stride
+		(void*)0            // array buffer offset
+	);
+
+	// Draw the triangles !
+	glDrawArrays(GL_TRIANGLES, 0, 6); // 2*3 indices starting at 0 -> 2 triangles
+
+
+	glDisableVertexAttribArray(0);
+}
+
+GLuint loadShaders(char const* vertex, char const* fragment)
 {
 	char buff[1024];
 	memset(buff, 0, 1024);
@@ -296,10 +334,11 @@ void loadShaders()
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
 	GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+	GLuint ShaderID;
 
 	GLint compileResult = 0;
 
-	std::ifstream shaderFile("VertexShader.glsl");
+	std::ifstream shaderFile(vertex);
 	std::string shaderText((std::istreambuf_iterator<char>(shaderFile)), std::istreambuf_iterator<char>());
 	shaderFile.close();
 
@@ -314,12 +353,12 @@ void loadShaders()
 	if (compileResult == GL_FALSE)
 	{
 		glGetShaderInfoLog(VertexShaderID, 1024, nullptr, buff);
-		
+
 		OutputDebugStringA(buff);
 	}
 
 
-	shaderFile.open("FragmentShader.glsl");
+	shaderFile.open(fragment);
 	shaderText.assign((std::istreambuf_iterator<char>(shaderFile)), std::istreambuf_iterator<char>());
 	shaderFile.close();
 
@@ -337,25 +376,27 @@ void loadShaders()
 		OutputDebugStringA(buff);
 	}
 
-	gShaderProgram = glCreateProgram();
+	ShaderID = glCreateProgram();
 
-	glAttachShader(gShaderProgram, FragmentShaderID);
-	glAttachShader(gShaderProgram, VertexShaderID);
-	glLinkProgram(gShaderProgram);
+	glAttachShader(ShaderID, FragmentShaderID);
+	glAttachShader(ShaderID, VertexShaderID);
+	glLinkProgram(ShaderID);
 	compileResult = GL_FALSE;
-	glGetProgramiv(gShaderProgram, GL_LINK_STATUS, &compileResult);
+	glGetProgramiv(ShaderID, GL_LINK_STATUS, &compileResult);
 
 	if (compileResult == GL_FALSE)
 	{
 		memset(buff, 0, 1024);
-		glGetProgramInfoLog(gShaderProgram, 1024, nullptr, buff);
+		glGetProgramInfoLog(ShaderID, 1024, nullptr, buff);
 		OutputDebugStringA(buff);
 	}
 
-	glDetachShader(gShaderProgram, VertexShaderID);
-	glDetachShader(gShaderProgram, FragmentShaderID);
+	glDetachShader(ShaderID, VertexShaderID);
+	glDetachShader(ShaderID, FragmentShaderID);
 	glDeleteShader(VertexShaderID);
 	glDeleteShader(FragmentShaderID);
+
+	return ShaderID;
 }
 
 glm::mat4 makeMatrices()
@@ -431,10 +472,67 @@ void guiWindow(bool * showAnotherWindow)
 	{
 		ImGui::Begin("Another Window", showAnotherWindow);
 		ImGui::Text("Hello from another window!");
+		ImGui::Image((GLuint*)renderedTexture, ImVec2(1024, 768));
 		ImGui::End();
 	}
 
 	ImGui::Render();
+}
+
+void createFrameBuffer() {
+
+	glGenFramebuffers(1, &FramebufferName);
+	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+
+	// The texture we're going to render to
+	glGenTextures(1, &renderedTexture);
+
+	// "Bind" the newly created texture : all future texture functions will modify this texture
+	glBindTexture(GL_TEXTURE_2D, renderedTexture);
+
+	// Give an empty image to OpenGL ( the last "0" )
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 768, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	// The depth buffer
+	GLuint depthrenderbuffer;
+	glGenRenderbuffers(1, &depthrenderbuffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1024, 768);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
+
+	// Set "renderedTexture" as our colour attachement #0
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
+
+	// Set the list of draw buffers.
+	GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
+
+								   // Render to our framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+
+	// The fullscreen quad's FBO
+	GLuint quad_VertexArrayID;
+	glGenVertexArrays(1, &quad_VertexArrayID);
+	glBindVertexArray(quad_VertexArrayID);
+
+	static const GLfloat g_quad_vertex_buffer_data[] = {
+		-1.0f, -1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		-1.0f,  1.0f, 0.0f,
+		-1.0f,  1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		1.0f,  1.0f, 0.0f,
+	};
+
+	glGenBuffers(1, &quad_vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
+
 }
 
 void mainLoop()
@@ -452,8 +550,14 @@ void mainLoop()
 		movementToCamera(deltaTime);
 
 		Model *= glm::rotate(0.05f* (float)deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
-
+		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+		glViewport(0, 0, 1024, 768);
 		render();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, 1024, 768);
+
+		differedRender();
 
 		guiWindow(&show_another_window);
 		// Swap buffers
@@ -480,8 +584,10 @@ int main()
 	//imguiInit();
 	ImGui_ImplGlfwGL3_Init(Window, true);
 
+	createFrameBuffer();
 	// Reads the shaders and makes a program out of them.
-	loadShaders();
+	gShaderProgram = loadShaders("VertexShader.glsl","FragmentShader.glsl");
+	quad_programID = loadShaders("vertexFBO.glsl", "fragmentFBO.glsl");
 
 	// Creates the vertices and color for the cube, binds to layout locations
 	createCube();
@@ -501,6 +607,11 @@ int main()
 	cam.SetMousePos(glm::vec2(x, y));
 
 	int tst = loadImage("tstTex.bmp");
+
+	quad_programID = loadShaders("vertexFBO.glsl", "fragmentFBO.glsl");
+	texID = glGetUniformLocation(quad_programID, "renderedTexture");
+	timeID = glGetUniformLocation(quad_programID, "time");
+
 	// does it need explanation?
 	mainLoop();
 

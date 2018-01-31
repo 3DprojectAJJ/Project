@@ -44,6 +44,12 @@
     <None Include="FragmentShader.glsl">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="fragmentFBO.glsl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="vertexFBO.glsl">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">
