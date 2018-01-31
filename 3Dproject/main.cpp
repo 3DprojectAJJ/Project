@@ -491,7 +491,7 @@ void createFrameBuffer() {
 	glBindTexture(GL_TEXTURE_2D, renderedTexture);
 
 	// Give an empty image to OpenGL ( the last "0" )
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 768, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -551,11 +551,11 @@ void mainLoop()
 
 		Model *= glm::rotate(0.05f* (float)deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
 		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-		glViewport(0, 0, 1024, 768);
+		glViewport(0, 0, width, height);
 		render();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, 1024, 768);
+		glViewport(0, 0, width, height);
 
 		differedRender();
 
@@ -606,7 +606,7 @@ int main()
 	glfwGetCursorPos(Window, &x, &y);
 	cam.SetMousePos(glm::vec2(x, y));
 
-	int tst = loadImage("tstTex.bmp");
+	//int tst = loadImage("tstTex.bmp");
 
 	quad_programID = loadShaders("vertexFBO.glsl", "fragmentFBO.glsl");
 	texID = glGetUniformLocation(quad_programID, "renderedTexture");
