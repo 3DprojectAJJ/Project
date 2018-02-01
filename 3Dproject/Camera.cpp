@@ -55,10 +55,10 @@ bool Camera::OnKeyboard(int key, float dt)
 	return res;
 }
 
-void Camera::OnMouse(double x, double y , float dt)
+void Camera::OnMouse(double x, double y , float dt, float mouseSpeed)
 {
-	horizontalAngle += dt*float(lastMousePos.x - x);
-	verticalAngle += dt*float(lastMousePos.y - y);
+	horizontalAngle += mouseSpeed*dt*float(lastMousePos.x - x);
+	verticalAngle += mouseSpeed*dt*float(lastMousePos.y - y);
 
 	if (horizontalAngle > 3.14 * 2)
 		horizontalAngle -= 3.14 * 2;

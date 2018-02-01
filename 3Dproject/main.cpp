@@ -21,6 +21,7 @@
 
 int width = 1024;
 int height = 768;
+float mouseSpeed = 1.0f;
 
 glm::mat4 Projection;
 glm::mat4 Model;
@@ -41,6 +42,8 @@ GLuint timeID;
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 Camera cam;
+
+bool optionWindow = false;
 
 struct Vertex
 {
@@ -448,7 +451,7 @@ void movementToCamera(float dt)
 	double xPos, yPos;
 	glfwGetCursorPos(Window, &xPos, &yPos);
 	
-	cam.OnMouse(xPos, yPos, dt);
+	cam.OnMouse(xPos, yPos, dt, mouseSpeed);
 }
 
 void guiWindow(bool * showAnotherWindow)
@@ -464,6 +467,8 @@ void guiWindow(bool * showAnotherWindow)
 		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats as a color
 		if (ImGui::Button("Another Window"))
 			*showAnotherWindow ^= 1;
+		if (ImGui::Button("Options"))
+			optionWindow ^= 1;
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)\nHorisontal: %f\nVertical: %f", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate,cam.GetAngles().x,cam.GetAngles().y);
 	}
 
@@ -473,6 +478,14 @@ void guiWindow(bool * showAnotherWindow)
 		ImGui::Begin("Another Window", showAnotherWindow);
 		ImGui::Text("Hello from another window!");
 		ImGui::Image((GLuint*)renderedTexture, ImVec2(1024, 768));
+		ImGui::End();
+	}
+
+	if (optionWindow)
+	{
+		ImGui::Begin("options", &optionWindow);
+		ImGui::Text("These are the options");
+		ImGui::SliderFloat("MouseSpeed", &mouseSpeed,0.5f,10.0f);
 		ImGui::End();
 	}
 

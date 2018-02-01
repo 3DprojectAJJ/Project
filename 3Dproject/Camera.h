@@ -10,7 +10,7 @@ public:
 	Camera(const glm::vec3& pos, const glm::vec3 & target, const glm::vec3 up, const glm::vec2 mousePos);
 	void SetMousePos(glm::vec2 mousePos);
 	bool OnKeyboard(int key, float dt);
-	void OnMouse(double x, double y, float dt);
+	void OnMouse(double x, double y, float dt, float mouseSpeed);
 	const glm::vec3 GetPos() const;
 	const glm::vec3 GetTarget() const;
 	const glm::vec3 GetUp() const;

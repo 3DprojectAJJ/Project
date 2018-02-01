@@ -1,5 +1,13 @@
 ﻿  main.cpp
 c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\minwindef.h(130): warning C4005: 'APIENTRY': macro redefinition
   c:\users\tim\desktop\3dproggprojekt\3dproject\include\glfw\glfw3.h(98): note: see previous definition of 'APIENTRY'
-c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(475): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
+c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(480): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
+  Camera.cpp
+c:\users\tim\desktop\3dproggprojekt\3dproject\camera.cpp(64): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\tim\desktop\3dproggprojekt\3dproject\camera.cpp(66): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\tim\desktop\3dproggprojekt\3dproject\camera.cpp(68): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\tim\desktop\3dproggprojekt\3dproject\camera.cpp(70): warning C4305: '+=': truncation from 'double' to 'float'
+c:\users\tim\desktop\3dproggprojekt\3dproject\camera.cpp(72): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\tim\desktop\3dproggprojekt\3dproject\camera.cpp(73): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+  Generating Code...
   3Dproject.vcxproj -> C:\Users\tim\Desktop\3DProggProjekt\x64\Debug\3Dproject.exe
