@@ -477,7 +477,7 @@ void guiWindow(bool * showAnotherWindow)
 	{
 		ImGui::Begin("Another Window", showAnotherWindow);
 		ImGui::Text("Hello from another window!");
-		ImGui::Image((GLuint*)renderedTexture, ImVec2(1024, 768));
+		ImGui::Image((GLuint*)renderedTexture, ImVec2(1024, 768),ImVec2(0,1),ImVec2(1,0));
 		ImGui::End();
 	}
 
@@ -515,7 +515,7 @@ void createFrameBuffer() {
 	GLuint depthrenderbuffer;
 	glGenRenderbuffers(1, &depthrenderbuffer);
 	glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1024, 768);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
 
 	// Set "renderedTexture" as our colour attachement #0
@@ -541,7 +541,6 @@ void createFrameBuffer() {
 		1.0f, -1.0f, 0.0f,
 		1.0f,  1.0f, 0.0f,
 	};
-
 	glGenBuffers(1, &quad_vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
@@ -593,7 +592,6 @@ int main()
 		fprintf(stderr, "Failed to initialize GLEW\n");
 		return -1;
 	}
-
 	//imguiInit();
 	ImGui_ImplGlfwGL3_Init(Window, true);
 
