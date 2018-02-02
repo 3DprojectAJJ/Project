@@ -1,5 +1,5 @@
 ﻿  main.cpp
 c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\minwindef.h(130): warning C4005: 'APIENTRY': macro redefinition
   c:\users\tim\desktop\3dproggprojekt\3dproject\include\glfw\glfw3.h(98): note: see previous definition of 'APIENTRY'
-c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(480): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
+c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(482): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
   3Dproject.vcxproj -> C:\Users\tim\Desktop\3DProggProjekt\x64\Debug\3Dproject.exe

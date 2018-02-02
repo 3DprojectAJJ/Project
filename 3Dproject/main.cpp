@@ -14,6 +14,7 @@
 #include <stdlib.h>
 
 #include "Camera.h"
+#include "FBO.h"
 #include "imgui\imgui.h"
 #include "imgui\imgui_impl_glfw_gl3.h"
 
@@ -33,15 +34,16 @@ GLuint colorbuffer;
 GLuint gShaderProgram;
 GLuint quad_programID;
 GLuint MatrixID;
-GLuint FramebufferName = 0;
-GLuint renderedTexture;
-GLuint quad_vertexbuffer;
+//GLuint FramebufferName = 0;
+//GLuint renderedTexture;
+//GLuint quad_vertexbuffer;
 GLuint texID;
 GLuint timeID;
 
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-Camera cam;
+Camera Cam;
+FBO Fbo;
 
 bool optionWindow = false;
 
@@ -292,7 +294,7 @@ void render()
 	glDrawArrays(GL_TRIANGLES, 0, 3*12); // Starting from vertex 0; 3 vertices total -> 1 triangle
 	glDisableVertexAttribArray(0);
 
-	glm::mat4 mvp = Projection*glm::mat4(glm::lookAt(cam.GetPos(), cam.GetPos() + cam.GetTarget(), cam.GetUp()))*Model;
+	glm::mat4 mvp = Projection*glm::mat4(glm::lookAt(Cam.GetPos(), Cam.GetPos() + Cam.GetTarget(), Cam.GetUp()))*Model;
 
 	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
 }
@@ -304,7 +306,7 @@ void differedRender() {
 
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, renderedTexture);
+	glBindTexture(GL_TEXTURE_2D, Fbo.GetTexID());
 	// Set our "renderedTexture" sampler to use Texture Unit 0
 	glUniform1i(texID, 0);
 
@@ -312,7 +314,7 @@ void differedRender() {
 
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, Fbo.GetQuadID());
 	glVertexAttribPointer(
 		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 		3,                  // size
@@ -411,9 +413,9 @@ glm::mat4 makeMatrices()
 
 	// Camera matrix
 	glm::mat4 View = glm::lookAt(
-		cam.GetPos(), // Camera is at (4,3,3), in World Space
-		cam.GetPos() + cam.GetTarget(), // and looks at the origin
-		cam.GetUp()  // Head is up (set to 0,-1,0 to look upside-down)
+		Cam.GetPos(), // Camera is at (4,3,3), in World Space
+		Cam.GetPos() + Cam.GetTarget(), // and looks at the origin
+		Cam.GetUp()  // Head is up (set to 0,-1,0 to look upside-down)
 	);
 	// Model matrix : an identity matrix (model will be at the origin)
 	Model = glm::mat4(1.0f);
@@ -430,28 +432,28 @@ void movementToCamera(float dt)
 {
 	if (glfwGetKey(Window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		cam.OnKeyboard(0, dt);
+		Cam.OnKeyboard(0, dt);
 	}
 
 	if (glfwGetKey(Window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		cam.OnKeyboard(1, dt);
+		Cam.OnKeyboard(1, dt);
 	}
 
 	if (glfwGetKey(Window, GLFW_KEY_LEFT) == GLFW_PRESS)
 	{
-		cam.OnKeyboard(2, dt);
+		Cam.OnKeyboard(2, dt);
 	}
 
 	if (glfwGetKey(Window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
-		cam.OnKeyboard(3, dt);
+		Cam.OnKeyboard(3, dt);
 	}
 
 	double xPos, yPos;
 	glfwGetCursorPos(Window, &xPos, &yPos);
 	
-	cam.OnMouse(xPos, yPos, dt, mouseSpeed);
+	Cam.OnMouse(xPos, yPos, dt, mouseSpeed);
 }
 
 void guiWindow(bool * showAnotherWindow)
@@ -469,7 +471,7 @@ void guiWindow(bool * showAnotherWindow)
 			*showAnotherWindow ^= 1;
 		if (ImGui::Button("Options"))
 			optionWindow ^= 1;
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)\nHorisontal: %f\nVertical: %f", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate,cam.GetAngles().x,cam.GetAngles().y);
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)\nHorisontal: %f\nVertical: %f", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate,Cam.GetAngles().x,Cam.GetAngles().y);
 	}
 
 	// 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name the window.
@@ -477,7 +479,7 @@ void guiWindow(bool * showAnotherWindow)
 	{
 		ImGui::Begin("Another Window", showAnotherWindow);
 		ImGui::Text("Hello from another window!");
-		ImGui::Image((GLuint*)renderedTexture, ImVec2(1024, 768),ImVec2(0,1),ImVec2(1,0));
+		ImGui::Image((GLuint*)Fbo.GetTexID(), ImVec2(1024, 768),ImVec2(0,1),ImVec2(1,0));
 		ImGui::End();
 	}
 
@@ -492,7 +494,7 @@ void guiWindow(bool * showAnotherWindow)
 	ImGui::Render();
 }
 
-void createFrameBuffer() {
+/*void createFrameBuffer() {
 
 	glGenFramebuffers(1, &FramebufferName);
 	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
@@ -545,7 +547,7 @@ void createFrameBuffer() {
 	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
 
-}
+}*/
 
 void mainLoop()
 {
@@ -562,12 +564,14 @@ void mainLoop()
 		movementToCamera(deltaTime);
 
 		Model *= glm::rotate(0.05f* (float)deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
-		glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-		glViewport(0, 0, width, height);
+		/*glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+		glViewport(0, 0, width, height);*/
+		Fbo.BindFBO();
 		render();
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, width, height);
+		/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, width, height);*/
+		Fbo.UnbindFBO(width, height);
 
 		differedRender();
 
@@ -595,7 +599,9 @@ int main()
 	//imguiInit();
 	ImGui_ImplGlfwGL3_Init(Window, true);
 
-	createFrameBuffer();
+	// initialize/create framebufferobject
+	//createFrameBuffer();
+	Fbo.Init();
 	// Reads the shaders and makes a program out of them.
 	gShaderProgram = loadShaders("VertexShader.glsl","FragmentShader.glsl");
 	quad_programID = loadShaders("vertexFBO.glsl", "fragmentFBO.glsl");
@@ -615,7 +621,7 @@ int main()
 	//Make sure we dont change the camera direction when program starts
 	double x, y;
 	glfwGetCursorPos(Window, &x, &y);
-	cam.SetMousePos(glm::vec2(x, y));
+	Cam.SetMousePos(glm::vec2(x, y));
 
 	//int tst = loadImage("tstTex.bmp");
 
