@@ -20,34 +20,22 @@ void Camera::SetMousePos(glm::vec2 mousePos)
 	lastMousePos = mousePos;
 }
 
-bool Camera::OnKeyboard(int key, float dt)
+bool Camera::OnKeyboard(int key, float dt, float moveSpeed)
 {
 	bool res = false;
 	glm::vec3 movVec;
 	switch (key)
 	{
 	case 0: //W key, Zoom in
-		movVec= target;
+		movVec = target;
 		movVec /= (float)movVec.length();
-		pos += movVec*dt*5.0f;
+		pos += movVec*dt*moveSpeed;
 		res = true;
 		break;
 	case 1://S key, Zoom Out
 		movVec = target;
 		movVec /= (float)movVec.length();
-		pos -= movVec*dt*5.0f;
-		res = true;
-		break;
-	case 2:
-		glm::vec3 left = glm::cross(up, target);
-		left = left /(float)left.length();
-		pos += left*dt;
-		res = true;
-		break;
-	case 3:
-		glm::vec3 right = glm::cross(target, up);
-		right = right / (float)left.length();
-		pos += right*dt;
+		pos -= movVec*dt*moveSpeed;
 		res = true;
 		break;
 	}

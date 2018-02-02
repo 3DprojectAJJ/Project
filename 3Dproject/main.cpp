@@ -23,6 +23,7 @@
 int width = 1024;
 int height = 768;
 float mouseSpeed = 1.0f;
+float moveSpeed = 5.0f;
 
 glm::mat4 Projection;
 glm::mat4 Model;
@@ -432,22 +433,12 @@ void movementToCamera(float dt)
 {
 	if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		Cam.OnKeyboard(0, dt);
+		Cam.OnKeyboard(0, dt, moveSpeed);
 	}
 
 	if (glfwGetKey(Window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		Cam.OnKeyboard(1, dt);
-	}
-
-	if (glfwGetKey(Window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	{
-		Cam.OnKeyboard(2, dt);
-	}
-
-	if (glfwGetKey(Window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-	{
-		Cam.OnKeyboard(3, dt);
+		Cam.OnKeyboard(1, dt, moveSpeed);
 	}
 
 	double xPos, yPos;
@@ -494,6 +485,7 @@ void guiWindow(bool * showAnotherWindow)
 		ImGui::Begin("options", &optionWindow);
 		ImGui::Text("These are the options");
 		ImGui::SliderFloat("MouseSpeed", &mouseSpeed,0.5f,10.0f);
+		ImGui::SliderFloat("MoveSpeed", &moveSpeed, 1.0f, 20.0f);
 		ImGui::End();
 	}
 
