@@ -26,16 +26,16 @@ bool Camera::OnKeyboard(int key, float dt)
 	glm::vec3 movVec;
 	switch (key)
 	{
-	case 0:
+	case 0: //W key, Zoom in
 		movVec= target;
 		movVec /= (float)movVec.length();
-		pos += movVec*dt;
+		pos += movVec*dt*5.0f;
 		res = true;
 		break;
-	case 1:
+	case 1://S key, Zoom Out
 		movVec = target;
 		movVec /= (float)movVec.length();
-		pos -= movVec*dt;
+		pos -= movVec*dt*5.0f;
 		res = true;
 		break;
 	case 2:
@@ -57,8 +57,8 @@ bool Camera::OnKeyboard(int key, float dt)
 
 void Camera::OnMouse(double x, double y , float dt, float mouseSpeed)
 {
-	horizontalAngle += mouseSpeed*dt*float(lastMousePos.x - x);
-	verticalAngle += mouseSpeed*dt*float(lastMousePos.y - y);
+	horizontalAngle += (mouseSpeed/10)*dt*float(lastMousePos.x - x);
+	verticalAngle += (mouseSpeed/10)*dt*float(lastMousePos.y - y);
 
 	if (horizontalAngle > 3.14 * 2)
 		horizontalAngle -= 3.14 * 2;

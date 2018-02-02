@@ -430,12 +430,12 @@ glm::mat4 makeMatrices()
 
 void movementToCamera(float dt)
 {
-	if (glfwGetKey(Window, GLFW_KEY_UP) == GLFW_PRESS)
+	if (glfwGetKey(Window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		Cam.OnKeyboard(0, dt);
 	}
 
-	if (glfwGetKey(Window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	if (glfwGetKey(Window, GLFW_KEY_S) == GLFW_PRESS)
 	{
 		Cam.OnKeyboard(1, dt);
 	}
@@ -453,7 +453,13 @@ void movementToCamera(float dt)
 	double xPos, yPos;
 	glfwGetCursorPos(Window, &xPos, &yPos);
 	
-	Cam.OnMouse(xPos, yPos, dt, mouseSpeed);
+	glfwSetInputMode(Window, GLFW_STICKY_MOUSE_BUTTONS, 1);
+	if (glfwGetMouseButton(Window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+		Cam.OnMouse(xPos, yPos, dt, mouseSpeed);
+	}
+	else {
+		Cam.SetMousePos(glm::vec2(xPos, yPos));
+	}
 }
 
 void guiWindow(bool * showAnotherWindow)
