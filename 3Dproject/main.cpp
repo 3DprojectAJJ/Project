@@ -27,6 +27,7 @@ float moveSpeed = 5.0f;
 
 glm::mat4 Projection;
 glm::mat4 Model;
+glm::mat4 View;
 
 GLFWwindow* Window;
 GLuint VertexArrayID;
@@ -34,7 +35,10 @@ GLuint Vertexbuffer;
 GLuint colorbuffer;
 GLuint gShaderProgram;
 GLuint quad_programID;
-GLuint MatrixID;
+GLuint matrixIDModel;
+GLuint matrixIDView;
+GLuint matrixIDProjection;
+
 //GLuint FramebufferName = 0;
 //GLuint renderedTexture;
 //GLuint quad_vertexbuffer;
@@ -295,9 +299,12 @@ void render()
 	glDrawArrays(GL_TRIANGLES, 0, 3*12); // Starting from vertex 0; 3 vertices total -> 1 triangle
 	glDisableVertexAttribArray(0);
 
-	glm::mat4 mvp = Projection*glm::mat4(glm::lookAt(Cam.GetPos(), Cam.GetPos() + Cam.GetTarget(), Cam.GetUp()))*Model;
+	View = glm::mat4(glm::lookAt(Cam.GetPos(), Cam.GetPos() + Cam.GetTarget(), Cam.GetUp()));
 
-	glUniformMatrix4fv(MatrixID, 1, GL_FALSE, &mvp[0][0]);
+	glUniformMatrix4fv(matrixIDModel, 1, GL_FALSE, &Model[0][0]);
+	glUniformMatrix4fv(matrixIDView, 1, GL_FALSE, &View[0][0]);
+	glUniformMatrix4fv(matrixIDProjection, 1, GL_FALSE, &Projection[0][0]);
+
 }
 void differedRender() {
 	// Use our shader
@@ -332,7 +339,7 @@ void differedRender() {
 	glDisableVertexAttribArray(0);
 }
 
-GLuint loadShaders(char const* vertex, char const* fragment)
+GLuint loadShaders(char const* vertex, char const* fragment, char const* geometry)
 {
 	char buff[1024];
 	memset(buff, 0, 1024);
@@ -340,6 +347,103 @@ GLuint loadShaders(char const* vertex, char const* fragment)
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
 	GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+	GLuint GeometryShaderID = glCreateShader(GL_GEOMETRY_SHADER);
+	GLuint ShaderID;
+
+	GLint compileResult = 0;
+
+	std::ifstream shaderFile(vertex);
+	std::string shaderText((std::istreambuf_iterator<char>(shaderFile)), std::istreambuf_iterator<char>());
+	shaderFile.close();
+
+	shaderTextPtr = shaderText.c_str();
+
+	glShaderSource(VertexShaderID, 1, &shaderTextPtr, nullptr);
+
+	glCompileShader(VertexShaderID);
+
+	glGetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &compileResult);
+
+	if (compileResult == GL_FALSE)
+	{
+		glGetShaderInfoLog(VertexShaderID, 1024, nullptr, buff);
+
+		OutputDebugStringA(buff);
+	}
+
+
+	shaderFile.open(fragment);
+	shaderText.assign((std::istreambuf_iterator<char>(shaderFile)), std::istreambuf_iterator<char>());
+	shaderFile.close();
+
+	shaderTextPtr = shaderText.c_str();
+
+	glShaderSource(FragmentShaderID, 1, &shaderTextPtr, nullptr);
+	glCompileShader(FragmentShaderID);
+
+	glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &compileResult);
+
+	if (compileResult == GL_FALSE)
+	{
+		memset(buff, 0, 1024);
+		glGetShaderInfoLog(FragmentShaderID, 1024, nullptr, buff);
+		OutputDebugStringA(buff);
+	}
+
+	shaderFile.open(geometry);
+	shaderText.assign((std::istreambuf_iterator<char>(shaderFile)), std::istreambuf_iterator<char>());
+	shaderFile.close();
+
+	shaderTextPtr = shaderText.c_str();
+
+	glShaderSource(GeometryShaderID, 1, &shaderTextPtr, nullptr);
+	glCompileShader(GeometryShaderID);
+
+	glGetShaderiv(GeometryShaderID, GL_COMPILE_STATUS, &compileResult);
+
+	if (compileResult == GL_FALSE)
+	{
+		memset(buff, 0, 1024);
+		glGetShaderInfoLog(GeometryShaderID, 1024, nullptr, buff);
+		OutputDebugStringA(buff);
+	}
+
+	ShaderID = glCreateProgram();
+
+	glAttachShader(ShaderID, FragmentShaderID);
+	glAttachShader(ShaderID, VertexShaderID);
+	glAttachShader(ShaderID, GeometryShaderID);
+	glLinkProgram(ShaderID);
+
+	compileResult = GL_FALSE;
+	glGetProgramiv(ShaderID, GL_LINK_STATUS, &compileResult);
+
+	if (compileResult == GL_FALSE)
+	{
+		memset(buff, 0, 1024);
+		glGetProgramInfoLog(ShaderID, 1024, nullptr, buff);
+		OutputDebugStringA(buff);
+	}
+
+	glDetachShader(ShaderID, VertexShaderID);
+	glDetachShader(ShaderID, FragmentShaderID);
+	glDetachShader(ShaderID, GeometryShaderID);
+	glDeleteShader(VertexShaderID);
+	glDeleteShader(FragmentShaderID);
+	glDeleteShader(GeometryShaderID);
+
+	return ShaderID;
+}
+
+GLuint loadShadersFBO(char const* vertex, char const* fragment)
+{
+	char buff[1024];
+	memset(buff, 0, 1024);
+	const char* shaderTextPtr;
+	// Create the shaders
+	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+	GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+	GLuint GeometryShaderID = glCreateShader(GL_GEOMETRY_SHADER);
 	GLuint ShaderID;
 
 	GLint compileResult = 0;
@@ -405,7 +509,7 @@ GLuint loadShaders(char const* vertex, char const* fragment)
 	return ShaderID;
 }
 
-glm::mat4 makeMatrices()
+void makeMatrices()
 {
 	// Projection matrix : 45° Field of View, 4:3 ratio, display range : 0.1 unit <-> 100 units
 	Projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
@@ -413,7 +517,7 @@ glm::mat4 makeMatrices()
 	//glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
 
 	// Camera matrix
-	glm::mat4 View = glm::lookAt(
+	View = glm::lookAt(
 		Cam.GetPos(), // Camera is at (4,3,3), in World Space
 		Cam.GetPos() + Cam.GetTarget(), // and looks at the origin
 		Cam.GetUp()  // Head is up (set to 0,-1,0 to look upside-down)
@@ -421,12 +525,14 @@ glm::mat4 makeMatrices()
 	// Model matrix : an identity matrix (model will be at the origin)
 	Model = glm::mat4(1.0f);
 	// Our ModelViewProjection : multiplication of our 3 matrices
-	glm::mat4 mvp = Projection * View * Model; // Remember, matrix multiplication is the other way around
+	//glm::mat4 mvp = Projection * View * Model; // Remember, matrix multiplication is the other way around
 
 	// Get a handle for our "MVP" uniform
 	// Only during the initialisation
-	MatrixID = glGetUniformLocation(gShaderProgram, "MVP");
-	return mvp;
+	matrixIDModel = glGetUniformLocation(gShaderProgram, "Model");
+	matrixIDView = glGetUniformLocation(gShaderProgram, "View");
+	matrixIDProjection = glGetUniformLocation(gShaderProgram, "Projection");
+
 }
 
 void movementToCamera(float dt)
@@ -601,8 +707,8 @@ int main()
 	//createFrameBuffer();
 	Fbo.Init();
 	// Reads the shaders and makes a program out of them.
-	gShaderProgram = loadShaders("VertexShader.glsl","FragmentShader.glsl");
-	quad_programID = loadShaders("vertexFBO.glsl", "fragmentFBO.glsl");
+	gShaderProgram = loadShaders("VertexShader.glsl","FragmentShader.glsl", "GeometryShader.glsl");
+	quad_programID = loadShadersFBO("vertexFBO.glsl", "fragmentFBO.glsl");
 
 	// Creates the vertices and color for the cube, binds to layout locations
 	createCube();
@@ -623,7 +729,7 @@ int main()
 
 	//int tst = loadImage("tstTex.bmp");
 
-	quad_programID = loadShaders("vertexFBO.glsl", "fragmentFBO.glsl");
+	quad_programID = loadShadersFBO("vertexFBO.glsl", "fragmentFBO.glsl");
 	texID = glGetUniformLocation(quad_programID, "renderedTexture");
 	timeID = glGetUniformLocation(quad_programID, "time");
 
