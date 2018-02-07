@@ -40,8 +40,7 @@ GLuint matrixIDModel;
 GLuint matrixIDView;
 GLuint matrixIDProjection;
 
-GLuint texID;
-GLuint timeID;
+GLuint texID[4];
 
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -311,13 +310,15 @@ void differedRender() {
 	// Clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Bind our texture in Texture Unit 0
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Fbo.GetTexID()[0]);
-	// Set our "renderedTexture" sampler to use Texture Unit 0
-	glUniform1i(texID, 0);
+	for (int i = 0; i < 4; i++)
+	{
+		// Bind our texture in Texture Unit 0
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, Fbo.GetTexID()[i]);
 
-	glUniform1f(timeID, (float)(glfwGetTime()*10.0f));
+		glUniform1i(texID[i], i);
+	}
+
 
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
@@ -563,9 +564,7 @@ void guiWindow(bool showImguiWindow[])
 	// 1. Show a simple window.
 	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".
 	{
-		static float f = 0.0f;
-		ImGui::Text("Hello, world!");                           // Some text (you can use a format string too)
-		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float as a slider from 0.0f to 1.0f
+		ImGui::SetWindowSize(ImVec2(480, 220));
 		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats as a color
 		for (int i = 0; i < 4; i++) {
 			if (ImGui::ImageButton((GLuint*)Fbo.GetTexID()[i], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
@@ -586,7 +585,7 @@ void guiWindow(bool showImguiWindow[])
 	{
 		if (showImguiWindow[i])
 		{
-			ImGui::Begin("Textures", &showImguiWindow[i]);
+			ImGui::Begin("Texture", &showImguiWindow[i]);
 			ImGui::Image((GLuint*)Fbo.GetTexID()[i], ImVec2(1024, 768), ImVec2(0, 1), ImVec2(1, 0));
 			ImGui::End();
 		}
@@ -738,8 +737,10 @@ int main()
 	//int tst = loadImage("tstTex.bmp");
 
 	quad_programID = loadShadersFBO("vertexFBO.glsl", "fragmentFBO.glsl");
-	texID = glGetUniformLocation(quad_programID, "renderedTexture");
-	timeID = glGetUniformLocation(quad_programID, "time");
+	texID[0] = glGetUniformLocation(quad_programID, "colorTexture");
+	texID[1] = glGetUniformLocation(quad_programID, "normalTexture");
+	texID[2] = glGetUniformLocation(quad_programID, "positionTexture");
+	texID[3] = glGetUniformLocation(quad_programID, "depthTexture");
 
 	// does it need explanation?
 	mainLoop();
