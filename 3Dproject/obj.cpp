@@ -42,15 +42,38 @@ void Obj::expandVec2(glm::vec2 ** list, int size, int * buff)
 	}
 }
 
-Obj::Obj(int verticesBuffSize, int uvsBufferSize, int normalsBuffSize)
+void Obj::expandIndices()
+{
+	if (sizeIndices == buffIndices)
+	{
+		index ** tmp = new index*[buffIndices * 2];
+
+		for (int i = 0; i < buffIndices; i++)
+		{
+			tmp[i] = indices[i];
+		}
+
+		for (int i = buffIndices; i < buffIndices * 2; i++)
+		{
+			tmp[i] = nullptr;
+		}
+
+		delete[] indices;
+		indices = tmp;
+	}
+}
+
+Obj::Obj(int verticesBuffSize, int uvsBufferSize, int normalsBuffSize, int buffIndicesSize)
 {
 	buffV = verticesBuffSize;
 	buffVT = uvsBufferSize;
 	buffVN = normalsBuffSize;
+	buffIndices = buffIndicesSize;
 
 	vertices = new glm::vec3*[buffV];
 	uvs = new glm::vec2*[buffVT];
 	normals = new glm::vec3*[buffVN];
+	indices = new index*[buffIndices];
 
 	for (int i = 0; i < buffV; i++)
 	{
@@ -65,6 +88,11 @@ Obj::Obj(int verticesBuffSize, int uvsBufferSize, int normalsBuffSize)
 	for (int i = 0; i < buffVN; i++)
 	{
 		normals[i] = nullptr;
+	}
+
+	for (int i = 0; i < buffIndices; i++)
+	{
+		indices[i] = nullptr;
 	}
 }
 
@@ -111,6 +139,15 @@ void Obj::addNormal(glm::vec3 normal)
 	normals[sizeVN++] = new glm::vec3(normal);
 }
 
+void Obj::addIndex(glm::vec3 indices)
+{
+	expandIndices();
+
+	this->indices[sizeIndices++]->vertex = indices.x;
+	this->indices[sizeIndices++]->uv = indices.y;
+	this->indices[sizeIndices++]->normal = indices.z;
+}
+
 bool Obj::readOBJFile(const char * path)
 {
 	FILE * file;
@@ -143,6 +180,17 @@ bool Obj::readOBJFile(const char * path)
 			glm::vec3 normal;
 			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
 			addNormal(normal);
+		}
+		else if (strcmp(lineHeader, "f") == 0)
+		{
+			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
+			int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
+			if (matches != 9)
+			{
+				return false;
+			}
+			for(int i = 0; i < 3; i++)
+				addIndex(glm::vec3(vertexIndex[i], uvIndex[i], normalIndex[i]));
 		}
 	}
 }
