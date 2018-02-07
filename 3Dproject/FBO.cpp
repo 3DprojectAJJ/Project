@@ -28,18 +28,21 @@ void FBO::Init()
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_textures[i], 0);
 	}
 
-
-
-	// generate and bind depth buffer
-	// Depthbuffer does not work - Schtekt
-	glGenRenderbuffers(1, &depthID);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthID);
+	glGenRenderbuffers(1, &texID);
+	glBindRenderbuffer(GL_RENDERBUFFER, texID);
 	glRenderbufferStorageMultisample(GL_RENDERBUFFER, NUM_OF_TEXTURES, GL_DEPTH_COMPONENT, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_TEXTURE_2D, GL_RENDERBUFFER, depthID);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_TEXTURE_2D, GL_RENDERBUFFER, texID);
 
+	glGenRenderbuffers(1, &texID);
+	glBindRenderbuffer(GL_RENDERBUFFER, texID);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, texID);
 
+	GLenum DrawBuffers[NUM_OF_TEXTURES];
 	// Set the list of draw buffers.
-	GLenum DrawBuffers[NUM_OF_TEXTURES] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+	for (int i = 0; i < NUM_OF_TEXTURES; i++) {
+		DrawBuffers[i] = GL_COLOR_ATTACHMENT0 + i;
+	}
 	glDrawBuffers(NUM_OF_TEXTURES, DrawBuffers); // "1" is the size of DrawBuffers
 
 								   // Render to our framebuffer

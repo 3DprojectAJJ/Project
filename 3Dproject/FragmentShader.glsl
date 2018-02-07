@@ -7,6 +7,7 @@ in vec3 fragmentPosition;
 layout(location = 0) out vec3 color;
 layout(location = 1) out vec3 normal;
 layout(location = 2) out vec3 position;
+layout(location = 3) out vec3 depth;
 
 void main()
 {
