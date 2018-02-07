@@ -40,9 +40,6 @@ GLuint matrixIDModel;
 GLuint matrixIDView;
 GLuint matrixIDProjection;
 
-//GLuint FramebufferName = 0;
-//GLuint renderedTexture;
-//GLuint quad_vertexbuffer;
 GLuint texID;
 GLuint timeID;
 
