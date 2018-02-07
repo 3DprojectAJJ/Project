@@ -33,10 +33,10 @@ void FBO::Init()
 	glRenderbufferStorageMultisample(GL_RENDERBUFFER, NUM_OF_TEXTURES, GL_DEPTH_COMPONENT, width, height);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_TEXTURE_2D, GL_RENDERBUFFER, texID);
 
-	glGenRenderbuffers(1, &texID);
-	glBindRenderbuffer(GL_RENDERBUFFER, texID);
+	glGenRenderbuffers(1, &depthID);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthID);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, texID);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthID);
 
 	GLenum DrawBuffers[NUM_OF_TEXTURES];
 	// Set the list of draw buffers.
@@ -45,7 +45,7 @@ void FBO::Init()
 	}
 	glDrawBuffers(NUM_OF_TEXTURES, DrawBuffers); // "1" is the size of DrawBuffers
 
-								   // Render to our framebuffer
+												 // Render to our framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, fboID);
 
 	// The fullscreen quad's FBO

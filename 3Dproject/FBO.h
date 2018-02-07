@@ -19,7 +19,7 @@ public:
 	~FBO();
 	void Init();
 	void BindFBO();
-	void UnbindFBO(int width , int height);
+	void UnbindFBO(int width, int height);
 
 	GLuint* GetTexID();
 	GLuint GetQuadID() const;

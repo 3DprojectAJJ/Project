@@ -556,7 +556,7 @@ void movementToCamera(float dt)
 	}
 }
 
-void guiWindow(bool* showTex0Window, bool * showTex1Window, bool * showTex2Window)
+void guiWindow(bool showImguiWindow[])
 {
 	ImGui_ImplGlfwGL3_NewFrame();
 
@@ -567,44 +567,37 @@ void guiWindow(bool* showTex0Window, bool * showTex1Window, bool * showTex2Windo
 		ImGui::Text("Hello, world!");                           // Some text (you can use a format string too)
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float as a slider from 0.0f to 1.0f
 		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats as a color
-		if (ImGui::ImageButton((GLuint*)Fbo.GetTexID()[0], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
-			*showTex0Window ^= 1;
-		ImGui::SameLine();
-		if (ImGui::ImageButton((GLuint*)Fbo.GetTexID()[1], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
-			*showTex1Window ^= 1;
-		ImGui::SameLine();
-		if (ImGui::ImageButton((GLuint*)Fbo.GetTexID()[2], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
-			*showTex2Window ^= 1;
+		for (int i = 0; i < 4; i++) {
+			if (ImGui::ImageButton((GLuint*)Fbo.GetTexID()[i], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
+			{
+				showImguiWindow[i] = true;
+			}
+			if (i != 3) {
+				ImGui::SameLine();
+			}
+		}
 		if (ImGui::Button("Options"))
 			optionWindow ^= 1;
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)\nHorisontal: %f\nVertical: %f", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate,Cam.GetAngles().x,Cam.GetAngles().y);
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)\nHorisontal: %f\nVertical: %f", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate, Cam.GetAngles().x, Cam.GetAngles().y);
 	}
 	// 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name the window.
-	if (*showTex0Window)
+
+	for (int i = 0; i < 4; i++)
 	{
-		ImGui::Begin("Textures", showTex0Window);
-		ImGui::Image((GLuint*)Fbo.GetTexID()[0], ImVec2(1024, 768), ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::End();
+		if (showImguiWindow[i])
+		{
+			ImGui::Begin("Textures", &showImguiWindow[i]);
+			ImGui::Image((GLuint*)Fbo.GetTexID()[i], ImVec2(1024, 768), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::End();
+		}
 	}
 
-	if (*showTex1Window)
-	{
-		ImGui::Begin("Textures", showTex1Window);
-		ImGui::Image((GLuint*)Fbo.GetTexID()[1], ImVec2(1024, 768), ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::End();
-	}
-	if (*showTex2Window)
-	{
-		ImGui::Begin("Textures", showTex1Window);
-		ImGui::Image((GLuint*)Fbo.GetTexID()[2], ImVec2(1024, 768), ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::End();
-	}
 
 	if (optionWindow)
 	{
 		ImGui::Begin("options", &optionWindow);
 		ImGui::Text("These are the options");
-		ImGui::SliderFloat("MouseSpeed", &mouseSpeed,0.5f,10.0f);
+		ImGui::SliderFloat("MouseSpeed", &mouseSpeed, 0.5f, 10.0f);
 		ImGui::SliderFloat("MoveSpeed", &moveSpeed, 1.0f, 20.0f);
 		ImGui::End();
 	}
@@ -669,9 +662,7 @@ void guiWindow(bool* showTex0Window, bool * showTex1Window, bool * showTex2Windo
 
 void mainLoop()
 {
-	bool showTex0Window = false;
-	bool showTex1Window = false;
-	bool showTex2Window = false;
+	bool showImGuiWindow[4] = { false };
 	double time = glfwGetTime();
 	float lastTime = 0;
 
@@ -696,7 +687,7 @@ void mainLoop()
 
 		differedRender();
 
-		guiWindow(&showTex0Window, &showTex1Window, &showTex2Window);
+		guiWindow(showImGuiWindow);
 		// Swap buffers
 		glfwSwapBuffers(Window);
 		glfwPollEvents();
