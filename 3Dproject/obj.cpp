@@ -119,11 +119,30 @@ bool Obj::readOBJFile(const char * path)
 	{
 		return false;
 	}
-	int res;
+	int res = 0;
 	char lineHeader[128];
 
 	while (res == EOF)
 	{
 		res = fscanf(file, "%s", lineHeader);
+
+		if (std::strcmp(lineHeader, "v") == 0)
+		{
+			glm::vec3 vertex;
+			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
+			addVertex(vertex);
+		}
+		else if (std::strcmp(lineHeader, "vt") == 0)
+		{
+			glm::vec2 uv;
+			fscanf(file, "%f %f\n", &uv.x, &uv.y);
+			addUV(uv);
+		}
+		else if (strcmp(lineHeader, "vn") == 0)
+		{
+			glm::vec3 normal;
+			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
+			addNormal(normal);
+		}
 	}
 }

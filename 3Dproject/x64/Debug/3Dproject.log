@@ -1,2 +1,4 @@
-﻿  obj.cpp
+﻿cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
+  obj.cpp
+c:\users\boss\documents\github\project\3dproject\obj.cpp(136): warning C4715: 'Obj::readOBJFile': not all control paths return a value
   3Dproject.vcxproj -> C:\Users\BOSS\Documents\GitHub\project\x64\Debug\3Dproject.exe

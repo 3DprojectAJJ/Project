@@ -1,2 +1,8 @@
 .vs
 x64
+3Dproject/x64/Debug/3Dproject.log
+3Dproject/x64/Debug/main.obj
+*.obj
+x64/Debug/3Dproject.exe
+x64/Debug/3Dproject.ilk
+x64/Debug/3Dproject.pdb
