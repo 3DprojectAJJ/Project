@@ -25,23 +25,13 @@ vec3 normal()
 
 void main()
 {
-	mat4 mvpMatrix = Projection * View * Model;
-	vec3 transformedNormal = (mvpMatrix * vec4(normal(), 1.0f)).xyz;
-	vec3 cameraVector = normalize(gl_in[0].gl_Position.xyz - View.x);
-
-	float d = dot(cameraVector, transformedNormal);
-
-
-	if(d > 0.000000001)
+	for(int i = 0; i < 3; i++)
 	{
-		for(int i = 0; i < 3; i++)
-		{
-			gl_Position = Projection * View * Model * gl_in[i].gl_Position;
-			fragmentColor = geometryColor[i];
-			fragmentNormal = (Model * vec4(normal(), 1.0f)).xyz;
-			fragmentPosition = (Projection * View * Model * gl_in[i].gl_Position).xyz;
-			EmitVertex();
-		}
-		EndPrimitive();
+		gl_Position = Projection * View * Model * gl_in[i].gl_Position;
+		fragmentColor = geometryColor[i];
+		fragmentNormal = (Model * vec4(normal(), 1.0f)).xyz;
+		fragmentPosition = (Model * gl_in[i].gl_Position).xyz;
+		EmitVertex();
 	}
+	EndPrimitive();
 }
