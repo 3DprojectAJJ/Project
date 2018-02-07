@@ -15,6 +15,7 @@
 
 #include "Camera.h"
 #include "FBO.h"
+#include "GBuffer.h"
 #include "imgui\imgui.h"
 #include "imgui\imgui_impl_glfw_gl3.h"
 
@@ -49,6 +50,7 @@ ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 Camera Cam;
 FBO Fbo;
+GBuffer Gbo;
 
 bool optionWindow = false;
 
@@ -314,7 +316,7 @@ void differedRender() {
 
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, Fbo.GetTexID());
+	glBindTexture(GL_TEXTURE_2D, Fbo.GetTexID()[0]);
 	// Set our "renderedTexture" sampler to use Texture Unit 0
 	glUniform1i(texID, 0);
 
@@ -559,7 +561,7 @@ void movementToCamera(float dt)
 	}
 }
 
-void guiWindow(bool * showAnotherWindow)
+void guiWindow(bool* showTex0Window, bool * showTex1Window, bool * showTex2Window)
 {
 	ImGui_ImplGlfwGL3_NewFrame();
 
@@ -570,19 +572,36 @@ void guiWindow(bool * showAnotherWindow)
 		ImGui::Text("Hello, world!");                           // Some text (you can use a format string too)
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float as a slider from 0.0f to 1.0f
 		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats as a color
-		if (ImGui::Button("Another Window"))
-			*showAnotherWindow ^= 1;
+		if (ImGui::ImageButton((GLuint*)Fbo.GetTexID()[0], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
+			*showTex0Window ^= 1;
+		ImGui::SameLine();
+		if (ImGui::ImageButton((GLuint*)Fbo.GetTexID()[1], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
+			*showTex1Window ^= 1;
+		ImGui::SameLine();
+		if (ImGui::ImageButton((GLuint*)Fbo.GetTexID()[2], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
+			*showTex2Window ^= 1;
 		if (ImGui::Button("Options"))
 			optionWindow ^= 1;
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)\nHorisontal: %f\nVertical: %f", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate,Cam.GetAngles().x,Cam.GetAngles().y);
 	}
-
 	// 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name the window.
-	if (*showAnotherWindow)
+	if (*showTex0Window)
 	{
-		ImGui::Begin("Another Window", showAnotherWindow);
-		ImGui::Text("Hello from another window!");
-		ImGui::Image((GLuint*)Fbo.GetTexID(), ImVec2(1024, 768),ImVec2(0,1),ImVec2(1,0));
+		ImGui::Begin("Textures", showTex0Window);
+		ImGui::Image((GLuint*)Fbo.GetTexID()[0], ImVec2(1024, 768), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::End();
+	}
+
+	if (*showTex1Window)
+	{
+		ImGui::Begin("Textures", showTex1Window);
+		ImGui::Image((GLuint*)Fbo.GetTexID()[1], ImVec2(1024, 768), ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::End();
+	}
+	if (*showTex2Window)
+	{
+		ImGui::Begin("Textures", showTex1Window);
+		ImGui::Image((GLuint*)Fbo.GetTexID()[2], ImVec2(1024, 768), ImVec2(0, 1), ImVec2(1, 0));
 		ImGui::End();
 	}
 
@@ -594,8 +613,8 @@ void guiWindow(bool * showAnotherWindow)
 		ImGui::SliderFloat("MoveSpeed", &moveSpeed, 1.0f, 20.0f);
 		ImGui::End();
 	}
-
 	ImGui::Render();
+
 }
 
 /*void createFrameBuffer() {
@@ -655,7 +674,9 @@ void guiWindow(bool * showAnotherWindow)
 
 void mainLoop()
 {
-	bool show_another_window = false;
+	bool showTex0Window = false;
+	bool showTex1Window = false;
+	bool showTex2Window = false;
 	double time = glfwGetTime();
 	float lastTime = 0;
 
@@ -671,6 +692,7 @@ void mainLoop()
 		/*glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
 		glViewport(0, 0, width, height);*/
 		Fbo.BindFBO();
+
 		render();
 
 		/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -679,7 +701,7 @@ void mainLoop()
 
 		differedRender();
 
-		guiWindow(&show_another_window);
+		guiWindow(&showTex0Window, &showTex1Window, &showTex2Window);
 		// Swap buffers
 		glfwSwapBuffers(Window);
 		glfwPollEvents();
