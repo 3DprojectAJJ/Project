@@ -529,8 +529,6 @@ void makeMatrices()
 	// Our ModelViewProjection : multiplication of our 3 matrices
 	//glm::mat4 mvp = Projection * View * Model; // Remember, matrix multiplication is the other way around
 
-	// Get a handle for our "MVP" uniform
-	// Only during the initialisation
 	matrixIDModel = glGetUniformLocation(gShaderProgram, "Model");
 	matrixIDView = glGetUniformLocation(gShaderProgram, "View");
 	matrixIDProjection = glGetUniformLocation(gShaderProgram, "Projection");
@@ -553,7 +551,7 @@ void movementToCamera(float dt)
 	glfwGetCursorPos(Window, &xPos, &yPos);
 	
 	glfwSetInputMode(Window, GLFW_STICKY_MOUSE_BUTTONS, 1);
-	if (glfwGetMouseButton(Window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+	if (glfwGetMouseButton(Window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
 		Cam.OnMouse(xPos, yPos, dt, mouseSpeed);
 	}
 	else {

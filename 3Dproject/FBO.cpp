@@ -31,6 +31,7 @@ void FBO::Init()
 
 
 	// generate and bind depth buffer
+	// Depthbuffer does not work - Schtekt
 	glGenRenderbuffers(1, &depthID);
 	glBindRenderbuffer(GL_RENDERBUFFER, depthID);
 	glRenderbufferStorageMultisample(GL_RENDERBUFFER, NUM_OF_TEXTURES, GL_DEPTH_COMPONENT, width, height);
