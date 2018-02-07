@@ -156,30 +156,57 @@ bool Obj::readOBJFile(const char * path)
 	{
 		return false;
 	}
+
+	int tmpVerticesSize = 0;
+	int tmpUVsSize = 0;
+	int tmpNormalsSize = 0;
+
+	int tmpVerticesBuff = 2;
+	int tmpUVsBuff = 2;
+	int tmpNormalsBuff = 2;
+
+	glm::vec3 ** tmpVertices = new glm::vec3*[tmpVerticesBuff];
+	glm::vec2 ** tmpUVs = new glm::vec2*[tmpUVsBuff];
+	glm::vec3 ** tmpNormals = new glm::vec3*[tmpNormalsBuff];
+
+
 	int res = 0;
 	char lineHeader[128];
 
 	while (res == EOF)
 	{
+		for (int i = 0; i < 2; i++)
+		{
+			tmpVertices[i] = nullptr;
+			tmpUVs[i] = nullptr;
+			tmpNormals[i] = nullptr;
+		}
+
 		res = fscanf(file, "%s", lineHeader);
 
 		if (std::strcmp(lineHeader, "v") == 0)
 		{
 			glm::vec3 vertex;
 			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-			addVertex(vertex);
+
+			expandVec3(tmpVertices, tmpVerticesSize, &tmpVerticesBuff);
+			tmpVertices[tmpVerticesSize++] = new glm::vec3(vertex);
 		}
 		else if (std::strcmp(lineHeader, "vt") == 0)
 		{
 			glm::vec2 uv;
 			fscanf(file, "%f %f\n", &uv.x, &uv.y);
-			addUV(uv);
+
+			expandVec2(tmpUVs, tmpUVsSize, &tmpUVsBuff);
+			tmpUVs[tmpUVsSize++] = new glm::vec2(uv);
 		}
 		else if (strcmp(lineHeader, "vn") == 0)
 		{
 			glm::vec3 normal;
 			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-			addNormal(normal);
+
+			expandVec3(tmpNormals, tmpNormalsSize, &tmpNormalsBuff);
+			tmpNormals[tmpNormalsSize++] = new glm::vec3(normal);
 		}
 		else if (strcmp(lineHeader, "f") == 0)
 		{
@@ -192,5 +219,12 @@ bool Obj::readOBJFile(const char * path)
 			for(int i = 0; i < 3; i++)
 				addIndex(glm::vec3(vertexIndex[i], uvIndex[i], normalIndex[i]));
 		}
+	}
+
+	for (int i = 0; i < sizeIndices; i++)
+	{
+		addVertex(glm::vec3(*tmpVertices[indices[i]->vertex - 1]));
+		addUV(glm::vec2(*tmpUVs[indices[i]->uv - 1]));
+		addNormal(glm::vec3(*tmpNormals[indices[i]->normal - 1]));
 	}
 }
