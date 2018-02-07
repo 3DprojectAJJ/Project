@@ -32,7 +32,7 @@ void main()
 	float d = dot(cameraVector, transformedNormal);
 
 
-	if(d < 0.000000001)
+	if(d > 0.000000001)
 	{
 		for(int i = 0; i < 3; i++)
 		{
