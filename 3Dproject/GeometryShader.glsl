@@ -30,7 +30,7 @@ void main()
 		gl_Position = Projection * View * Model * gl_in[i].gl_Position;
 		fragmentColor = geometryColor[i];
 		fragmentNormal = (Model * vec4(normal(), 1.0f)).xyz;
-		fragmentPosition = (Projection * View * Model * gl_in[i].gl_Position).xyz;
+		fragmentPosition = (Model * gl_in[i].gl_Position).xyz;
 		EmitVertex();
 	}
 	EndPrimitive();

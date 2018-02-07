@@ -688,7 +688,7 @@ void mainLoop()
 
 		movementToCamera(deltaTime);
 
-		Model *= glm::rotate(0.05f* (float)deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
+		Model *= glm::rotate(0.5f* (float)deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
 		/*glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
 		glViewport(0, 0, width, height);*/
 		Fbo.BindFBO();
