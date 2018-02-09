@@ -18,6 +18,7 @@
 #include "GBuffer.h"
 #include "imgui\imgui.h"
 #include "imgui\imgui_impl_glfw_gl3.h"
+#include "obj.h"
 
 #pragma warning(disable:4996)
 
@@ -697,6 +698,9 @@ void mainLoop()
 
 int main()
 {
+	Obj obj;
+	bool res = obj.readOBJFile("example.obj");
+
 	if (initGLFW() == -1)
 	{
 		return -1;
