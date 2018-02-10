@@ -48,6 +48,7 @@ ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 Camera Cam;
 FBO Fbo;
 GBuffer Gbo;
+Obj obj;
 
 bool optionWindow = false;
 
@@ -174,7 +175,7 @@ void createCube()
 	glBindVertexArray(VertexArrayID);
 	// Our vertices. Three consecutive floats give a 3D vertex; Three consecutive vertices give a triangle.
 	// A cube has 6 faces with 2 triangles each, so this makes 6*2=12 triangles, and 12*3 vertices
-	static const GLfloat gVertexBufferData[] = {
+	/*static const GLfloat gVertexBufferData[] = {
 		-1.0f,-1.0f,-1.0f, // triangle 1 : begin
 		-1.0f,-1.0f, 1.0f,
 		-1.0f, 1.0f, 1.0f, // triangle 1 : end
@@ -211,14 +212,14 @@ void createCube()
 		1.0f, 1.0f, 1.0f,
 		-1.0f, 1.0f, 1.0f,
 		1.0f,-1.0f, 1.0f
-	};
+	};*/
 
 	// Generate 1 buffer, put the resulting identifier in vertexbuffer
 	glGenBuffers(1, &Vertexbuffer);
 	// The following commands will talk about our 'vertexbuffer' buffer
 	glBindBuffer(GL_ARRAY_BUFFER, Vertexbuffer);
 	// Give our vertices to OpenGL.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(gVertexBufferData), gVertexBufferData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, obj.getVertices().size()*sizeof(glm::vec3), &obj.getVertices()[0], GL_STATIC_DRAW);
 
 	// One color for each vertex. They were generated randomly.
 	static const GLfloat g_color_buffer_data[] = {
@@ -698,7 +699,6 @@ void mainLoop()
 
 int main()
 {
-	Obj obj;
 	bool res = obj.readOBJFile("example.obj");
 
 	if (initGLFW() == -1)

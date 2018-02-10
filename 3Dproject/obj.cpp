@@ -80,3 +80,8 @@ bool Obj::readOBJFile(const char * path)
 	}
 	return true;
 }
+
+std::vector<glm::vec3> Obj::getVertices() const
+{
+	return vertices;
+}
