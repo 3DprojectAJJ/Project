@@ -35,12 +35,15 @@ GLFWwindow* Window;
 GLuint VertexArrayID;
 GLuint Vertexbuffer;
 GLuint colorbuffer;
+GLuint texbuffer;
 GLuint gShaderProgram;
 GLuint quad_programID;
 GLuint matrixIDModel;
 GLuint matrixIDView;
 GLuint matrixIDProjection;
 
+GLuint cubeTexID;
+GLuint tstTexture;
 GLuint texID[4];
 
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -265,11 +268,32 @@ void createCube()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
 }
 
+void createCubeWithTexture()
+{
+	glGenVertexArrays(1, &VertexArrayID);
+	glBindVertexArray(VertexArrayID);
+
+	// Generate 1 buffer, put the resulting identifier in vertexbuffer
+	glGenBuffers(1, &Vertexbuffer);
+	// The following commands will talk about our 'vertexbuffer' buffer
+	glBindBuffer(GL_ARRAY_BUFFER, Vertexbuffer);
+	// Give our vertices to OpenGL.
+	glBufferData(GL_ARRAY_BUFFER, obj.getVertices().size() * sizeof(glm::vec3), &obj.getVertices()[0], GL_STATIC_DRAW);
+	
+	glGenBuffers(1, &texbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, texbuffer);
+	glBufferData(GL_ARRAY_BUFFER, obj.getUVs().size() * sizeof(glm::vec2), &obj.getUVs()[0], GL_STATIC_DRAW);
+}
+
 void render()
 {
 	glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(gShaderProgram);
+
+	glActiveTexture(cubeTexID);
+	glBindTexture(GL_TEXTURE_2D, tstTexture);
+	glUniform1i(cubeTexID,glGetUniformLocation(gShaderProgram,"tex"));
 
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
@@ -285,10 +309,10 @@ void render()
 
 	// 2nd attribute buffer : colors
 	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, colorbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, texbuffer);
 	glVertexAttribPointer(
 		1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-		3,                                // size
+		2,                                // size
 		GL_FLOAT,                         // type
 		GL_FALSE,                         // normalized?
 		0,                                // stride
@@ -296,7 +320,7 @@ void render()
 	);
 
 	// Draw the Cube!
-	glDrawArrays(GL_TRIANGLES, 0, 3*12); // Starting from vertex 0; 3 vertices total -> 1 triangle
+	glDrawArrays(GL_TRIANGLES, 0,obj.getVertices().size()); // Starting from vertex 0; 3 vertices total -> 1 triangle
 	glDisableVertexAttribArray(0);
 
 	View = glm::mat4(glm::lookAt(Cam.GetPos(), Cam.GetPos() + Cam.GetTarget(), Cam.GetUp()));
@@ -304,8 +328,8 @@ void render()
 	glUniformMatrix4fv(matrixIDModel, 1, GL_FALSE, &Model[0][0]);
 	glUniformMatrix4fv(matrixIDView, 1, GL_FALSE, &View[0][0]);
 	glUniformMatrix4fv(matrixIDProjection, 1, GL_FALSE, &Projection[0][0]);
-
 }
+
 void differedRender() {
 	// Use our shader
 	glUseProgram(quad_programID);
@@ -722,8 +746,8 @@ int main()
 	quad_programID = loadShadersFBO("vertexFBO.glsl", "fragmentFBO.glsl");
 
 	// Creates the vertices and color for the cube, binds to layout locations
-	createCube();
-
+	//createCube();
+	createCubeWithTexture();
 	// sets values to world, view and projection matrices and gets the uniform "WVP"s id.
 	makeMatrices();
 
@@ -738,13 +762,15 @@ int main()
 	glfwGetCursorPos(Window, &x, &y);
 	Cam.SetMousePos(glm::vec2(x, y));
 
-	//int tst = loadImage("tstTex.bmp");
+	tstTexture = loadImage("tstTex.bmp");
 
 	quad_programID = loadShadersFBO("vertexFBO.glsl", "fragmentFBO.glsl");
 	texID[0] = glGetUniformLocation(quad_programID, "colorTexture");
 	texID[1] = glGetUniformLocation(quad_programID, "normalTexture");
 	texID[2] = glGetUniformLocation(quad_programID, "positionTexture");
 	texID[3] = glGetUniformLocation(quad_programID, "depthTexture");
+
+	cubeTexID = glGetUniformLocation(gShaderProgram, "tex");
 
 	// does it need explanation?
 	mainLoop();

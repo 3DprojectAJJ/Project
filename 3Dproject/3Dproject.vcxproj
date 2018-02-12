@@ -153,6 +153,7 @@
     <ClInclude Include="obj.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="red.bmp" />
     <Image Include="tstTex.bmp" />
   </ItemGroup>
   <ItemGroup>

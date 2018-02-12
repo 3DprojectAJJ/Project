@@ -16,6 +16,9 @@
     <Filter Include="Header Files\imgui">
       <UniqueIdentifier>{4c16d480-0fda-4538-8b25-a913681874e9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{ebe69f39-c8bd-4197-a2f4-a49278b02a75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -47,20 +50,20 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="VertexShader.glsl">
-      <Filter>Source Files</Filter>
+    <None Include="fragmentFBO.glsl">
+      <Filter>Shaders</Filter>
     </None>
     <None Include="FragmentShader.glsl">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="fragmentFBO.glsl">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="vertexFBO.glsl">
-      <Filter>Source Files</Filter>
+      <Filter>Shaders</Filter>
     </None>
     <None Include="GeometryShader.glsl">
-      <Filter>Source Files</Filter>
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="vertexFBO.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="VertexShader.glsl">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -100,6 +103,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="tstTex.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="red.bmp">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

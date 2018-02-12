@@ -3,10 +3,10 @@
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
 
-in vec3 geometryColor[];
+in vec2 geometryUV[];
 
 out vec3 fragmentPosition;
-out vec3 fragmentColor;
+out vec2 fragmentUV;
 out vec3 fragmentNormal;
 
 uniform mat4 Model;
@@ -28,7 +28,7 @@ void main()
 	for(int i = 0; i < 3; i++)
 	{
 		gl_Position = Projection * View * Model * gl_in[i].gl_Position;
-		fragmentColor = geometryColor[i];
+		fragmentUV = geometryUV[i];
 		fragmentNormal = (Model * vec4(normal(), 1.0f)).xyz;
 		fragmentPosition = (Model * gl_in[i].gl_Position).xyz;
 		EmitVertex();

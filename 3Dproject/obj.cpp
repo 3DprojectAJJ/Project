@@ -85,3 +85,8 @@ std::vector<glm::vec3> Obj::getVertices() const
 {
 	return vertices;
 }
+
+std::vector<glm::vec2> Obj::getUVs() const
+{
+	return uvs;
+}

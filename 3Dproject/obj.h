@@ -13,6 +13,7 @@ public:
 	~Obj();
 	bool readOBJFile(const char * path);
 	std::vector<glm::vec3> getVertices() const;
+	std::vector<glm::vec2> getUVs() const;
 private:
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec2> uvs;
