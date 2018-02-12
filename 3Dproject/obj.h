@@ -3,31 +3,30 @@
 #include <GLM\common.hpp>
 #include <fstream>
 #include <iostream>
+#include <string>
+#include <vector>
+
 class Obj
 {
-private:
-	void expandVec3(glm::vec3 ** list, int size, int * buff);
-	void expandVec2(glm::vec2 ** list, int size, int * buff);
 public:
-	Obj(int verticesBuffSize = 2, int uvsBufferSize = 2, int normalsBuffSize = 2);
+	Obj();
 	~Obj();
-	void addVertex(glm::vec3 vertex);
-	void addUV(glm::vec2 uv);
-	void addNormal(glm::vec3 normal);
 	bool readOBJFile(const char * path);
+	std::vector<glm::vec3> getVertices() const;
+	std::vector<glm::vec2> getUVs() const;
 private:
-	int sizeV = 0;
-	int buffV;
+	std::vector<glm::vec3> vertices;
+	std::vector<glm::vec2> uvs;
+	std::vector<glm::vec3> normals;
 
-	int sizeVT = 0;
-	int buffVT;
+	struct index
+	{
+		unsigned int vertex;
+		unsigned int uv;
+		unsigned int normal;
+	};
 
-	int sizeVN = 0;
-	int buffVN;
-
-	glm::vec3 ** vertices;
-	glm::vec2 ** uvs;
-	glm::vec3 ** normals;
+	std::vector<index> indices;
 
 };
 

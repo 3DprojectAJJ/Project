@@ -1,10 +1,1 @@
-﻿  main.cpp
-c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\minwindef.h(130): warning C4005: 'APIENTRY': macro redefinition
-  c:\users\jacob a\3dproject\project\3dproject\include\glfw\glfw3.h(98): note: see previous definition of 'APIENTRY'
-c:\users\jacob a\3dproject\project\3dproject\main.cpp(572): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
-c:\users\jacob a\3dproject\project\3dproject\main.cpp(575): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
-c:\users\jacob a\3dproject\project\3dproject\main.cpp(578): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
-c:\users\jacob a\3dproject\project\3dproject\main.cpp(588): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
-c:\users\jacob a\3dproject\project\3dproject\main.cpp(595): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
-c:\users\jacob a\3dproject\project\3dproject\main.cpp(601): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
-  3Dproject.vcxproj -> C:\Users\Jacob A\3DProject\Project\x64\Debug\3Dproject.exe
+﻿  3Dproject.vcxproj -> C:\Users\Jacob A\3DProject\Project\Project\x64\Debug\3Dproject.exe

@@ -3,15 +3,16 @@
 layout(triangles) in;
 layout(triangle_strip, max_vertices = 3) out;
 
-in vec3 geometryColor[];
+in vec2 geometryUV[];
 
 out vec3 fragmentPosition;
-out vec3 fragmentColor;
+out vec2 fragmentUV;
 out vec3 fragmentNormal;
 
 uniform mat4 Model;
 uniform mat4 View;
 uniform mat4 Projection;
+uniform vec3 CameraPos;
 
 vec3 normal()
 {
@@ -25,13 +26,21 @@ vec3 normal()
 
 void main()
 {
-	for(int i = 0; i < 3; i++)
+	vec3 transformedNormal = (vec4(normal(), 1.0f) * View * Model).xyz;
+	vec3 viewVector = normalize(gl_in[0].gl_Position.xyz - CameraPos);
+	float d = dot(viewVector, transformedNormal);
+	float epsilon = 0.000000001;
+
+	if(d > epsilon)
 	{
-		gl_Position = Projection * View * Model * gl_in[i].gl_Position;
-		fragmentColor = geometryColor[i];
-		fragmentNormal = (Model * vec4(normal(), 1.0f)).xyz;
-		fragmentPosition = (Model * gl_in[i].gl_Position).xyz;
-		EmitVertex();
+		for(int i = 0; i < 3; i++)
+		{
+			gl_Position = Projection * View * Model * gl_in[i].gl_Position;
+			fragmentUV = geometryUV[i];
+			fragmentNormal = (Model * vec4(normal(), 1.0f)).xyz;
+			fragmentPosition = (Model * gl_in[i].gl_Position).xyz;
+			EmitVertex();
+		}
+		EndPrimitive();
 	}
-	EndPrimitive();
 }
