@@ -36,14 +36,14 @@ void main()
 	vec3 viewVector = normalize((Model*vec4(middleOfTriangle,1.0f)).xyz - CameraPos);
 
 	float d = dot(viewVector, transformedNormal);
-	//d = -1;
-	if(d < 0)
+
+	if(d<0)
 	{
 		for(int i = 0; i < 3; i++)
 		{
 			gl_Position = Projection * View * Model * gl_in[i].gl_Position;
-			fragmentUV = geometryUV[i];
 			fragmentNormal = (Model * vec4(geometryNormal[i], 1.0f)).xyz;
+			fragmentUV = geometryUV[i];
 			fragmentPosition = (Model * gl_in[i].gl_Position).xyz;
 			EmitVertex();
 		}

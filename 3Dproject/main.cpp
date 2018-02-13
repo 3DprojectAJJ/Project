@@ -297,9 +297,9 @@ void render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(gShaderProgram);
 
-	glActiveTexture(cubeTexID);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tstTexture);
-	glUniform1i(cubeTexID,glGetUniformLocation(gShaderProgram,"tex"));
+	glUniform1i(glGetUniformLocation(gShaderProgram, "tex"),0);
 
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
@@ -315,6 +315,7 @@ void render()
 
 	// 2nd attribute buffer : colors
 	glEnableVertexAttribArray(1);
+	GLint loc = glGetAttribLocation(gShaderProgram, "vertexUV");
 	glBindBuffer(GL_ARRAY_BUFFER, texbuffer);
 	glVertexAttribPointer(
 		1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
@@ -788,6 +789,7 @@ int main()
 	texID[3] = glGetUniformLocation(quad_programID, "depthTexture");
 
 	cubeTexID = glGetUniformLocation(gShaderProgram, "tex");
+
 
 	// does it need explanation?
 	mainLoop();
