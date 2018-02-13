@@ -65,6 +65,9 @@
     <None Include="VertexShader.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Ootachi.mtl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">
@@ -111,6 +114,12 @@
   </ItemGroup>
   <ItemGroup>
     <Object Include="example.obj">
+      <Filter>Resource Files</Filter>
+    </Object>
+    <Object Include="bb8.obj">
+      <Filter>Resource Files</Filter>
+    </Object>
+    <Object Include="Furret.obj">
       <Filter>Resource Files</Filter>
     </Object>
   </ItemGroup>

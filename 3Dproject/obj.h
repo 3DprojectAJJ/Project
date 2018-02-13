@@ -14,7 +14,9 @@ public:
 	bool readOBJFile(const char * path);
 	std::vector<glm::vec3> getVertices() const;
 	std::vector<glm::vec2> getUVs() const;
+	std::vector<glm::vec3> getNormals() const;
 private:
+	bool readMTLFile(const char * path);
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec2> uvs;
 	std::vector<glm::vec3> normals;

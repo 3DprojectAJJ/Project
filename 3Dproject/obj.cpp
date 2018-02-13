@@ -70,6 +70,10 @@ bool Obj::readOBJFile(const char * path)
 				indices.push_back(tmp);
 			}
 		}
+		else if (strcmp(lineHeader, "mtllib"))
+		{
+			//readMTLFile(lineHeader);
+		}
 	} while (true);
 
 	for (int i = 0; i < indices.size(); i++)
@@ -89,4 +93,32 @@ std::vector<glm::vec3> Obj::getVertices() const
 std::vector<glm::vec2> Obj::getUVs() const
 {
 	return uvs;
+}
+
+std::vector<glm::vec3> Obj::getNormals() const
+{
+	return normals;
+}
+
+bool Obj::readMTLFile(const char * path)
+{
+	FILE * file;
+	file = fopen(path, "r");
+	int res = 0;
+	char lineHeader[128];
+	do
+	{
+		res = fscanf(file, "%s", lineHeader);
+		if (res == EOF)
+		{
+			break;
+		}
+
+		if (std::strcmp(lineHeader, "newmtl") == 0)
+		{
+			char name[128];
+			fscanf(file, "%s", name);
+		}
+	} while (true);
+	return true;
 }

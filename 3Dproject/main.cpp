@@ -36,6 +36,7 @@ GLuint VertexArrayID;
 GLuint Vertexbuffer;
 GLuint colorbuffer;
 GLuint texbuffer;
+GLuint normalbuffer;
 GLuint gShaderProgram;
 GLuint quad_programID;
 GLuint matrixIDModel;
@@ -284,6 +285,10 @@ void createCubeWithTexture()
 	glGenBuffers(1, &texbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, texbuffer);
 	glBufferData(GL_ARRAY_BUFFER, obj.getUVs().size() * sizeof(glm::vec2), &obj.getUVs()[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &normalbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+	glBufferData(GL_ARRAY_BUFFER, obj.getNormals().size() * sizeof(glm::vec3), &obj.getNormals()[0], GL_STATIC_DRAW);
 }
 
 void render()
@@ -318,6 +323,17 @@ void render()
 		GL_FALSE,                         // normalized?
 		0,                                // stride
 		(void*)0                          // array buffer offset
+	);
+
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+	glVertexAttribPointer(
+		2,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		3,                  // size
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // stride
+		(void*)0            // array buffer offset
 	);
 
 	// Draw the Cube!
@@ -558,7 +574,6 @@ void makeMatrices()
 	matrixIDModel = glGetUniformLocation(gShaderProgram, "Model");
 	matrixIDView = glGetUniformLocation(gShaderProgram, "View");
 	matrixIDProjection = glGetUniformLocation(gShaderProgram, "Projection");
-
 }
 
 void movementToCamera(float dt)

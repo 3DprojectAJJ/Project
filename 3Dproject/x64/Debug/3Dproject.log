@@ -1,1 +1,7 @@
-﻿  3Dproject.vcxproj -> C:\Users\Jacob A\3DProject\Project\Project\x64\Debug\3Dproject.exe
+﻿  main.cpp
+c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\minwindef.h(130): warning C4005: 'APIENTRY': macro redefinition
+  c:\users\boss\documents\github\project\3dproject\include\glfw\glfw3.h(98): note: see previous definition of 'APIENTRY'
+c:\users\boss\documents\github\project\3dproject\main.cpp(340): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+c:\users\boss\documents\github\project\3dproject\main.cpp(613): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
+c:\users\boss\documents\github\project\3dproject\main.cpp(632): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
+  3Dproject.vcxproj -> C:\Users\BOSS\Documents\GitHub\project\x64\Debug\3Dproject.exe
