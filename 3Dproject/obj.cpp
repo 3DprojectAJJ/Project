@@ -24,6 +24,7 @@ bool Obj::readOBJFile(const char * path)
 
 	int res = 0;
 	char lineHeader[128];
+	int currMaterial;
 
 	do 
 	{
@@ -66,7 +67,7 @@ bool Obj::readOBJFile(const char * path)
 				tmp.vertex = vertexIndex[i];
 				tmp.uv = uvIndex[i];
 				tmp.normal = normalIndex[i];
-
+				tmp.mat = materials[currMaterial];
 				indices.push_back(tmp);
 			}
 		}
@@ -75,6 +76,18 @@ bool Obj::readOBJFile(const char * path)
 			char path[128];
 			fscanf(file, "%s\n", &path);
 			readMTLFile(path);
+		}
+		else if (strcmp(lineHeader, "usemtl") == 0)
+		{
+			char tmp[128];
+			fscanf(file, "%s", tmp);
+			for (int i = 0; i < materials.size(); i++)
+			{
+				if (strcmp(tmp, materials[i].name) == 0)
+				{
+					currMaterial = i;
+				}
+			}
 		}
 	} while (true);
 

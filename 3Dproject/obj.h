@@ -21,13 +21,6 @@ private:
 	std::vector<glm::vec2> uvs;
 	std::vector<glm::vec3> normals;
 
-	struct index
-	{
-		unsigned int vertex;
-		unsigned int uv;
-		unsigned int normal;
-	};
-
 	struct material
 	{
 		char name[128];
@@ -40,6 +33,14 @@ private:
 		glm::vec3 Kd;
 		glm::vec3 Ks;
 		char map_Kd[128];
+	};
+
+	struct index
+	{
+		unsigned int vertex;
+		unsigned int uv;
+		unsigned int normal;
+		material mat;
 	};
 
 	std::vector<index> indices;
