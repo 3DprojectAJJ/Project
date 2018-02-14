@@ -3,8 +3,8 @@
 #include <GLM\common.hpp>
 #include <fstream>
 #include <iostream>
-#include <string>
 #include <vector>
+#include <string>
 
 class Obj
 {
@@ -15,6 +15,7 @@ public:
 	std::vector<glm::vec3> getVertices() const;
 	std::vector<glm::vec2> getUVs() const;
 	std::vector<glm::vec3> getNormals() const;
+	char * getTexturePath();
 private:
 	bool readMTLFile(const char * path);
 	std::vector<glm::vec3> vertices;

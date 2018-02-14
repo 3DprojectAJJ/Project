@@ -19,6 +19,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{ebe69f39-c8bd-4197-a2f4-a49278b02a75}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\textures">
+      <UniqueIdentifier>{a63be747-0c80-4e0a-ab40-c49f74a40534}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -105,11 +108,20 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <Image Include="OotachiDh.bmp">
+      <Filter>Resource Files\textures</Filter>
+    </Image>
+    <Image Include="OotachiEyeDh.bmp">
+      <Filter>Resource Files\textures</Filter>
+    </Image>
+    <Image Include="OotachiMouthDh.bmp">
+      <Filter>Resource Files\textures</Filter>
+    </Image>
     <Image Include="tstTex.bmp">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\textures</Filter>
     </Image>
     <Image Include="red.bmp">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\textures</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

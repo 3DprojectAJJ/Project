@@ -270,7 +270,7 @@ void createCube()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_color_buffer_data), g_color_buffer_data, GL_STATIC_DRAW);
 }
 
-void createCubeWithTexture()
+void createObjectWithTexture()
 {
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
@@ -741,7 +741,7 @@ void mainLoop()
 
 int main()
 {
-	bool res = obj.readOBJFile("Furret.obj");
+	obj.readOBJFile("Furret.obj");
 
 	if (initGLFW() == -1)
 	{
@@ -765,7 +765,7 @@ int main()
 
 	// Creates the vertices and color for the cube, binds to layout locations
 	//createCube();
-	createCubeWithTexture();
+	createObjectWithTexture();
 	// sets values to world, view and projection matrices and gets the uniform "WVP"s id.
 	makeMatrices();
 
@@ -780,7 +780,7 @@ int main()
 	glfwGetCursorPos(Window, &x, &y);
 	Cam.SetMousePos(glm::vec2(x, y));
 
-	tstTexture = loadImage("tstTex.bmp");
+	tstTexture = loadImage(obj.getTexturePath());
 
 	quad_programID = loadShadersFBO("vertexFBO.glsl", "fragmentFBO.glsl");
 	texID[0] = glGetUniformLocation(quad_programID, "colorTexture");

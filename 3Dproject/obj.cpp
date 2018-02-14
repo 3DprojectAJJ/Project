@@ -116,6 +116,11 @@ std::vector<glm::vec3> Obj::getNormals() const
 	return normals;
 }
 
+char * Obj::getTexturePath()
+{
+	return &indices[0].mat.map_Kd[0];
+}
+
 bool Obj::readMTLFile(const char * path)
 {
 	FILE * file;

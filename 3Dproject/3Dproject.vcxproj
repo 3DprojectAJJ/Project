@@ -156,6 +156,9 @@
     <ClInclude Include="obj.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="OotachiDh.bmp" />
+    <Image Include="OotachiEyeDh.bmp" />
+    <Image Include="OotachiMouthDh.bmp" />
     <Image Include="red.bmp" />
     <Image Include="tstTex.bmp" />
   </ItemGroup>
