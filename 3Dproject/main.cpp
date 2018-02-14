@@ -741,7 +741,7 @@ void mainLoop()
 
 int main()
 {
-	bool res = obj.readOBJFile("example.obj");
+	bool res = obj.readOBJFile("Furret.obj");
 
 	if (initGLFW() == -1)
 	{

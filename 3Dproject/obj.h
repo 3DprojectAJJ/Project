@@ -28,7 +28,22 @@ private:
 		unsigned int normal;
 	};
 
+	struct material
+	{
+		char name[128];
+		unsigned int Ns;
+		float Ni;
+		float d;
+		glm::ivec3 Tf;
+		unsigned int illum;
+		glm::vec3 Ka;
+		glm::vec3 Kd;
+		glm::vec3 Ks;
+		char map_Kd[128];
+	};
+
 	std::vector<index> indices;
+	std::vector<material> materials;
 
 };
 

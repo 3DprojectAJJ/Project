@@ -70,9 +70,11 @@ bool Obj::readOBJFile(const char * path)
 				indices.push_back(tmp);
 			}
 		}
-		else if (strcmp(lineHeader, "mtllib"))
+		else if (strcmp(lineHeader, "mtllib") == 0)
 		{
-			//readMTLFile(lineHeader);
+			char path[128];
+			fscanf(file, "%s\n", &path);
+			readMTLFile(path);
 		}
 	} while (true);
 
@@ -82,6 +84,7 @@ bool Obj::readOBJFile(const char * path)
 		uvs.push_back(tmpUVs[indices[i].uv - 1]);
 		normals.push_back(tmpNormals[indices[i].normal - 1]);
 	}
+	std::fclose(file);
 	return true;
 }
 
@@ -106,6 +109,7 @@ bool Obj::readMTLFile(const char * path)
 	file = fopen(path, "r");
 	int res = 0;
 	char lineHeader[128];
+
 	do
 	{
 		res = fscanf(file, "%s", lineHeader);
@@ -116,9 +120,47 @@ bool Obj::readMTLFile(const char * path)
 
 		if (std::strcmp(lineHeader, "newmtl") == 0)
 		{
-			char name[128];
-			fscanf(file, "%s", name);
+			material mt;
+			materials.push_back(mt);
+			fscanf(file, "%s\n", &materials[materials.size() - 1].name);
+		}
+		else if (std::strcmp(lineHeader, "Ns") == 0)
+		{
+			fscanf(file, "%d\n", &materials[materials.size() - 1].Ns);
+		}
+		else if (std::strcmp(lineHeader, "Ni") == 0)
+		{
+			fscanf(file, "%f\n", &materials[materials.size() - 1].Ni);
+		}
+		else if (std::strcmp(lineHeader, "d") == 0)
+		{
+			fscanf(file, "%f\n", &materials[materials.size() - 1].d);
+		}
+		else if (std::strcmp(lineHeader, "Tf") == 0)
+		{
+			fscanf(file, "%d %d %d\n", &materials[materials.size() - 1].Tf.x, &materials[materials.size() - 1].Tf.y, &materials[materials.size() - 1].Tf.z);
+		}
+		else if (std::strcmp(lineHeader, "illum") == 0)
+		{
+			fscanf(file, "%d\n", &materials[materials.size() - 1].illum);
+		}
+		else if (std::strcmp(lineHeader, "Ka") == 0)
+		{
+			fscanf(file, "%f %f %f\n", &materials[materials.size() - 1].Ka.x, &materials[materials.size() - 1].Ka.y, &materials[materials.size() - 1].Ka.z);
+		}
+		else if (std::strcmp(lineHeader, "Kd") == 0)
+		{
+			fscanf(file, "%f %f %f\n", &materials[materials.size() - 1].Kd.x, &materials[materials.size() - 1].Kd.y, &materials[materials.size() - 1].Kd.z);
+		}
+		else if (std::strcmp(lineHeader, "Ks") == 0)
+		{
+			fscanf(file, "%f %f %f\n", &materials[materials.size() - 1].Ks.x, &materials[materials.size() - 1].Ks.y, &materials[materials.size() - 1].Ks.z);
+		}
+		else if (std::strcmp(lineHeader, "map_Kd") == 0)
+		{
+			fscanf(file, "%s\n", &materials[materials.size() - 1].map_Kd);
 		}
 	} while (true);
+	std::fclose(file);
 	return true;
 }
