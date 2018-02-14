@@ -33,22 +33,30 @@ glm::mat4 View;
 
 GLFWwindow* Window;
 GLuint VertexArrayID;
+GLuint eVertexArrayID;
 GLuint Vertexbuffer;
+GLuint eVertexbuffer;
 GLuint colorbuffer;
 GLuint texbuffer;
+GLuint etexbuffer;
 GLuint normalbuffer;
 GLuint gShaderProgram;
+GLuint terrainProgram;
 GLuint quad_programID;
 GLuint matrixIDModel;
 GLuint matrixIDView;
 GLuint matrixIDProjection;
 GLuint vectorCameraPos;
+GLuint elementbuffer;
 
 GLuint cubeTexID;
 GLuint tstTexture;
 GLuint texID[4];
 
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+std::vector<unsigned int> indices;
+
 
 Camera Cam;
 FBO Fbo;
@@ -69,6 +77,9 @@ struct Vertex
 		tex = otherTex;
 	}
 };
+
+glm::vec3 heightmap[100 * 100];
+glm::vec2 heightmaptex[100 * 100];
 
 GLuint loadImage(const char * imagepath) {
 
@@ -127,6 +138,97 @@ GLuint loadImage(const char * imagepath) {
 
 	delete[] data;
 	return textureID;
+}
+
+void createHeightMap()
+{
+	unsigned char header[54];
+	unsigned int dataPos;
+	unsigned int width, height;
+	unsigned int imageSize;
+
+	unsigned char * data;
+
+	FILE * file = fopen("heightmap.bmp", "rb");
+	if (!file)
+	{
+		printf("Image could not be opened\n");
+	}
+
+	if (fread(header, 1, 54, file) != 54)
+	{
+		printf("Not a correct BMP file\n");
+	}
+
+	if (header[0] != 'B' || header[1] != 'M') {
+		printf("Not a correct BMP file\n");
+	}
+
+	// Read ints from the byte array
+	dataPos = *(int*)&(header[0x0A]);
+	imageSize = *(int*)&(header[0x22]);
+	width = *(int*)&(header[0x12]);
+	height = *(int*)&(header[0x16]);
+
+	// Some BMP files are misformatted, guess missing information
+	if (imageSize == 0)
+		imageSize = width * height * 3; // 3 : one byte for each Red, Green and Blue component
+	if (dataPos == 0)
+		dataPos = 54; // The BMP header is done that way
+
+					  // Create a buffer
+	data = new unsigned char[imageSize];
+
+	// Read the actual data from the file into the buffer
+	fread(data, 1, imageSize, file);
+
+	//Everything is in memory now, the file can be closed
+	fclose(file);
+
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			heightmap[j + i * height] = glm::vec3(j, data[(j + i * height) * 3], i);
+			heightmaptex[j + i * height] = glm::vec2(j, i);
+		}
+	}
+
+	indices.resize((width-1) * (height -1) * 6);
+
+	unsigned int index = 0; // Index in the index buffer
+	for (unsigned int j = 0; j < 99; ++j)
+	{
+		for (unsigned int i = 0; i < 99; ++i)
+		{
+			int vertexIndex = (j * width) + i;
+			// Top triangle (T0)
+			indices[index++] = vertexIndex;                           // V0
+			indices[index++] = vertexIndex + width + 1;        // V3
+			indices[index++] = vertexIndex + 1;                       // V1
+																			// Bottom triangle (T1)
+			indices[index++] = vertexIndex;                           // V0
+			indices[index++] = vertexIndex + width;            // V2
+			indices[index++] = vertexIndex + width + 1;        // V3
+		}
+	}
+
+	glGenVertexArrays(1, &eVertexArrayID);
+	glBindVertexArray(eVertexArrayID);
+
+	// Generate 1 buffer, put the resulting identifier in vertexbuffer
+	glGenBuffers(1, &eVertexbuffer);
+	// The following commands will talk about our 'vertexbuffer' buffer
+	glBindBuffer(GL_ARRAY_BUFFER, eVertexbuffer);
+	// Give our vertices to OpenGL.
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 100 * 100, heightmap, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &etexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, etexbuffer);
+	glBufferData(GL_ARRAY_BUFFER, 100 * 100 * sizeof(glm::vec2), heightmaptex, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &elementbuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
 }
 
 int initGLFW()
@@ -293,8 +395,6 @@ void createObjectWithTexture()
 
 void render()
 {
-	glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(gShaderProgram);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -349,6 +449,70 @@ void render()
 	glUniform3fv(vectorCameraPos, 1, &Cam.GetPos()[0]);
 }
 
+void renderTerrain()
+{
+	glUseProgram(terrainProgram);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, tstTexture);
+	glUniform1i(glGetUniformLocation(terrainProgram, "tex"), 0);
+
+
+	// 1rst attribute buffer : vertices
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, eVertexbuffer);
+	glVertexAttribPointer(
+		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		3,                  // size
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // stride
+		(void*)0            // array buffer offset
+	);
+
+	// 2nd attribute buffer : colors
+	glEnableVertexAttribArray(1);
+	GLint loc = glGetAttribLocation(terrainProgram, "vertexUV");
+	glBindBuffer(GL_ARRAY_BUFFER, etexbuffer);
+	glVertexAttribPointer(
+		1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+		2,                                // size
+		GL_FLOAT,                         // type
+		GL_FALSE,                         // normalized?
+		0,                                // stride
+		(void*)0                          // array buffer offset
+	);
+
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
+	glVertexAttribPointer(
+		2,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		3,                  // size
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // stride
+		(void*)0            // array buffer offset
+	);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+
+	// Draw the triangles !
+	glDrawElements(
+		GL_TRIANGLES,      // mode
+		indices.size(),    // count
+		GL_UNSIGNED_INT,   // type
+		(void*)0           // element array buffer offset
+	);
+	glDisableVertexAttribArray(0);
+
+	View = glm::mat4(glm::lookAt(Cam.GetPos(), Cam.GetPos() + Cam.GetTarget(), Cam.GetUp()));
+
+	glUniformMatrix4fv(matrixIDModel, 1, GL_FALSE, &Model[0][0]);
+	glUniformMatrix4fv(matrixIDView, 1, GL_FALSE, &View[0][0]);
+	glUniformMatrix4fv(matrixIDProjection, 1, GL_FALSE, &Projection[0][0]);
+	glUniform3fv(vectorCameraPos, 1, &Cam.GetPos()[0]);
+}
+
 void differedRender() {
 	// Use our shader
 	glUseProgram(quad_programID);
@@ -379,7 +543,6 @@ void differedRender() {
 
 	// Draw the triangles !
 	glDrawArrays(GL_TRIANGLES, 0, 6); // 2*3 indices starting at 0 -> 2 triangles
-
 
 	glDisableVertexAttribArray(0);
 }
@@ -648,61 +811,6 @@ void guiWindow(bool showImguiWindow[])
 
 }
 
-/*void createFrameBuffer() {
-
-	glGenFramebuffers(1, &FramebufferName);
-	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-
-	// The texture we're going to render to
-	glGenTextures(1, &renderedTexture);
-
-	// "Bind" the newly created texture : all future texture functions will modify this texture
-	glBindTexture(GL_TEXTURE_2D, renderedTexture);
-
-	// Give an empty image to OpenGL ( the last "0" )
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	// The depth buffer
-	GLuint depthrenderbuffer;
-	glGenRenderbuffers(1, &depthrenderbuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthrenderbuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthrenderbuffer);
-
-	// Set "renderedTexture" as our colour attachement #0
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
-
-	// Set the list of draw buffers.
-	GLenum DrawBuffers[1] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
-
-								   // Render to our framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-
-	// The fullscreen quad's FBO
-	GLuint quad_VertexArrayID;
-	glGenVertexArrays(1, &quad_VertexArrayID);
-	glBindVertexArray(quad_VertexArrayID);
-
-	static const GLfloat g_quad_vertex_buffer_data[] = {
-		-1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		1.0f,  1.0f, 0.0f,
-	};
-	glGenBuffers(1, &quad_vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, quad_vertexbuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_quad_vertex_buffer_data), g_quad_vertex_buffer_data, GL_STATIC_DRAW);
-
-}*/
-
 void mainLoop()
 {
 	bool showImGuiWindow[4] = { false };
@@ -722,7 +830,11 @@ void mainLoop()
 		glViewport(0, 0, width, height);*/
 		Fbo.BindFBO();
 
+		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		render();
+		renderTerrain();
 
 		/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, width, height);*/
@@ -761,6 +873,7 @@ int main()
 	Fbo.Init();
 	// Reads the shaders and makes a program out of them.
 	gShaderProgram = loadShaders("VertexShader.glsl","FragmentShader.glsl", "GeometryShader.glsl");
+	terrainProgram = loadShaders("terrainVertexShader.glsl",  "terrainFragmentShader.glsl", "terrainGeometryShader.glsl");
 	quad_programID = loadShadersFBO("vertexFBO.glsl", "fragmentFBO.glsl");
 
 	// Creates the vertices and color for the cube, binds to layout locations
@@ -781,6 +894,7 @@ int main()
 	Cam.SetMousePos(glm::vec2(x, y));
 
 	tstTexture = loadImage(obj.getTexturePath());
+	createHeightMap();
 
 	quad_programID = loadShadersFBO("vertexFBO.glsl", "fragmentFBO.glsl");
 	texID[0] = glGetUniformLocation(quad_programID, "colorTexture");
