@@ -1,0 +1,4 @@
+newmtl mat1
+map_Kd tstTex.bmp
+newmtl mat2
+map_Kd red.bmp

@@ -71,6 +71,9 @@
     <None Include="Ootachi.mtl">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="simple.mtl">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui\imconfig.h">
@@ -132,6 +135,9 @@
       <Filter>Resource Files</Filter>
     </Object>
     <Object Include="Furret.obj">
+      <Filter>Resource Files</Filter>
+    </Object>
+    <Object Include="simple.obj">
       <Filter>Resource Files</Filter>
     </Object>
   </ItemGroup>

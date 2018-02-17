@@ -853,7 +853,7 @@ void mainLoop()
 
 int main()
 {
-	obj.readOBJFile("Furret.obj");
+	obj.readOBJFile("simple.obj");
 
 	if (initGLFW() == -1)
 	{
