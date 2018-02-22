@@ -15,13 +15,16 @@ public:
 	std::vector<glm::vec3> getVertices() const;
 	std::vector<glm::vec2> getUVs() const;
 	std::vector<glm::vec3> getNormals() const;
-	char * getTexturePath();
+	char * getTexturePath(int area);
+	int getNrOfMaterials() const;
+	int materialAreaStart(int area) const;
+	int materialAreaEnd(int area) const;
 private:
 	bool readMTLFile(const char * path);
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec2> uvs;
 	std::vector<glm::vec3> normals;
-
+	std::vector<int> areaStarts;
 	struct material
 	{
 		char name[128];
@@ -41,7 +44,6 @@ private:
 		unsigned int vertex;
 		unsigned int uv;
 		unsigned int normal;
-		material mat;
 	};
 
 	std::vector<index> indices;

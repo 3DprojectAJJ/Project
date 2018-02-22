@@ -1,12 +1,11 @@
 ﻿  main.cpp
 c:\program files (x86)\windows kits\10\include\10.0.16299.0\shared\minwindef.h(130): warning C4005: 'APIENTRY': macro redefinition
   c:\users\tim\desktop\3dproggprojekt\3dproject\include\glfw\glfw3.h(98): note: see previous definition of 'APIENTRY'
-c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(188): warning C4018: '<': signed/unsigned mismatch
 c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(189): warning C4018: '<': signed/unsigned mismatch
-c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(441): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(505): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(777): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
-c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(796): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
+c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(190): warning C4018: '<': signed/unsigned mismatch
+c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(508): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(780): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
+c:\users\tim\desktop\3dproggprojekt\3dproject\main.cpp(799): warning C4312: 'type cast': conversion from 'GLuint' to 'GLuint *' of greater size
   Generating Code...
   Skipping... (no relevant changes detected)
   imgui_impl_glfw_gl3.cpp

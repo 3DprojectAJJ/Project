@@ -50,7 +50,8 @@ GLuint vectorCameraPos;
 GLuint elementbuffer;
 
 GLuint cubeTexID;
-GLuint tstTexture;
+std::vector<GLuint> tstTextures;
+GLuint terrainTex;
 GLuint texID[4];
 
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -397,10 +398,6 @@ void render()
 {
 	glUseProgram(gShaderProgram);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, tstTexture);
-	glUniform1i(glGetUniformLocation(gShaderProgram, "tex"),0);
-
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, Vertexbuffer);
@@ -437,10 +434,16 @@ void render()
 		(void*)0            // array buffer offset
 	);
 
-	// Draw the Cube!
-	glDrawArrays(GL_TRIANGLES, 0,obj.getVertices().size()); // Starting from vertex 0; 3 vertices total -> 1 triangle
+	// Draw the Cube!	
+	for (int i = 0; i < obj.getNrOfMaterials(); i++)
+	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, tstTextures[i]);
+		glUniform1i(glGetUniformLocation(gShaderProgram, "tex"), 0);
+		glDrawArrays(GL_TRIANGLES, obj.materialAreaStart(i), obj.materialAreaEnd(i)); // Starting from vertex 0; 3 vertices total -> 1 triangle
+	}
 	glDisableVertexAttribArray(0);
-
+	glDisableVertexAttribArray(1);
 	View = glm::mat4(glm::lookAt(Cam.GetPos(), Cam.GetPos() + Cam.GetTarget(), Cam.GetUp()));
 
 	glUniformMatrix4fv(matrixIDModel, 1, GL_FALSE, &Model[0][0]);
@@ -454,7 +457,7 @@ void renderTerrain()
 	glUseProgram(terrainProgram);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, tstTexture);
+	glBindTexture(GL_TEXTURE_2D, terrainTex);
 	glUniform1i(glGetUniformLocation(terrainProgram, "tex"), 0);
 
 
@@ -892,8 +895,11 @@ int main()
 	double x, y;
 	glfwGetCursorPos(Window, &x, &y);
 	Cam.SetMousePos(glm::vec2(x, y));
-
-	tstTexture = loadImage(obj.getTexturePath());
+	for (int i = 0; i < obj.getNrOfMaterials(); i++)
+	{
+		tstTextures.push_back(loadImage(obj.getTexturePath(i)));
+	}
+	terrainTex = loadImage("red.bmp");
 	createHeightMap();
 
 	quad_programID = loadShadersFBO("vertexFBO.glsl", "fragmentFBO.glsl");

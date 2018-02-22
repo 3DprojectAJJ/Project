@@ -67,7 +67,6 @@ bool Obj::readOBJFile(const char * path)
 				tmp.vertex = vertexIndex[i];
 				tmp.uv = uvIndex[i];
 				tmp.normal = normalIndex[i];
-				tmp.mat = materials[currMaterial];
 				indices.push_back(tmp);
 			}
 		}
@@ -86,6 +85,7 @@ bool Obj::readOBJFile(const char * path)
 				if (strcmp(tmp, materials[i].name) == 0)
 				{
 					currMaterial = i;
+					areaStarts.push_back(indices.size());
 				}
 			}
 		}
@@ -116,9 +116,29 @@ std::vector<glm::vec3> Obj::getNormals() const
 	return normals;
 }
 
-char * Obj::getTexturePath()
+char * Obj::getTexturePath(int area)
 {
-	return &indices[0].mat.map_Kd[0];
+	return materials[area].map_Kd;
+}
+
+int Obj::getNrOfMaterials() const
+{
+	return materials.size();
+}
+
+int Obj::materialAreaStart(int area) const
+{
+	return areaStarts[area];
+}
+
+int Obj::materialAreaEnd(int area) const
+{
+	int res = vertices.size();
+	if (area < materials.size() - 1)
+	{
+		res = materialAreaStart(area + 1);
+	}
+	return res;
 }
 
 bool Obj::readMTLFile(const char * path)
