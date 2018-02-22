@@ -139,9 +139,9 @@
     <None Include="Ootachi.mtl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="terrainFragmentShader.glsl" />
-    <None Include="terrainGeometryShader.glsl" />
-    <None Include="terrainVertexShader.glsl" />
+    <None Include="tFragment.glsl" />
+    <None Include="tGeometry.glsl" />
+    <None Include="tVertex.glsl" />
     <None Include="vertexFBO.glsl" />
     <None Include="VertexShader.glsl" />
   </ItemGroup>

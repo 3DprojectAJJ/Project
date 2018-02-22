@@ -189,7 +189,7 @@ void createHeightMap()
 
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
-			heightmap[j + i * height] = glm::vec3((float)j/2, (float)data[(j + i * height) * 3] / 10, (float)i/2);
+			heightmap[j + i * height] = glm::vec3((float)(j/2) - (float)(width/4), (float)data[(j + i * height) * 3] / 10, (float)(i / 2) - (float)(height / 4));
 			heightmaptex[j + i * height] = glm::vec2(j/width, i/height);
 		}
 	}
@@ -197,9 +197,9 @@ void createHeightMap()
 	indices.resize((width-1) * (height -1) * 6);
 
 	unsigned int index = 0; // Index in the index buffer
-	for (unsigned int j = 0; j < 99; ++j)
+	for (unsigned int j = 0; j < height - 1; ++j)
 	{
-		for (unsigned int i = 0; i < 99; ++i)
+		for (unsigned int i = 0; i < width - 1; ++i)
 		{
 			int vertexIndex = (j * width) + i;
 			// Top triangle (T0)
@@ -399,6 +399,11 @@ void render()
 {
 	glUseProgram(gShaderProgram);
 
+	glUniformMatrix4fv(matrixIDModel, 1, GL_FALSE, &Model[0][0]);
+	glUniformMatrix4fv(matrixIDView, 1, GL_FALSE, &View[0][0]);
+	glUniformMatrix4fv(matrixIDProjection, 1, GL_FALSE, &Projection[0][0]);
+	glUniform3fv(vectorCameraPos, 1, &Cam.GetPos()[0]);
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, tstTexture);
 	glUniform1i(glGetUniformLocation(gShaderProgram, "tex"),0);
@@ -442,23 +447,25 @@ void render()
 	// Draw the Cube!
 	glDrawArrays(GL_TRIANGLES, 0,obj.getVertices().size()); // Starting from vertex 0; 3 vertices total -> 1 triangle
 	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
+}
 
-	View = glm::mat4(glm::lookAt(Cam.GetPos(), Cam.GetPos() + Cam.GetTarget(), Cam.GetUp()));
+void terrainRender() {
+
+	glUseProgram(terrainProgram);
 
 	glUniformMatrix4fv(matrixIDModel, 1, GL_FALSE, &Model[0][0]);
 	glUniformMatrix4fv(matrixIDView, 1, GL_FALSE, &View[0][0]);
 	glUniformMatrix4fv(matrixIDProjection, 1, GL_FALSE, &Projection[0][0]);
 	glUniform3fv(vectorCameraPos, 1, &Cam.GetPos()[0]);
-}
 
-void renderTerrain()
-{
-	glUseProgram(terrainProgram);
+	// Index buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, terrainTex);
-	glUniform1i(texi, 0);
-
+	glBindTexture(GL_TEXTURE_2D, texi);
+	glUniform1i(glGetUniformLocation(terrainProgram, "tex"), 0);
 
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
@@ -474,7 +481,7 @@ void renderTerrain()
 
 	// 2nd attribute buffer : colors
 	glEnableVertexAttribArray(1);
-	GLint loc = glGetAttribLocation(terrainProgram, "vertexUV");
+	GLint loc = glGetAttribLocation(gShaderProgram, "vertexUV");
 	glBindBuffer(GL_ARRAY_BUFFER, etexbuffer);
 	glVertexAttribPointer(
 		1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
@@ -485,19 +492,6 @@ void renderTerrain()
 		(void*)0                          // array buffer offset
 	);
 
-	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
-	glVertexAttribPointer(
-		2,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-	);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-
 	// Draw the triangles !
 	glDrawElements(
 		GL_TRIANGLES,      // mode
@@ -505,15 +499,11 @@ void renderTerrain()
 		GL_UNSIGNED_INT,   // type
 		(void*)0           // element array buffer offset
 	);
+
 	glDisableVertexAttribArray(0);
-
-	glUniformMatrix4fv(matrixIDModel, 1, GL_FALSE, &Model[0][0]);
-	glUniformMatrix4fv(matrixIDView, 1, GL_FALSE, &View[0][0]);
-	glUniformMatrix4fv(matrixIDProjection, 1, GL_FALSE, &Projection[0][0]);
-	glUniform3fv(vectorCameraPos, 1, &Cam.GetPos()[0]);
-
-	View = glm::mat4(glm::lookAt(Cam.GetPos(), Cam.GetPos() + Cam.GetTarget(), Cam.GetUp()));
+	glDisableVertexAttribArray(1);
 }
+
 
 void differedRender() {
 	// Use our shader
@@ -736,10 +726,6 @@ void makeMatrices()
 	Model = glm::mat4(1.0f);
 	// Our ModelViewProjection : multiplication of our 3 matrices
 	//glm::mat4 mvp = Projection * View * Model; // Remember, matrix multiplication is the other way around
-
-	matrixIDModel = glGetUniformLocation(gShaderProgram, "Model");
-	matrixIDView = glGetUniformLocation(gShaderProgram, "View");
-	matrixIDProjection = glGetUniformLocation(gShaderProgram, "Projection");
 }
 
 void movementToCamera(float dt)
@@ -826,20 +812,23 @@ void mainLoop()
 		float deltaTime = (float)time - lastTime;
 
 		movementToCamera(deltaTime);
-		Model *= glm::rotate(0.0f* (float)deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
+		Model *= glm::rotate(0.1f* (float)deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));
+		View = glm::mat4(glm::lookAt(Cam.GetPos(), Cam.GetPos() + Cam.GetTarget(), Cam.GetUp()));
 
-		/*glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-		glViewport(0, 0, width, height);*/
 		Fbo.BindFBO();
-
 		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		matrixIDModel = glGetUniformLocation(gShaderProgram, "Model");
+		matrixIDView = glGetUniformLocation(gShaderProgram, "View");
+		matrixIDProjection = glGetUniformLocation(gShaderProgram, "Projection");
 		render();
-		renderTerrain();
 
-		/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glViewport(0, 0, width, height);*/
+		matrixIDModel = glGetUniformLocation(terrainProgram, "Model");
+		matrixIDView = glGetUniformLocation(terrainProgram, "View");
+		matrixIDProjection = glGetUniformLocation(terrainProgram, "Projection");
+		terrainRender();
+
 		Fbo.UnbindFBO(width, height);
 
 		differedRender();
@@ -874,9 +863,9 @@ int main()
 	//createFrameBuffer();
 	Fbo.Init();
 	// Reads the shaders and makes a program out of them.
-	terrainProgram = loadShaders("terrainVertexShader.glsl", "terrainFragmentShader.glsl", "terrainGeometryShader.glsl");
 	gShaderProgram = loadShaders("VertexShader.glsl","FragmentShader.glsl", "GeometryShader.glsl");
 	quad_programID = loadShadersFBO("vertexFBO.glsl", "fragmentFBO.glsl");
+	terrainProgram = loadShaders("tVertex.glsl", "tFragment.glsl", "tGeometry.glsl");
 
 	// Creates the vertices and color for the cube, binds to layout locations
 	//createCube();
@@ -897,19 +886,19 @@ int main()
 	Cam.SetMousePos(glm::vec2(x, y));
 
 	tstTexture = loadImage(obj.getTexturePath());
-	terrainTex = loadImage("red.bmp");
+	texi = loadImage("red.bmp");
 
 	quad_programID = loadShadersFBO("vertexFBO.glsl", "fragmentFBO.glsl");
 	texID[0] = glGetUniformLocation(quad_programID, "colorTexture");
 	texID[1] = glGetUniformLocation(quad_programID, "normalTexture");
 	texID[2] = glGetUniformLocation(quad_programID, "positionTexture");
 	texID[3] = glGetUniformLocation(quad_programID, "depthTexture");
-	texi = glGetUniformLocation(terrainProgram, "etex");
 
 	cubeTexID = glGetUniformLocation(gShaderProgram, "tex");
 
 
 	// does it need explanation?
+
 	mainLoop();
 
 	return 0;

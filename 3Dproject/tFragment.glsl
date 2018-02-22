@@ -10,7 +10,7 @@ layout(location = 2) out vec3 position;
 layout(location = 3) out vec3 depth;
 
 float deptha;
-uniform sampler2D etex;
+uniform sampler2D tex;
 
 float LinearizeDepth(float zoverw){
 		float n = 1.0; // camera z near
@@ -20,7 +20,7 @@ float LinearizeDepth(float zoverw){
 
 void main()
 {
-  color = texture(etex, fragmentUV).rgb;
+  color = texture(tex, fragmentUV).rgb;
   normal = fragmentNormal;
   position = fragmentPosition;
   deptha = LinearizeDepth(gl_FragCoord.z)*77;

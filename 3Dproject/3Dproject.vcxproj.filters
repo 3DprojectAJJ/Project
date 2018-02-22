@@ -71,13 +71,13 @@
     <None Include="Ootachi.mtl">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="terrainFragmentShader.glsl">
+    <None Include="tVertex.glsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="terrainGeometryShader.glsl">
+    <None Include="tGeometry.glsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="terrainVertexShader.glsl">
+    <None Include="tFragment.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
