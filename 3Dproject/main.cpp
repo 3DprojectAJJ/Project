@@ -80,8 +80,7 @@ struct Vertex
 	}
 };
 
-glm::vec3 heightmap[100 * 100];
-glm::vec2 heightmaptex[100 * 100];
+
 
 GLuint loadImage(const char * imagepath) {
 
@@ -187,9 +186,15 @@ void createHeightMap()
 	//Everything is in memory now, the file can be closed
 	fclose(file);
 
+	glm::vec3* heightmap = new glm::vec3[width*height];
+	glm::vec2* heightmaptex = new glm::vec2[width*height];
+
+	float vertexWidth = 0.2f;
+	float heightScaling = 5;
+
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
-			heightmap[j + i * height] = glm::vec3((float)(j/2) - (float)(width/4), (float)data[(j + i * height) * 3] / 10, (float)(i / 2) - (float)(height / 4));
+			heightmap[j + i * height] = glm::vec3((float)(j * vertexWidth) - (float)(width * (vertexWidth * 0.5f)), (float)data[70 + (j + i * height) * 3] * heightScaling / 255, (float)(i * vertexWidth) - (float)(height * (vertexWidth * 0.5f)));
 			heightmaptex[j + i * height] = glm::vec2(j/width, i/height);
 		}
 	}
@@ -793,6 +798,9 @@ void guiWindow(bool showImguiWindow[])
 		ImGui::Text("These are the options");
 		ImGui::SliderFloat("MouseSpeed", &mouseSpeed, 0.5f, 10.0f);
 		ImGui::SliderFloat("MoveSpeed", &moveSpeed, 1.0f, 100.0f);
+		if (ImGui::Button("Read Heightmap")) {
+			createHeightMap();
+		}
 		ImGui::End();
 	}
 	ImGui::Render();
@@ -804,6 +812,7 @@ void mainLoop()
 	bool showImGuiWindow[4] = { false };
 	double time = glfwGetTime();
 	float lastTime = 0;
+	float timer = 5;
 
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(Window, GLFW_STICKY_KEYS, GL_TRUE);
