@@ -9,7 +9,6 @@ out vec3 fragmentPosition;
 out vec2 fragmentUV;
 out vec3 fragmentNormal;
 
-uniform mat4 Model;
 uniform mat4 View;
 uniform mat4 Projection;
 uniform vec3 CameraPos;
@@ -26,14 +25,13 @@ vec3 normal()
 
 void main()
 {		
-		mat4 t = mat4(1.0f);
 
 		for(int i = 0; i < 3; i++)
 		{
-			gl_Position = Projection * View * t * gl_in[i].gl_Position;
-			fragmentNormal = (t * vec4(normal(), 1.0f)).xyz;
+			gl_Position = Projection * View * gl_in[i].gl_Position;
+			fragmentNormal = (vec4(normal(), 1.0f)).xyz;
 			fragmentUV = geometryUV[i];
-			fragmentPosition = (t * gl_in[i].gl_Position).xyz;
+			fragmentPosition = (gl_in[i].gl_Position).xyz;
 			EmitVertex();
 		}
 		EndPrimitive();

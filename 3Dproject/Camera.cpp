@@ -2,7 +2,7 @@
 
 Camera::Camera()
 {
-	pos = glm::vec3(4, 3, 3);
+	pos = glm::vec3(10, 5, 5);
 	target = glm::vec3(0, 0, 0) - pos;
 	up = glm::vec3(0, 1, 0);
 }
@@ -18,6 +18,11 @@ Camera::Camera(const glm::vec3 & pos, const glm::vec3 & target, const glm::vec3 
 void Camera::SetMousePos(glm::vec2 mousePos)
 {
 	lastMousePos = mousePos;
+}
+
+void Camera::setCamPos(glm::vec3 camPos)
+{
+	pos = camPos;
 }
 
 bool Camera::OnKeyboard(int key, float dt, float moveSpeed)

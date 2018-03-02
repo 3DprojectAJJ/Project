@@ -55,10 +55,14 @@ GLuint terrainTex;
 GLuint texID[4];
 GLuint texi;
 
+glm::vec3* heightmap;
+int heightmapWidth, heightmapHeight;
+
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 std::vector<unsigned int> indices;
 
+bool orbit = true;
 
 Camera Cam;
 FBO Fbo;
@@ -186,15 +190,18 @@ void createHeightMap()
 	//Everything is in memory now, the file can be closed
 	fclose(file);
 
-	glm::vec3* heightmap = new glm::vec3[width*height];
+	heightmap = new glm::vec3[width*height];
 	glm::vec2* heightmaptex = new glm::vec2[width*height];
 
-	float vertexWidth = 0.2f;
+	heightmapWidth = width;
+	heightmapHeight = height;
+
+	float vertexWidth = 0.25f;
 	float heightScaling = 5;
 
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			heightmap[j + i * height] = glm::vec3((float)(j * vertexWidth) - (float)(width * (vertexWidth * 0.5f)), (float)data[70 + (j + i * height) * 3] * heightScaling / 255, (float)(i * vertexWidth) - (float)(height * (vertexWidth * 0.5f)));
+	for (unsigned int i = 0; i < height; i++) {
+		for (unsigned int j = 0; j < width; j++) {
+			heightmap[j + i * height] = glm::vec3((float)(j * vertexWidth) - (float)(width * (vertexWidth * 0.5f)), (float)data[(j + i * height) * 3] * heightScaling / 255, (float)(i * vertexWidth) - (float)(height * (vertexWidth * 0.5f)));
 			heightmaptex[j + i * height] = glm::vec2(j/width, i/height);
 		}
 	}
@@ -202,11 +209,11 @@ void createHeightMap()
 	indices.resize((width-1) * (height -1) * 6);
 
 	unsigned int index = 0; // Index in the index buffer
-	for (unsigned int j = 0; j < height - 1; ++j)
+	for (unsigned int i = 0; i < height - 1; ++i)
 	{
-		for (unsigned int i = 0; i < width - 1; ++i)
+		for (unsigned int j = 0; j < width - 1; ++j)
 		{
-			int vertexIndex = (j * width) + i;
+			int vertexIndex = (i * width) + j;
 			// Top triangle (T0)
 			indices[index++] = vertexIndex;                           // V0
 			indices[index++] = vertexIndex + width + 1;        // V3
@@ -287,46 +294,6 @@ void createCube()
 {
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
-	// Our vertices. Three consecutive floats give a 3D vertex; Three consecutive vertices give a triangle.
-	// A cube has 6 faces with 2 triangles each, so this makes 6*2=12 triangles, and 12*3 vertices
-	/*static const GLfloat gVertexBufferData[] = {
-		-1.0f,-1.0f,-1.0f, // triangle 1 : begin
-		-1.0f,-1.0f, 1.0f,
-		-1.0f, 1.0f, 1.0f, // triangle 1 : end
-		1.0f, 1.0f,-1.0f, // triangle 2 : begin
-		-1.0f,-1.0f,-1.0f,
-		-1.0f, 1.0f,-1.0f, // triangle 2 : end
-		1.0f,-1.0f, 1.0f,
-		-1.0f,-1.0f,-1.0f,
-		1.0f,-1.0f,-1.0f,
-		1.0f, 1.0f,-1.0f,
-		1.0f,-1.0f,-1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f,-1.0f,
-		1.0f,-1.0f, 1.0f,
-		-1.0f,-1.0f, 1.0f,
-		-1.0f,-1.0f,-1.0f,
-		-1.0f, 1.0f, 1.0f,
-		-1.0f,-1.0f, 1.0f,
-		1.0f,-1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f,-1.0f,-1.0f,
-		1.0f, 1.0f,-1.0f,
-		1.0f,-1.0f,-1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f,-1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f,-1.0f,
-		-1.0f, 1.0f,-1.0f,
-		1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f,-1.0f,
-		-1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f, 1.0f,
-		-1.0f, 1.0f, 1.0f,
-		1.0f,-1.0f, 1.0f
-	};*/
 
 	// Generate 1 buffer, put the resulting identifier in vertexbuffer
 	glGenBuffers(1, &Vertexbuffer);
@@ -460,7 +427,6 @@ void terrainRender() {
 
 	glUseProgram(terrainProgram);
 
-	glUniformMatrix4fv(matrixIDModel, 1, GL_FALSE, &Model[0][0]);
 	glUniformMatrix4fv(matrixIDView, 1, GL_FALSE, &View[0][0]);
 	glUniformMatrix4fv(matrixIDProjection, 1, GL_FALSE, &Projection[0][0]);
 	glUniform3fv(vectorCameraPos, 1, &Cam.GetPos()[0]);
@@ -524,7 +490,6 @@ void differedRender() {
 
 		glUniform1i(texID[i], i);
 	}
-
 
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
@@ -747,13 +712,46 @@ void movementToCamera(float dt)
 
 	double xPos, yPos;
 	glfwGetCursorPos(Window, &xPos, &yPos);
-	
+
 	glfwSetInputMode(Window, GLFW_STICKY_MOUSE_BUTTONS, 1);
 	if (glfwGetMouseButton(Window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
 		Cam.OnMouse(xPos, yPos, dt, mouseSpeed);
 	}
 	else {
 		Cam.SetMousePos(glm::vec2(xPos, yPos));
+	}
+
+	if (orbit == false) {
+		float h = 0;
+		float x = Cam.GetPos().x;
+		float z = Cam.GetPos().z;
+		int index = ((int)(x + 25) * 4) + ((int)(z + 25) * 4) * heightmapWidth;
+		if (x >= -25 & x <= 25 & z >= -25 & z <= 25)
+		{
+			float y1 = heightmap[index].y;
+
+			float y2 = heightmap[index + 1].y;
+
+			float y3 = heightmap[index + heightmapWidth].y;
+
+			float y4 = heightmap[index + heightmapWidth + 1].y;
+
+
+			float xfrac = x - floor(x);
+
+			float zfrac = z - floor(z);
+
+
+
+			float yleft = y1 + (y2 - y1) * xfrac;
+
+			float yright = y3 + (y4 - y3) * xfrac;
+
+
+
+			h = yleft + (yright - yleft) * zfrac + 1;
+		}
+		Cam.setCamPos(glm::vec3(x, h, z));
 	}
 }
 
@@ -778,6 +776,7 @@ void guiWindow(bool showImguiWindow[])
 		if (ImGui::Button("Options"))
 			optionWindow ^= 1;
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)\nHorisontal: %f\nVertical: %f", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate, Cam.GetAngles().x, Cam.GetAngles().y);
+		ImGui::Text("Camera Position: %.2f x, %.2f y, %.2f z", Cam.GetPos().x, Cam.GetPos().y, Cam.GetPos().z);
 	}
 	// 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name the window.
 
@@ -801,6 +800,16 @@ void guiWindow(bool showImguiWindow[])
 		if (ImGui::Button("Read Heightmap")) {
 			createHeightMap();
 		}
+		if (orbit == true) {
+			if (ImGui::Button("Walk")) {
+				orbit = false;
+			}
+		}
+		else {
+			if (ImGui::Button("Orbit")) {
+				orbit = true;
+			}
+		}
 		ImGui::End();
 	}
 	ImGui::Render();
@@ -813,6 +822,8 @@ void mainLoop()
 	double time = glfwGetTime();
 	float lastTime = 0;
 	float timer = 5;
+
+	Model *= glm::translate(glm::vec3(0, 3, 0));
 
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(Window, GLFW_STICKY_KEYS, GL_TRUE);
@@ -854,7 +865,6 @@ void mainLoop()
 int main()
 {
 	obj.readOBJFile("Furret.obj");
-
 	if (initGLFW() == -1)
 	{
 		return -1;
