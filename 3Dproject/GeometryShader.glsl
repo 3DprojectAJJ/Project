@@ -6,9 +6,16 @@ layout(triangle_strip, max_vertices = 3) out;
 in vec2 geometryUV[];
 in vec3 geometryNormal[];
 
+in vec3 geometryAmbient[];
+in vec3 geometryDiffuse[];
+in vec4 geometrySpecular[];
+
 out vec3 fragmentPosition;
 out vec2 fragmentUV;
 out vec3 fragmentNormal;
+out vec3 fragmentAmbient;
+out vec3 fragmentDiffuse;
+out vec4 fragmentSpecular;
 
 uniform mat4 Model;
 uniform mat4 View;

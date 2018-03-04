@@ -96,6 +96,17 @@ bool Obj::readOBJFile(const char * path)
 		vertices.push_back(tmpVertices[indices[i].vertex - 1]);
 		uvs.push_back(tmpUVs[indices[i].uv - 1]);
 		normals.push_back(tmpNormals[indices[i].normal - 1]);
+		for (int j = 0; j < getNrOfMaterials(); j++)
+		{
+			if (i < materialAreaEnd(j) && i >= materialAreaStart(j))
+			{
+				ambients.push_back(materials[j].Ka);
+				diffuses.push_back(materials[j].Kd);
+				speculars.push_back(glm::vec4(materials[j].Ks, materials[j].Ns));
+				break;
+			}
+		}
+		
 	}
 	std::fclose(file);
 	return true;
@@ -114,6 +125,21 @@ std::vector<glm::vec2> Obj::getUVs() const
 std::vector<glm::vec3> Obj::getNormals() const
 {
 	return normals;
+}
+
+std::vector<glm::vec3> Obj::getAmbients() const
+{
+	return ambients;
+}
+
+std::vector<glm::vec3> Obj::getDiffuses() const
+{
+	return diffuses;
+}
+
+std::vector<glm::vec4> Obj::getSpeculars() const
+{
+	return speculars;
 }
 
 char * Obj::getTexturePath(int area)

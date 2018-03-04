@@ -1,7 +1,7 @@
 #ifndef FBO_H
 #define FBO_H
 #include <GL\glew.h>
-#define NUM_OF_TEXTURES 4
+#define NUM_OF_TEXTURES 7
 class FBO
 {
 private:
@@ -20,6 +20,7 @@ public:
 	void Init();
 	void BindFBO();
 	void UnbindFBO(int width, int height);
+	int NrOfTex();
 
 	GLuint* GetTexID();
 	GLuint GetQuadID() const;

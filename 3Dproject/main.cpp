@@ -40,6 +40,9 @@ GLuint colorbuffer;
 GLuint texbuffer;
 GLuint etexbuffer;
 GLuint normalbuffer;
+GLuint ambientBuffer;
+GLuint diffuseBuffer;
+GLuint specularBuffer;
 GLuint gShaderProgram;
 GLuint terrainProgram;
 GLuint quad_programID;
@@ -53,6 +56,8 @@ GLuint cubeTexID;
 std::vector<GLuint> tstTextures;
 GLuint terrainTex;
 GLuint texID[4];
+
+GLuint objMaterialTextures[3];
 
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -392,6 +397,18 @@ void createObjectWithTexture()
 	glGenBuffers(1, &normalbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
 	glBufferData(GL_ARRAY_BUFFER, obj.getNormals().size() * sizeof(glm::vec3), &obj.getNormals()[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &ambientBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, ambientBuffer);
+	glBufferData(GL_ARRAY_BUFFER, obj.getAmbients().size() * sizeof(glm::vec3), &obj.getAmbients()[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &diffuseBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, diffuseBuffer);
+	glBufferData(GL_ARRAY_BUFFER, obj.getDiffuses().size() * sizeof(glm::vec3), &obj.getDiffuses()[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &specularBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, specularBuffer);
+	glBufferData(GL_ARRAY_BUFFER, obj.getSpeculars().size() * sizeof(glm::vec4), &obj.getSpeculars()[0], GL_STATIC_DRAW);
 }
 
 void render()
@@ -426,8 +443,41 @@ void render()
 	glEnableVertexAttribArray(2);
 	glBindBuffer(GL_ARRAY_BUFFER, normalbuffer);
 	glVertexAttribPointer(
-		2,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		2,                  // attribute 2. No particular reason for 2, but must match the layout in the shader.
 		3,                  // size
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // stride
+		(void*)0            // array buffer offset
+	);
+
+	glEnableVertexAttribArray(3);
+	glBindBuffer(GL_ARRAY_BUFFER, ambientBuffer);
+	glVertexAttribPointer(
+		3,                  // attribute 3. No particular reason for 3, but must match the layout in the shader.
+		3,                  // size
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // stride
+		(void*)0            // array buffer offset
+	);
+
+	glEnableVertexAttribArray(4);
+	glBindBuffer(GL_ARRAY_BUFFER, diffuseBuffer);
+	glVertexAttribPointer(
+		4,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		3,                  // size
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // stride
+		(void*)0            // array buffer offset
+	);
+
+	glEnableVertexAttribArray(5);
+	glBindBuffer(GL_ARRAY_BUFFER, specularBuffer);
+	glVertexAttribPointer(
+		5,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		4,                  // size
 		GL_FLOAT,           // type
 		GL_FALSE,           // normalized?
 		0,                  // stride
@@ -522,7 +572,7 @@ void differedRender() {
 	// Clear the screen
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < Fbo.NrOfTex(); i++)
 	{
 		// Bind our texture in Texture Unit 0
 		glActiveTexture(GL_TEXTURE0 + i);
@@ -776,7 +826,7 @@ void guiWindow(bool showImguiWindow[])
 	{
 		ImGui::SetWindowSize(ImVec2(480, 220));
 		ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats as a color
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < Fbo.NrOfTex(); i++) {
 			if (ImGui::ImageButton((GLuint*)Fbo.GetTexID()[i], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
 			{
 				showImguiWindow[i] = true;
@@ -791,7 +841,7 @@ void guiWindow(bool showImguiWindow[])
 	}
 	// 2. Show another simple window. In most cases you will use an explicit Begin/End pair to name the window.
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < Fbo.NrOfTex(); i++)
 	{
 		if (showImguiWindow[i])
 		{
@@ -816,7 +866,7 @@ void guiWindow(bool showImguiWindow[])
 
 void mainLoop()
 {
-	bool showImGuiWindow[4] = { false };
+	bool showImGuiWindow[7] = { false };
 	double time = glfwGetTime();
 	float lastTime = 0;
 
@@ -903,13 +953,16 @@ int main()
 	createHeightMap();
 
 	quad_programID = loadShadersFBO("vertexFBO.glsl", "fragmentFBO.glsl");
+
 	texID[0] = glGetUniformLocation(quad_programID, "colorTexture");
 	texID[1] = glGetUniformLocation(quad_programID, "normalTexture");
 	texID[2] = glGetUniformLocation(quad_programID, "positionTexture");
 	texID[3] = glGetUniformLocation(quad_programID, "depthTexture");
+	texID[4] = glGetUniformLocation(quad_programID, "ambientTexture");
+	texID[5] = glGetUniformLocation(quad_programID, "diffuseTexture");
+	texID[6] = glGetUniformLocation(quad_programID, "specularTexture");
 
 	cubeTexID = glGetUniformLocation(gShaderProgram, "tex");
-
 
 	// does it need explanation?
 	mainLoop();

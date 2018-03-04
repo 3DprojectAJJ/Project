@@ -15,6 +15,9 @@ public:
 	std::vector<glm::vec3> getVertices() const;
 	std::vector<glm::vec2> getUVs() const;
 	std::vector<glm::vec3> getNormals() const;
+	std::vector<glm::vec3> getAmbients() const;
+	std::vector<glm::vec3> getDiffuses() const;
+	std::vector<glm::vec4> getSpeculars() const;
 	char * getTexturePath(int area);
 	int getNrOfMaterials() const;
 	int materialAreaStart(int area) const;
@@ -24,6 +27,10 @@ private:
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec2> uvs;
 	std::vector<glm::vec3> normals;
+
+	std::vector<glm::vec3> ambients;
+	std::vector<glm::vec3> diffuses;
+	std::vector<glm::vec4> speculars;
 	std::vector<int> areaStarts;
 	struct material
 	{
