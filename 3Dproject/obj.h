@@ -32,6 +32,7 @@ private:
 	std::vector<glm::vec3> diffuses;
 	std::vector<glm::vec4> speculars;
 	std::vector<int> areaStarts;
+
 	struct material
 	{
 		char name[128];

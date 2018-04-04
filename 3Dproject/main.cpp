@@ -19,6 +19,7 @@
 #include "imgui\imgui.h"
 #include "imgui\imgui_impl_glfw_gl3.h"
 #include "obj.h"
+#include "MeshHandler.h"
 
 #pragma warning(disable:4996)
 
@@ -869,6 +870,17 @@ void mainLoop()
 	bool showImGuiWindow[7] = { false };
 	double time = glfwGetTime();
 	float lastTime = 0;
+	std::vector<Mesh> meshVector;
+	Mesh furret(glm::mat4(1.0f));
+	Mesh simple(glm::mat4(1.0f));
+	furret.readOBJFile("furret.obj");
+	simple.readOBJFile("simple.obj");
+
+	meshVector.push_back(furret);
+	meshVector.push_back(simple);
+
+	MeshHandler meshes(meshVector);
+	meshes.makeBuffer(gShaderProgram);
 
 	// Ensure we can capture the escape key being pressed below
 	glfwSetInputMode(Window, GLFW_STICKY_KEYS, GL_TRUE);
@@ -886,7 +898,10 @@ void mainLoop()
 		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		render();
+		meshes.draw(gShaderProgram);
+		glUniformMatrix4fv(matrixIDView, 1, GL_FALSE, &View[0][0]);
+		glUniformMatrix4fv(matrixIDProjection, 1, GL_FALSE, &Projection[0][0]);
+		//render();
 		renderTerrain();
 
 		/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
