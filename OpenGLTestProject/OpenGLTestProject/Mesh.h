@@ -22,6 +22,7 @@ public:
 		unsigned int specularExponent;
 		GLuint texID;
 	};
+
 	struct material
 	{
 		char name[128];

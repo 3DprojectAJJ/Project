@@ -241,6 +241,7 @@ bool Mesh::readOBJFile(const char * path)
 	std::fclose(file);
 	return true;
 }
+
 void Mesh::makeBuffer(GLuint program)
 {
 	glGenVertexArrays(1, &vao);
@@ -255,7 +256,7 @@ void Mesh::makeBuffer(GLuint program)
 
 	if (vertexPos == -1)
 	{
-		OutputDebugStringA("Error, cannot find 'vertex_position' attribute in Vertex shader\n");
+		OutputDebugStringA("Error, cannot find 'vertexPosition' attribute in Vertex shader\n");
 		return;
 	}
 
@@ -272,7 +273,7 @@ void Mesh::makeBuffer(GLuint program)
 
 	if (vertexUV == -1)
 	{
-		OutputDebugStringA("Error, cannot find 'vertex_UV' attribute in Vertex shader\n");
+		OutputDebugStringA("Error, cannot find 'vertexUV' attribute in Vertex shader\n");
 		return;
 	}
 
@@ -285,8 +286,84 @@ void Mesh::makeBuffer(GLuint program)
 		BUFFER_OFFSET(3*sizeof(GL_FLOAT))
 	);
 
+	/*glEnableVertexAttribArray(3);
+	GLint vertexAmbient = glGetAttribLocation(program, "vertexAmbient");
+
+	if (vertexAmbient == -1)
+	{
+		OutputDebugStringA("Error, cannot find 'vertexAmbient' attribute in Vertex shader");
+		return;
+	}
+
+	glVertexAttribPointer(
+		vertexAmbient,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		sizeof(vertexInfo),
+		BUFFER_OFFSET(8 * sizeof(GL_FLOAT))
+	);
+
+	glEnableVertexAttribArray(4);
+	GLint vertexDiffuse = glGetAttribLocation(program, "vertexDiffuse");
+
+	if (vertexDiffuse == -1)
+	{
+		OutputDebugStringA("Error, cannot find 'vertexDiffuse' attribute in Vertex shader");
+		return;
+	}
+
+	glVertexAttribPointer(
+		vertexDiffuse,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		sizeof(vertexInfo),
+		BUFFER_OFFSET(11 * sizeof(GL_FLOAT))
+	);
+
+	glEnableVertexAttribArray(5);
+	GLint vertexSpecular = glGetAttribLocation(program, "vertexSpecular");
+
+	if (vertexSpecular == -1)
+	{
+		OutputDebugStringA("Error, cannot find 'vertexDiffuse' attribute in Vertex shader");
+		return;
+	}
+
+	glVertexAttribPointer(
+		vertexSpecular,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		sizeof(vertexInfo),
+		BUFFER_OFFSET(14 * sizeof(GL_FLOAT))
+	);
+
+	glEnableVertexAttribArray(6);
+	GLint vertexSpecularExponent = glGetAttribLocation(program, "vertexSpecularExponent");
+
+	if (vertexSpecularExponent == -1)
+	{
+		OutputDebugStringA("Error, cannot find 'vertexSpecularExponent' attribute in Vertex shader");
+		return;
+	}
+
+	glVertexAttribPointer(
+		vertexSpecularExponent,
+		1,
+		GL_INT,
+		GL_FALSE,
+		sizeof(vertexInfo),
+		BUFFER_OFFSET(17 * sizeof(GL_FLOAT))
+	);*/
+
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+	/*glDisableVertexAttribArray(3);
+	glDisableVertexAttribArray(4);
+	glDisableVertexAttribArray(5);
+	glDisableVertexAttribArray(6);*/
 }
 void Mesh::draw(GLuint program)
 {
