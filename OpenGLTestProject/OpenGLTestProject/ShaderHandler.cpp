@@ -55,10 +55,10 @@ bool ShaderHandler::createProgram()
 {
 	bool result = true;
 	GLuint programID = glCreateProgram();
-	unsigned int nrOf = (unsigned int)shaders.size();
-	for (unsigned int i = 0; i < nrOf; i++)
+	unsigned int nrOf = shaders.size();
+	for (int i = 0; i < nrOf; i++)
 	{
-		if (shaders[i].id != -1)
+		if (shaders[i].id != -1);
 		{
 			glAttachShader(programID, shaders[i].id);
 		}

@@ -42,7 +42,7 @@ GLFWwindow * init()
 	return window;
 }
 
-/*GLuint loadShader(const char * path, GLenum shaderType)
+GLuint loadShader(const char * path, GLenum shaderType)
 {
 	// buffer for error/debug output
 	char buff[1024];
@@ -105,7 +105,7 @@ GLuint createProgram(GLuint * shaders, unsigned int nrOf)
 		}
 	}
 	return programID;
-}*/
+}
 
 int main()
 {

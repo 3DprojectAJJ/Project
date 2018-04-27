@@ -216,14 +216,14 @@ bool Mesh::readOBJFile(const char * path)
 					currMaterial = i;
 					if (!startOfMat.empty())
 					{
-						endOfMat.push_back((GLuint)indices.size());
+						endOfMat.push_back(indices.size());
 					}
-					startOfMat.push_back((GLuint)indices.size());
+					startOfMat.push_back(indices.size());
 				}
 			}
 		}
 	} while (true);
-	endOfMat.push_back((GLuint)indices.size());
+	endOfMat.push_back(indices.size());
 	for (int i = 0; i < indices.size(); i++)
 	{
 		vertexInfo tmp;
