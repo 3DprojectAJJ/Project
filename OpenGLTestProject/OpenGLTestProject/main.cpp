@@ -2,6 +2,9 @@
 #include "Camera.h"
 #include "Framebuffer.h"
 #include "ShaderHandler.h"
+#include "imgui\imgui.h"
+#include "imgui\imgui_impl_glfw_gl3.h"
+
 #include <GLFW\glfw3.h>
 #include <fstream>
 #include <GLM\glm.hpp>
@@ -23,23 +26,33 @@ GLFWwindow * Window;
 
 GLFWwindow * init()
 {
+	// initializes glfw, this is needs to be done before doing anything related to glfw.
 	glfwInit();
 
+	// gives some "hints" for the window.
 	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // We want OpenGL 3.3
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // We don't want the old OpenGL
 
+	// create the window
 	GLFWwindow * window = glfwCreateWindow(1024, 720, "Test", NULL, NULL);
+	// Makes the currently selected window into the recently created window
 	glfwMakeContextCurrent(window);
-
+	//makes sure that we have the experimental version of glew so that the debugger won't complain
 	glewExperimental = true;
 
 	if (glewInit() != GLEW_OK) {
 		fprintf(stderr, "Failed to initialize GLEW\n");
 	}
 	return window;
+}
+void initImgui(GLFWwindow * window)
+{
+	ImGui::CreateContext();
+	ImGui_ImplGlfwGL3_Init(window, true);
+	ImGui::StyleColorsDark();
 }
 
 /*GLuint loadShader(const char * path, GLenum shaderType)
@@ -113,6 +126,9 @@ int main()
 
 	// initializes the window and GLEW
 	Window = init();
+
+	initImgui(Window);
+
 	// Enables the automatic depth test, we won't have to worry about it no more
 	glEnable(GL_DEPTH_TEST);
 
@@ -176,6 +192,7 @@ int main()
 
 	do
 	{
+		ImGui_ImplGlfwGL3_NewFrame();
 		// gets the current time
 		curr = glfwGetTime();
 		// gets the difference since last time call
@@ -212,6 +229,16 @@ int main()
 		// Draws the quad to the window
 		fbo.draw(programs.getProgramID(1));
 
+
+		{
+			static float f = 0.0f;
+			static int counter = 0;
+			ImGui::Text("Hello world");
+		}
+
+		ImGui::Render();
+		ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+
 		// Swaps buffers so that the window actually shows the new scene
 		glfwSwapBuffers(Window);
 		// polls events so we can react to them.
@@ -223,6 +250,9 @@ int main()
 
 		// if the user presses the "x" on the window or the esc key, the loop stops.
 	} while (glfwGetKey(Window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(Window) == 0);
+
+	ImGui_ImplGlfwGL3_Shutdown();
+	ImGui::DestroyContext();
 
 	//The window closes
 	glfwDestroyWindow(Window);

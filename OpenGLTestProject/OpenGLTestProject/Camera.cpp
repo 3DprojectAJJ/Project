@@ -50,7 +50,7 @@ void Camera::update(GLFWwindow * window, float dt)
 	double posY;
 	glfwGetCursorPos(window, &posX, &posY);
 
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)
 	{
 		horizontalAngle += (speed / 10)*dt*float(mousePos.x - posX);
 		verticalAngle += (speed / 10)*dt*float(mousePos.y - posY);
