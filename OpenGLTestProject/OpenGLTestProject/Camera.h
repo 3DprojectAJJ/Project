@@ -25,6 +25,9 @@ public:
 
 	void update(GLFWwindow * window, float dt);
 
+	glm::vec3 getPos()const;
+
+
 	glm::mat4 viewMat();
 };
 

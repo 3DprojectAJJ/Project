@@ -190,6 +190,8 @@ int main()
 	double curr = 0;
 	double last = 0;
 
+	bool showImguiWindow[4] = { false };
+
 	do
 	{
 		ImGui_ImplGlfwGL3_NewFrame();
@@ -231,9 +233,19 @@ int main()
 
 
 		{
-			static float f = 0.0f;
-			static int counter = 0;
-			ImGui::Text("Hello world");
+			ImGui::SetWindowSize(ImVec2(480, 220));
+			for (int i = 0; i < 4; i++) {
+				if (ImGui::ImageButton((GLuint*)fbo.getTexID()[i], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
+				{
+					showImguiWindow[i] = true;
+				}
+				if (i != 3) {
+					ImGui::SameLine();
+				}
+			}
+			if (ImGui::Button("Options"))
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+			ImGui::Text("Camera Position: %.2f x, %.2f y, %.2f z", camera.getPos().x, camera.getPos().y, camera.getPos().z);
 		}
 
 		ImGui::Render();

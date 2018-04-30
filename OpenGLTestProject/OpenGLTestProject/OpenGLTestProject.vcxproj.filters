@@ -54,6 +54,9 @@
     <ClCompile Include="imgui\imgui_impl_glfw_gl3.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
+    <ClCompile Include="Water.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mesh.h">
@@ -91,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="imgui\imgui_impl_glfw_gl3.h">
       <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="Water.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

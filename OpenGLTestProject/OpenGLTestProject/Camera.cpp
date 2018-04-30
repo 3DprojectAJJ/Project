@@ -75,6 +75,11 @@ void Camera::update(GLFWwindow * window, float dt)
 	mousePos = glm::vec2(posX, posY);
 }
 
+glm::vec3 Camera::getPos() const
+{
+	return pos;
+}
+
 glm::mat4 Camera::viewMat()
 {
 	return glm::lookAt(pos,pos + forward,up);

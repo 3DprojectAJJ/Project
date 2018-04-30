@@ -381,6 +381,8 @@ void Mesh::draw(GLuint program)
 		glUniform1i(glGetUniformLocation(program, "tex"), 0);
 		glDrawArrays(GL_TRIANGLES, startOfMat[i], endOfMat[i]);
 	}
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
 }
 
 std::vector<Mesh::vertexInfo> Mesh::getVertices() const
