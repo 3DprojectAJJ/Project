@@ -41,7 +41,7 @@ bool ShaderHandler::addShader(const char * path, GLenum type)
 	if (compileResult == GL_FALSE)
 	{
 		glGetShaderInfoLog(tmp.id, 1024, nullptr, buff);
-		//OutputDebugStringA(buff);
+		OutputDebugStringA(buff);
 		return false;
 	}
 	else

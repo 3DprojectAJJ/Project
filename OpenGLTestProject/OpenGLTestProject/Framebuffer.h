@@ -2,7 +2,7 @@
 #define FRAMEBUFFER_H
 #include <GL\glew.h>
 
-#define NUM_OF_TEXTURES 3
+#define NUM_OF_TEXTURES 6
 
 class Framebuffer
 {

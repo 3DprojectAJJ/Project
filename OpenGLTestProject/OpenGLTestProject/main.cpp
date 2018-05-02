@@ -55,71 +55,6 @@ void initImgui(GLFWwindow * window)
 	ImGui::StyleColorsDark();
 }
 
-/*GLuint loadShader(const char * path, GLenum shaderType)
-{
-	// buffer for error/debug output
-	char buff[1024];
-	memset(buff, 0, 1024);
-
-	const char* shaderTextPtr;
-	GLuint shaderID = glCreateShader(shaderType);
-
-	GLint compileResult = 0;
-
-	std::ifstream file(path);
-	std::string shaderText((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-	file.close();
-
-	shaderTextPtr = shaderText.c_str();
-
-	glShaderSource(shaderID, 1, &shaderTextPtr, nullptr);
-
-	glCompileShader(shaderID);
-	glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compileResult);
-
-	if (compileResult == GL_FALSE)
-	{
-		glGetShaderInfoLog(shaderID, 1024, nullptr, buff);
-		OutputDebugStringA(buff);
-	}
-	return shaderID;
-}
-
-GLuint createProgram(GLuint * shaders, unsigned int nrOf)
-{
-	GLuint programID = glCreateProgram();
-
-	for (unsigned int i = 0; i < nrOf; i++)
-	{
-		if(shaders[i] != -1)
-			glAttachShader(programID, shaders[i]);
-	}
-
-	glLinkProgram(programID);
-	GLint compileResult = GL_FALSE;
-	glGetProgramiv(programID, GL_LINK_STATUS, &compileResult);
-
-	if (compileResult == GL_FALSE)
-	{
-		// buffer for error/debug output
-		char buff[1024];
-		memset(buff, 0, 1024);
-
-		glGetProgramInfoLog(programID, 1024, nullptr, buff);
-		OutputDebugStringA(buff);
-	}
-
-	for (unsigned int i = 0; i < nrOf; i++)
-	{
-		if (shaders[i] != -1)
-		{
-			glDetachShader(programID, shaders[i]);
-			glDeleteShader(shaders[i]);
-		}
-	}
-	return programID;
-}*/
-
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -190,7 +125,7 @@ int main()
 	double curr = 0;
 	double last = 0;
 
-	bool showImguiWindow[4] = { false };
+	bool * showImguiWindow = new bool[fbo.nrOfTextures()];
 
 	do
 	{
@@ -234,7 +169,7 @@ int main()
 
 		{
 			ImGui::SetWindowSize(ImVec2(480, 220));
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < fbo.nrOfTextures(); i++) {
 				if (ImGui::ImageButton((GLuint*)fbo.getTexID()[i], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
 				{
 					showImguiWindow[i] = true;
@@ -270,6 +205,6 @@ int main()
 	glfwDestroyWindow(Window);
 	//makes sure that glfw does not leave memoryleaks
 	glfwTerminate();
-
+	delete[] showImguiWindow;
 	return 0;
 }

@@ -3,6 +3,7 @@
 #include <GL\glew.h>
 #include <vector>
 #include <fstream>
+#include <Windows.h>
 //#include <debugapi.h>
 class ShaderHandler
 {

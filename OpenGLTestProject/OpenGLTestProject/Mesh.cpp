@@ -286,7 +286,7 @@ void Mesh::makeBuffer(GLuint program)
 		BUFFER_OFFSET(3*sizeof(GL_FLOAT))
 	);
 
-	/*glEnableVertexAttribArray(3);
+	glEnableVertexAttribArray(2);
 	GLint vertexAmbient = glGetAttribLocation(program, "vertexAmbient");
 
 	if (vertexAmbient == -1)
@@ -304,7 +304,7 @@ void Mesh::makeBuffer(GLuint program)
 		BUFFER_OFFSET(8 * sizeof(GL_FLOAT))
 	);
 
-	glEnableVertexAttribArray(4);
+	glEnableVertexAttribArray(3);
 	GLint vertexDiffuse = glGetAttribLocation(program, "vertexDiffuse");
 
 	if (vertexDiffuse == -1)
@@ -322,7 +322,7 @@ void Mesh::makeBuffer(GLuint program)
 		BUFFER_OFFSET(11 * sizeof(GL_FLOAT))
 	);
 
-	glEnableVertexAttribArray(5);
+	glEnableVertexAttribArray(4);
 	GLint vertexSpecular = glGetAttribLocation(program, "vertexSpecular");
 
 	if (vertexSpecular == -1)
@@ -340,7 +340,7 @@ void Mesh::makeBuffer(GLuint program)
 		BUFFER_OFFSET(14 * sizeof(GL_FLOAT))
 	);
 
-	glEnableVertexAttribArray(6);
+	glEnableVertexAttribArray(5);
 	GLint vertexSpecularExponent = glGetAttribLocation(program, "vertexSpecularExponent");
 
 	if (vertexSpecularExponent == -1)
@@ -356,14 +356,14 @@ void Mesh::makeBuffer(GLuint program)
 		GL_FALSE,
 		sizeof(vertexInfo),
 		BUFFER_OFFSET(17 * sizeof(GL_FLOAT))
-	);*/
+	);
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
-	/*glDisableVertexAttribArray(3);
+	glDisableVertexAttribArray(3);
 	glDisableVertexAttribArray(4);
 	glDisableVertexAttribArray(5);
-	glDisableVertexAttribArray(6);*/
+	glDisableVertexAttribArray(6);
 }
 void Mesh::draw(GLuint program)
 {

@@ -5,12 +5,15 @@ layout (triangle_strip, max_vertices = 3) out;
 
 in vec2 UV[];
 in vec3 a[];
-in vec3 d[];
-in vec3 s[];
-in int e[];
+in vec3 diff[];
+in vec4 s[];
+
 out vec2 fragUV;
 out vec3 fragNormal;
 out vec3 fragPosition;
+out vec3 fragA;
+out vec3 fragD;
+out vec4 fragS;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -21,7 +24,6 @@ vec3 normal()
 
 	vec3 v1 = (gl_in[1].gl_Position - gl_in[0].gl_Position).xyz;
 	vec3 v2 = (gl_in[2].gl_Position - gl_in[0].gl_Position).xyz;
-	vec3 tst = a[1] + d[2] + s[0] + e[1];
 	return normalize(cross(v1,v2));
 }
 
@@ -35,6 +37,9 @@ void main()
 		for(int i = 0; i < 3; i++)
 		{
 			fragUV = UV[i];
+			fragA = a[i];
+			fragD = diff[i];
+			fragS = s[i];
 			gl_Position = projection*view*model*gl_in[i].gl_Position;
 			EmitVertex();
 		}
