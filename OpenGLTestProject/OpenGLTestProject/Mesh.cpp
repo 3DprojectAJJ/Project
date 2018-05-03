@@ -146,6 +146,7 @@ bool Mesh::readOBJFile(const char * path)
 	}
 
 	std::vector<glm::vec3> tmpPositions;
+
 	std::vector<glm::vec2> tmpUVs;
 	std::vector<glm::vec3> tmpNormals;
 

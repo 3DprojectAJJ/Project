@@ -2,6 +2,7 @@
 #include "Camera.h"
 #include "Framebuffer.h"
 #include "ShaderHandler.h"
+#include "Terrain.h"
 #include "imgui\imgui.h"
 #include "imgui\imgui_impl_glfw_gl3.h"
 
@@ -93,11 +94,12 @@ int main()
 	programs.createProgram();
 
 	// sets the quads matrix so that the mesh moves 5 floats to the right on the x-axis
-	quad.setMatrix(quad.getMatrix()*glm::translate(glm::vec3(5.0f, 0.0f, 0.0f)));
-
+	quad.setMatrix(quad.getMatrix()*glm::translate(glm::vec3(5.0f, 5.0f, 0.0f)));
+	triangle.setMatrix(quad.getMatrix()*glm::translate(glm::vec3(5.0f, 5.0f, 0.0f)));
 	// Reads the obj files so that the quad and triangle get their vertices
 	quad.readOBJFile("quad.obj");
 	triangle.readOBJFile("basicTriangle.obj");
+	Terrain terrain("heightmap.bmp");
 
 	// Sets the initial cameraview value to the viewmatrix
 	view = camera.viewMat();
@@ -156,6 +158,7 @@ int main()
 		// Drawcall
 		quad.draw(programs.getProgramID(0));
 		triangle.draw(programs.getProgramID(0));
+		terrain.draw(programs.getProgramID(0));
 
 		//unbinds the fbo, we now draw to the window or default fbo instead
 		fbo.unbindFBO(1024, 720);
