@@ -54,7 +54,7 @@ GLuint Terrain::loadImage(const char * imagepath)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	delete[] data;
+	delete data;
 	return textureID;
 }
 
@@ -157,6 +157,9 @@ void Terrain::readHeightMap(const char* filepath)
 	glGenBuffers(1, &elementbuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
+	delete data;
+	delete heightmaptex;
 }
 
 void Terrain::draw(GLuint program)
