@@ -3,6 +3,7 @@
 #include "Framebuffer.h"
 #include "ShaderHandler.h"
 #include "Terrain.h"
+#include "FrontBackRender.h"
 #include "imgui\imgui.h"
 #include "imgui\imgui_impl_glfw_gl3.h"
 
@@ -56,6 +57,33 @@ void initImgui(GLFWwindow * window)
 	ImGui::StyleColorsDark();
 }
 
+float distance(glm::vec3 p0, glm::vec3 p1)
+{
+	glm::vec3 vec = (p0 - p1) * (p0 - p1);
+	return vec.x + vec.y + vec.z;
+}
+
+std::vector<glm::vec2> sort(std::vector<glm::vec3> *entities, glm::vec3 cameraPos, GLuint program)
+{
+	std::vector<glm::vec2> order;
+
+	for (int i = 0; i < entities->size(); i++) {
+		order.push_back(glm::vec2(distance(cameraPos, entities->at(i)), i));
+	}
+	for (int i = 0; i < entities->size() - 1; i++) {
+		int index = i;
+		for (int j = i + 1; j < entities->size(); j++) {
+			if (order[i].x > order[j].x) {
+				index = j;
+			}
+		}
+		if (index != i) {
+			iter_swap(order.begin() + i, order.begin() + index);
+		}
+	}
+	return order;
+}
+
 int main()
 {
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -72,13 +100,15 @@ int main()
 	// Camera, pretty self explanatory
 	Camera camera(4.0f, -0.5f, glm::vec3(4, 3, 3));
 	// A mesh for a quad
-	Mesh quad;
+	Mesh quad("quad.obj");
 	// A mesh for a triangle
-	Mesh triangle;
+	Mesh triangle("basicTriangle.obj");
 	// A handler of shaders that stores all our shaderprograms.
 	ShaderHandler programs;
 	// The framebuffer object that will be used for deferred rendering.
 	Framebuffer fbo;
+
+	FrontBackRender frontBackRender;
 
 	// Adds three shaders that are used for the first renderpass
 	programs.addShader("VertexShader.glsl", GL_VERTEX_SHADER);
@@ -93,15 +123,22 @@ int main()
 	// creates a shaderprogram out of the earlier added shaders
 	programs.createProgram();
 
-	fbo.loadUniform(programs.getProgramID(1));
+	fbo.getUniform(programs.getProgramID(1));
 
 	// sets the quads matrix so that the mesh moves 5 floats to the right on the x-axis
-	quad.setMatrix(quad.getMatrix()*glm::translate(glm::vec3(5.0f, 5.0f, 0.0f)));
-	triangle.setMatrix(quad.getMatrix()*glm::translate(glm::vec3(5.0f, 0.0f, 0.0f)));
+	quad.setPosition(glm::vec3(5, 5, 5));
+	triangle.setPosition(glm::vec3(10, 5, 5));
+	triangle.setRotation(glm::vec3(0, -45, 0));
+	quad.setRotation(glm::vec3(0, 45, 0));
 	// Reads the obj files so that the quad and triangle get their vertices
-	quad.readOBJFile("quad.obj");
-	triangle.readOBJFile("basicTriangle.obj");
+	
 	Terrain terrain("heightmap.bmp");
+
+	std::vector<Entity*> entities;
+
+	entities.push_back(&quad);
+	entities.push_back(&triangle);
+	entities.push_back(&terrain);
 
 	// Sets the initial cameraview value to the viewmatrix
 	view = camera.viewMat();
@@ -158,9 +195,16 @@ int main()
 		glUniformMatrix4fv(projID, 1, GL_FALSE, &projection[0][0]);
 
 		// Drawcall
-		quad.draw(programs.getProgramID(0));
-		triangle.draw(programs.getProgramID(0));
-		terrain.draw(programs.getProgramID(0));
+		//quad.draw(programs.getProgramID(0));
+		//frontBackRender.render(&entities, camera.getPos(), programs.getProgramID(0));
+		std::vector<glm::vec3> pos;
+		for (int i = 0; i < entities.size(); i++) {
+			pos.push_back(entities.at(i)->getPosition());
+		}
+		std::vector<glm::vec2> order = sort(&pos, camera.getPos(), programs.getProgramID(0));
+		for (int i = 0; i < entities.size(); i++) {
+			entities.at(order[i].y)->draw(programs.getProgramID(0));
+		}
 
 		//unbinds the fbo, we now draw to the window or default fbo instead
 		fbo.unbindFBO(1024, 720);
@@ -174,7 +218,7 @@ int main()
 
 		{
 			ImGui::SetWindowSize(ImVec2(480, 220));
-			for (int i = 0; i < fbo.nrOfTextures(); i++) {
+			for (int i = 0; i < fbo.nrOfTextures() - 1; i++) {
 				if (ImGui::ImageButton((GLuint*)fbo.getTexID()[i], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
 				{
 					showImguiWindow[i] = true;

@@ -1,14 +1,11 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include "Entity.h"
 #include <vector>
-#include <GL\glew.h>
-#include <GLM\common.hpp>
-#include <Windows.h>
-#include <GLM\mat4x4.hpp>
 #pragma warning(disable:4996)
 
-class Mesh
+class Mesh : public Entity
 {
 public:
 	struct vertexInfo
@@ -52,14 +49,13 @@ private:
 	std::vector<vertexInfo> vertices;
 	std::vector<GLuint> endOfMat;
 	std::vector<GLuint> startOfMat;
-	glm::mat4 world;
 	GLuint vao;
 	GLuint vbo;
 
 	bool readMTLFile(const char * path);
 	GLuint loadImage(const char * imagepath);
 public:
-	Mesh(glm::mat4 worldMat = glm::mat4(1.0f));
+	Mesh(const char * filepath);
 	~Mesh();
 	void makeBuffer(GLuint program);
 	bool readOBJFile(const char * path);

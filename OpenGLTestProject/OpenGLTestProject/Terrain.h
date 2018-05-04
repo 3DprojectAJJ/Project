@@ -1,13 +1,12 @@
 #ifndef TERRAIN_H
 #define TERRAIN_H
-#include <GL\glew.h>
-#include <GLFW\glfw3.h>
+#include "Entity.h"
 #include <string>
 #include <vector>
-#include <GLM\glm.hpp>
 #pragma warning(disable:4996)
 
-class Terrain {
+class Terrain : public Entity
+{
 private:
 	int width, height, heightScaling;
 	std::vector<int> indices;

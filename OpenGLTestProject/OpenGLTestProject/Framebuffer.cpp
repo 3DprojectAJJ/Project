@@ -31,7 +31,7 @@ void Framebuffer::init()
 		if (i == NUM_OF_TEXTURES - 1)
 		{
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, nullptr);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + NUM_OF_TEXTURES, GL_TEXTURE_2D, textures[i], 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + NUM_OF_TEXTURES - 1, GL_TEXTURE_2D, textures[i], 0);
 		}
 		else
 		{
@@ -75,7 +75,6 @@ void Framebuffer::init()
 	glGenBuffers(1, &quadID);
 	glBindBuffer(GL_ARRAY_BUFFER, quadID);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(gQuadVertexBufferData), gQuadVertexBufferData, GL_STATIC_DRAW);
-
 }
 
 void Framebuffer::bindFBO()
@@ -90,11 +89,12 @@ void Framebuffer::unbindFBO(int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-void Framebuffer::loadUniform(GLuint program)
+void Framebuffer::getUniform(GLuint program)
 {
 	colorLoc = glGetUniformLocation(program, "colorTexture");
 	normalLoc = glGetUniformLocation(program, "normalTexture");
 	posLoc = glGetUniformLocation(program, "positionTexture");
+	depthLoc = glGetUniformLocation(program, "depthTexture");
 }
 
 unsigned int Framebuffer::nrOfTextures()
@@ -123,6 +123,7 @@ void Framebuffer::draw(GLuint program)
 	glUniform1i(colorLoc, 0);
 	glUniform1i(normalLoc, 1);
 	glUniform1i(posLoc, 2);
+	glUniform1i(depthLoc, 3);
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, quadID);

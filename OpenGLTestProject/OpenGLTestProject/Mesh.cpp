@@ -126,10 +126,11 @@ GLuint Mesh::loadImage(const char * imagepath) {
 	return textureID;
 }
 
-Mesh::Mesh(glm::mat4 worldMat)
+Mesh::Mesh(const char* filepath)
 {
-	world = worldMat;
+	readOBJFile(filepath);
 }
+
 
 Mesh::~Mesh()
 {
@@ -239,6 +240,8 @@ bool Mesh::readOBJFile(const char * path)
 
 		vertices.push_back(tmp);
 	}
+	position = vertices.at(0).pos;
+
 	std::fclose(file);
 	return true;
 }
@@ -375,6 +378,7 @@ void Mesh::draw(GLuint program)
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glActiveTexture(GL_TEXTURE0);
 	glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, &world[0][0]);
+
 	for (int i = 0; i < startOfMat.size(); i++)
 	{
 		glBindTexture(GL_TEXTURE_2D, vertices[startOfMat[i]].texID);

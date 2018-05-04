@@ -2,14 +2,14 @@
 #define FRAMEBUFFER_H
 #include <GL\glew.h>
 
-#define NUM_OF_TEXTURES 6
+#define NUM_OF_TEXTURES 7
 
 class Framebuffer
 {
 private:
 	GLuint id;
 	GLuint textures[NUM_OF_TEXTURES];
-	GLint colorLoc, normalLoc, posLoc;
+	GLint colorLoc, normalLoc, posLoc, depthLoc;
 	GLuint depthID;
 	GLuint texID;
 	GLuint colorID;
@@ -22,7 +22,7 @@ public:
 	void init();
 	void bindFBO();
 	void unbindFBO(int width, int height);
-	void loadUniform(GLuint program);
+	void getUniform(GLuint program);
 	unsigned int nrOfTextures();
 
 	GLuint * getTexID();
