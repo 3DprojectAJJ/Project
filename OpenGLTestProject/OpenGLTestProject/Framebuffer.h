@@ -9,6 +9,7 @@ class Framebuffer
 private:
 	GLuint id;
 	GLuint textures[NUM_OF_TEXTURES];
+	GLint colorLoc, normalLoc, posLoc;
 	GLuint depthID;
 	GLuint texID;
 	GLuint colorID;
@@ -21,6 +22,7 @@ public:
 	void init();
 	void bindFBO();
 	void unbindFBO(int width, int height);
+	void loadUniform(GLuint program);
 	unsigned int nrOfTextures();
 
 	GLuint * getTexID();

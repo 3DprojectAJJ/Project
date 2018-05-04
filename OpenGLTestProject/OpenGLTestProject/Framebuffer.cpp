@@ -75,6 +75,7 @@ void Framebuffer::init()
 	glGenBuffers(1, &quadID);
 	glBindBuffer(GL_ARRAY_BUFFER, quadID);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(gQuadVertexBufferData), gQuadVertexBufferData, GL_STATIC_DRAW);
+
 }
 
 void Framebuffer::bindFBO()
@@ -87,6 +88,13 @@ void Framebuffer::unbindFBO(int width, int height)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, width, height);
+}
+
+void Framebuffer::loadUniform(GLuint program)
+{
+	colorLoc = glGetUniformLocation(program, "colorTexture");
+	normalLoc = glGetUniformLocation(program, "normalTexture");
+	posLoc = glGetUniformLocation(program, "positionTexture");
 }
 
 unsigned int Framebuffer::nrOfTextures()
@@ -111,9 +119,10 @@ void Framebuffer::draw(GLuint program)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, getTexID()[i]);
-
-		glUniform1i(textures[i], i);
 	}
+	glUniform1i(colorLoc, 0);
+	glUniform1i(normalLoc, 1);
+	glUniform1i(posLoc, 2);
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, quadID);

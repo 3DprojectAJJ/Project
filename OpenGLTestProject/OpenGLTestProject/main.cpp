@@ -93,9 +93,11 @@ int main()
 	// creates a shaderprogram out of the earlier added shaders
 	programs.createProgram();
 
+	fbo.loadUniform(programs.getProgramID(1));
+
 	// sets the quads matrix so that the mesh moves 5 floats to the right on the x-axis
 	quad.setMatrix(quad.getMatrix()*glm::translate(glm::vec3(5.0f, 5.0f, 0.0f)));
-	triangle.setMatrix(quad.getMatrix()*glm::translate(glm::vec3(5.0f, 5.0f, 0.0f)));
+	triangle.setMatrix(quad.getMatrix()*glm::translate(glm::vec3(5.0f, 0.0f, 0.0f)));
 	// Reads the obj files so that the quad and triangle get their vertices
 	quad.readOBJFile("quad.obj");
 	triangle.readOBJFile("basicTriangle.obj");

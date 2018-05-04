@@ -40,6 +40,8 @@ void main()
 			fragA = a[i];
 			fragD = diff[i];
 			fragS = s[i];
+			fragNormal = (model * vec4(normal(), 1.0f)).xyz;
+			fragPosition = (model * gl_in[i].gl_Position).xyz;
 			gl_Position = projection*view*model*gl_in[i].gl_Position;
 			EmitVertex();
 		}

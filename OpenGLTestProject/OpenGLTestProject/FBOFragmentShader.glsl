@@ -16,7 +16,7 @@ void main(){
 	vec3 normal = normalize(texture(normalTexture, UV).xyz);
 	vec3 position = texture(positionTexture, UV).xyz;
 
-	vec4 light = vec4(4, 3, 3, 10);
+	vec4 light = vec4(10, 15, 5, 40);
 
 	float diffuse = dot(normal, normalize(light.xyz - position));
 	float distance = length(light.xyz - position);
