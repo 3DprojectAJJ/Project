@@ -9,7 +9,6 @@ Framebuffer::Framebuffer(const int width, const int height)
 
 Framebuffer::~Framebuffer()
 {
-	//nothing
 }
 
 void Framebuffer::init()
@@ -169,4 +168,7 @@ void Framebuffer::draw(GLuint program)
 	glDisable(GL_TEXTURE_2D);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+
+	delete[] pos;
+	delete[] color;
 }
