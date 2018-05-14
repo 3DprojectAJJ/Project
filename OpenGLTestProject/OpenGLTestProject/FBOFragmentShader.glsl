@@ -1,8 +1,14 @@
 #version 430
 
+
 in vec2 UV;
 
+uniform vec3 lightPosition[16];
+uniform vec4 lightColor[16];
+
 out vec3 color;
+
+uniform int nrOfLights;
 
 uniform sampler2D colorTexture;
 uniform sampler2D normalTexture;
@@ -16,10 +22,12 @@ void main(){
 	vec3 normal = normalize(texture(normalTexture, UV).xyz);
 	vec3 position = texture(positionTexture, UV).xyz;
 
-	vec4 light = vec4(10, 15, 5, 40);
+	color = vec3(0.0f);
 
-	float diffuse = dot(normal, normalize(light.xyz - position));
-	float distance = length(light.xyz - position);
+	for(int i = 0; i < nrOfLights; i++){
+		float diffuse = dot(normal, normalize(lightPosition[i] - position));
+		float distance = length(lightPosition[i] - position);
 
-    color = diffuse * texture(colorTexture, UV).xyz * 1/(distance * distance) * light.w;
+		color += lightColor[i].xyz * diffuse * texture(colorTexture, UV).xyz * 1/(distance * distance) * lightColor[i].w;
+	}
 }

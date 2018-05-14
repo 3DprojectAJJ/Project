@@ -1,12 +1,23 @@
 #ifndef FRAMEBUFFER_H
 #define FRAMEBUFFER_H
 #include <GL\glew.h>
+#include <GLM\glm.hpp>
+#include <GLM\gtc\type_ptr.hpp>
+#include <vector>
+#include <string>
 
 #define NUM_OF_TEXTURES 7
 
 class Framebuffer
 {
 private:
+	struct Light {
+		glm::vec3 pos;
+		glm::vec4 color;
+	};
+
+	std::vector<Light> lights;
+
 	GLuint id;
 	GLuint textures[NUM_OF_TEXTURES];
 	GLint colorLoc, normalLoc, posLoc, depthLoc;
@@ -14,6 +25,7 @@ private:
 	GLuint texID;
 	GLuint colorID;
 	GLuint quadID;
+	GLuint lightID;
 	int width;
 	int height;
 public:
@@ -27,6 +39,8 @@ public:
 
 	GLuint * getTexID();
 	GLuint getQuadID() const;
+
+	void addLight(glm::vec3 pos, glm::vec4 color);
 
 	void draw(GLuint program);
 };

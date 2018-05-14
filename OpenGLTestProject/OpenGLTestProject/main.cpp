@@ -168,6 +168,10 @@ int main()
 
 	bool * showImguiWindow = new bool[fbo.nrOfTextures()];
 
+	fbo.addLight(glm::vec3(0, 10, 5), glm::vec4(0, 0, 1, 100));
+	fbo.addLight(glm::vec3(15, 10, 5), glm::vec4(0, 1, 0, 100));
+	fbo.addLight(glm::vec3(5, 10, 15), glm::vec4(0, 0.5f, 0.5f, 100));
+
 	do
 	{
 		ImGui_ImplGlfwGL3_NewFrame();
@@ -203,7 +207,7 @@ int main()
 		}
 		std::vector<glm::vec2> order = sort(&pos, camera.getPos(), programs.getProgramID(0));
 		for (int i = 0; i < entities.size(); i++) {
-			entities.at(order[i].y)->draw(programs.getProgramID(0));
+			entities.at(i)->draw(programs.getProgramID(0));
 		}
 
 		//unbinds the fbo, we now draw to the window or default fbo instead

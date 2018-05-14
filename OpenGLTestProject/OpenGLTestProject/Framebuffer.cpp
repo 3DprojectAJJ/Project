@@ -1,4 +1,5 @@
 #include "Framebuffer.h"
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 Framebuffer::Framebuffer(const int width, const int height)
 {
@@ -112,6 +113,16 @@ GLuint Framebuffer::getQuadID() const
 	return quadID;
 }
 
+void Framebuffer::addLight(glm::vec3 pos, glm::vec4 color)
+{
+	Light temp;
+	temp.pos = pos;
+	temp.color = color;
+
+	lights.push_back(temp);
+
+}
+
 void Framebuffer::draw(GLuint program)
 {
 	glUseProgram(program);
@@ -124,6 +135,18 @@ void Framebuffer::draw(GLuint program)
 	glUniform1i(normalLoc, 1);
 	glUniform1i(posLoc, 2);
 	glUniform1i(depthLoc, 3);
+
+	glm::vec3* pos = new glm::vec3[lights.size()];
+	glm::vec4* color = new glm::vec4[lights.size()];
+
+	for (int i = 0; i < lights.size(); i++) {
+		pos[i] = lights[i].pos;
+		color[i] = lights[i].color;
+	}
+
+	glUniform3fv(glGetUniformLocation(program, "lightPosition"), lights.size(), glm::value_ptr(pos[0]));
+	glUniform4fv(glGetUniformLocation(program, "lightColor"), lights.size(), glm::value_ptr(color[0]));
+	glUniform1i(glGetUniformLocation(program, "nrOfLights"), lights.size());
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, quadID);
@@ -145,4 +168,5 @@ void Framebuffer::draw(GLuint program)
 	}
 	glDisable(GL_TEXTURE_2D);
 	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
 }
