@@ -154,6 +154,9 @@
     <None Include="FBOVertexShader.glsl" />
     <None Include="FragmentShader.glsl" />
     <None Include="GeometryShader.glsl" />
+    <None Include="ParticleFragmentShader.glsl" />
+    <None Include="ParticleGeometryShader.glsl" />
+    <None Include="ParticleVertexShader.glsl" />
     <None Include="simple.mtl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>

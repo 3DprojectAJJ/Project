@@ -36,6 +36,7 @@ public:
 		char map_Ks[128];
 		GLuint kdTex;
 	};
+
 	struct index
 	{
 		unsigned int pos;
@@ -45,12 +46,20 @@ public:
 	};
 private:
 	std::vector<index> indices;
+	std::vector<unsigned int> posIndices;
 	std::vector<material> materials;
+
+	std::vector<glm::vec3> vertexPositions;
+	std::vector<glm::vec2> vertexUVs;
+	std::vector<glm::vec3> vertexNormals;
+
 	std::vector<vertexInfo> vertices;
 	std::vector<GLuint> endOfMat;
 	std::vector<GLuint> startOfMat;
+
 	GLuint vao;
 	GLuint vbo;
+	GLuint elementbuffer;
 
 	bool readMTLFile(const char * path);
 	GLuint loadImage(const char * imagepath);

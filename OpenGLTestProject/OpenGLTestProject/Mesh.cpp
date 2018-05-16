@@ -131,7 +131,6 @@ Mesh::Mesh(const char* filepath)
 	readOBJFile(filepath);
 }
 
-
 Mesh::~Mesh()
 {
 	//Nothing
@@ -168,20 +167,20 @@ bool Mesh::readOBJFile(const char * path)
 		{
 			glm::vec3 vertex;
 			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-			tmpPositions.push_back(vertex);
+			vertexPositions.push_back(vertex);
 		}
 		else if (std::strcmp(lineHeader, "vt") == 0)
 		{
 			glm::vec2 uv;
 			fscanf(file, "%f %f\n", &uv.x, &uv.y);
 
-			tmpUVs.push_back(uv);
+			vertexUVs.push_back(uv);
 		}
 		else if (strcmp(lineHeader, "vn") == 0)
 		{
 			glm::vec3 normal;
 			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-			tmpNormals.push_back(normal);
+			vertexNormals.push_back(normal);
 		}
 		else if (strcmp(lineHeader, "f") == 0)
 		{
@@ -198,7 +197,9 @@ bool Mesh::readOBJFile(const char * path)
 				tmp.uv = uvIndex[i];
 				tmp.normal = normalIndex[i];
 				tmp.mat = currMaterial;
+
 				indices.push_back(tmp);
+				posIndices.push_back(tmp.pos - 1);
 			}
 		}
 		else if (strcmp(lineHeader, "mtllib") == 0)
@@ -225,22 +226,10 @@ bool Mesh::readOBJFile(const char * path)
 			}
 		}
 	} while (true);
-	endOfMat.push_back(indices.size());
-	for (int i = 0; i < indices.size(); i++)
-	{
-		vertexInfo tmp;
-		tmp.pos = tmpPositions[indices[i].pos - 1];
-		tmp.uv = tmpUVs[indices[i].uv - 1];
-		tmp.normal = tmpNormals[indices[i].normal - 1];
-		tmp.ambient = materials[indices[i].mat].Ka;
-		tmp.diffuse = materials[indices[i].mat].Kd;
-		tmp.specular = materials[indices[i].mat].Ks;
-		tmp.specularExponent = materials[indices[i].mat].Ns;
-		tmp.texID = materials[indices[i].mat].kdTex;
 
-		vertices.push_back(tmp);
-	}
-	position = vertices.at(0).pos;
+	endOfMat.push_back(indices.size());
+
+	//position = vertices.at(0).pos;
 
 	std::fclose(file);
 	return true;
@@ -253,7 +242,7 @@ void Mesh::makeBuffer(GLuint program)
 
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexInfo)*vertices.size(), &vertices[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*vertexPositions.size(), &vertexPositions[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	GLint vertexPos = glGetAttribLocation(program, "vertexPosition");
@@ -269,125 +258,62 @@ void Mesh::makeBuffer(GLuint program)
 		3,
 		GL_FLOAT,
 		GL_FALSE,
-		sizeof(vertexInfo),
+		0,
 		(void*)0
 	);
-	glEnableVertexAttribArray(1);
-	GLint vertexUV = glGetAttribLocation(program, "vertexUV");
 
-	if (vertexUV == -1)
-	{
-		OutputDebugStringA("Error, cannot find 'vertexUV' attribute in Vertex shader\n");
-		return;
-	}
-
-	glVertexAttribPointer(
-		vertexUV,
-		2,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(vertexInfo),
-		BUFFER_OFFSET(3*sizeof(GL_FLOAT))
-	);
-
-	glEnableVertexAttribArray(2);
-	GLint vertexAmbient = glGetAttribLocation(program, "vertexAmbient");
-
-	if (vertexAmbient == -1)
-	{
-		OutputDebugStringA("Error, cannot find 'vertexAmbient' attribute in Vertex shader");
-		return;
-	}
-
-	glVertexAttribPointer(
-		vertexAmbient,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(vertexInfo),
-		BUFFER_OFFSET(8 * sizeof(GL_FLOAT))
-	);
-
-	glEnableVertexAttribArray(3);
-	GLint vertexDiffuse = glGetAttribLocation(program, "vertexDiffuse");
-
-	if (vertexDiffuse == -1)
-	{
-		OutputDebugStringA("Error, cannot find 'vertexDiffuse' attribute in Vertex shader");
-		return;
-	}
-
-	glVertexAttribPointer(
-		vertexDiffuse,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(vertexInfo),
-		BUFFER_OFFSET(11 * sizeof(GL_FLOAT))
-	);
-
-	glEnableVertexAttribArray(4);
-	GLint vertexSpecular = glGetAttribLocation(program, "vertexSpecular");
-
-	if (vertexSpecular == -1)
-	{
-		OutputDebugStringA("Error, cannot find 'vertexDiffuse' attribute in Vertex shader");
-		return;
-	}
-
-	glVertexAttribPointer(
-		vertexSpecular,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(vertexInfo),
-		BUFFER_OFFSET(14 * sizeof(GL_FLOAT))
-	);
-
-	glEnableVertexAttribArray(5);
-	GLint vertexSpecularExponent = glGetAttribLocation(program, "vertexSpecularExponent");
-
-	if (vertexSpecularExponent == -1)
-	{
-		OutputDebugStringA("Error, cannot find 'vertexSpecularExponent' attribute in Vertex shader");
-		return;
-	}
-
-	glVertexAttribPointer(
-		vertexSpecularExponent,
-		1,
-		GL_INT,
-		GL_FALSE,
-		sizeof(vertexInfo),
-		BUFFER_OFFSET(17 * sizeof(GL_FLOAT))
-	);
+	glGenBuffers(1, &elementbuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*posIndices.size(), &posIndices[0], GL_STATIC_DRAW);
 
 	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
+	/*glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(3);
 	glDisableVertexAttribArray(4);
 	glDisableVertexAttribArray(5);
-	glDisableVertexAttribArray(6);
+	glDisableVertexAttribArray(6);*/
 }
+
 void Mesh::draw(GLuint program)
 {
 	glUseProgram(program);
 	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
+	GLint vertexPos = glGetAttribLocation(program, "vertexPosition");
+
+	if (vertexPos == -1)
+	{
+		OutputDebugStringA("Error, cannot find 'vertexPosition' attribute in Vertex shader\n");
+		return;
+	}
+
+	glVertexAttribPointer(
+		vertexPos,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		0,
+		(void*)0
+	);
+	/*glEnableVertexAttribArray(1);*/
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	
+	// bind index buffer for positions
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
+
 	glActiveTexture(GL_TEXTURE0);
 	glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, &world[0][0]);
 
 	for (int i = 0; i < startOfMat.size(); i++)
 	{
-		glBindTexture(GL_TEXTURE_2D, vertices[startOfMat[i]].texID);
+		glBindTexture(GL_TEXTURE_2D, materials[indices[i].mat].kdTex);
 		//GLuint tmp = glGetUniformLocation(program, "tex");
 		glUniform1i(glGetUniformLocation(program, "tex"), 0);
-		glDrawArrays(GL_TRIANGLES, startOfMat[i], endOfMat[i]);
+		//glDrawArrays(GL_TRIANGLES, startOfMat[i], endOfMat[i]);
+		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
 	}
 	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
+	//glDisableVertexAttribArray(1);
 }
 
 std::vector<Mesh::vertexInfo> Mesh::getVertices() const
