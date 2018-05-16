@@ -4,7 +4,6 @@
 #include "ShaderHandler.h"
 #include "Terrain.h"
 #include "FrontBackRender.h"
-#include "Particle.h"
 #include "imgui\imgui.h"
 #include "imgui\imgui_impl_glfw_gl3.h"
 
@@ -124,30 +123,18 @@ int main()
 	// creates a shaderprogram out of the earlier added shaders
 	programs.createProgram();
 
-	bool first = programs.addShader("ParticleVertexShader.glsl", GL_VERTEX_SHADER);
-	bool second = programs.addShader("ParticleGeometryShader.glsl", GL_GEOMETRY_SHADER);
-	bool third = programs.addShader("ParticleFragmentShader.glsl", GL_FRAGMENT_SHADER);
-	// creates a shaderprogram out of the earlier added shaders
-	programs.createProgram();
-
 	fbo.getUniform(programs.getProgramID(1));
 
 	// sets the quads matrix so that the mesh moves 5 floats to the right on the x-axis
-	quad.setPosition(glm::vec3(-2.5, 5, 0));
-	triangle.setPosition(glm::vec3(2.5, 5, 0));
+	quad.setPosition(glm::vec3(5, 5, 5));
+	triangle.setPosition(glm::vec3(10, 5, 5));
 	triangle.setRotation(glm::vec3(0, -45, 0));
 	quad.setRotation(glm::vec3(0, 45, 0));
 	// Reads the obj files so that the quad and triangle get their vertices
 	
 	Terrain terrain("heightmap.bmp");
 
-	ParticleEmitter particle(glm::vec3(0, 5, 0), glm::vec3(0, 0.5, 0), -0.25, 5, glm::vec3(128, 128, 128));
-
 	std::vector<Entity*> entities;
-
-	// Makes buffers so that the meshes becomes ready to be drawn.
-	quad.makeBuffer(programs.getProgramID(0));
-	triangle.makeBuffer(programs.getProgramID(0));
 
 	entities.push_back(&quad);
 	entities.push_back(&triangle);
@@ -167,11 +154,12 @@ int main()
 	GLuint viewID = glGetUniformLocation(programs.getProgramID(0), "view");
 	GLuint projID = glGetUniformLocation(programs.getProgramID(0), "projection");
 
-	GLuint PviewID = glGetUniformLocation(programs.getProgramID(2), "view");
-	GLuint PprojID = glGetUniformLocation(programs.getProgramID(2), "projection");
-
 	// Initializes the fbo, so that it can be used in the draw passes
 	fbo.init();
+
+	// Makes buffers so that the meshes becomes ready to be drawn.
+	quad.makeBuffer(programs.getProgramID(0));
+	triangle.makeBuffer(programs.getProgramID(0));
 
 	// Necessary variables to track time while in the loop
 	double dt = 0;
@@ -180,10 +168,9 @@ int main()
 
 	bool * showImguiWindow = new bool[fbo.nrOfTextures()];
 
-	fbo.addLight(glm::vec3(0, 25, 15), glm::vec4(1, 0, 0.2f, 150));
-	fbo.addLight(glm::vec3(15, 25, 0), glm::vec4(0, 0.2f, 1, 500));
-	fbo.addLight(glm::vec3(0, 25, -15), glm::vec4(1, 0, 0.2f, 150));
-	fbo.addLight(glm::vec3(-15, 25, 0), glm::vec4(0, 0.2f, 1, 500));
+	fbo.addLight(glm::vec3(0, 10, 5), glm::vec4(0, 0, 1, 100));
+	fbo.addLight(glm::vec3(15, 10, 5), glm::vec4(0, 1, 0, 100));
+	fbo.addLight(glm::vec3(5, 10, 15), glm::vec4(0, 0.5f, 0.5f, 100));
 
 	do
 	{
@@ -211,9 +198,6 @@ int main()
 		glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
 		glUniformMatrix4fv(projID, 1, GL_FALSE, &projection[0][0]);
 
-		glUniformMatrix4fv(PviewID, 1, GL_FALSE, &view[0][0]);
-		glUniformMatrix4fv(PprojID, 1, GL_FALSE, &projection[0][0]);
-
 		// Drawcall
 		//quad.draw(programs.getProgramID(0));
 		//frontBackRender.render(&entities, camera.getPos(), programs.getProgramID(0));
@@ -222,15 +206,9 @@ int main()
 			pos.push_back(entities.at(i)->getPosition());
 		}
 		std::vector<glm::vec2> order = sort(&pos, camera.getPos(), programs.getProgramID(0));
-		particle.update(programs.getProgramID(2), camera.getPos(), dt);
 		for (int i = 0; i < entities.size(); i++) {
 			entities.at(i)->draw(programs.getProgramID(0));
 		}
-
-
-
-
-
 
 		//unbinds the fbo, we now draw to the window or default fbo instead
 		fbo.unbindFBO(1024, 720);
