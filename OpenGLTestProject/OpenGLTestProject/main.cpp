@@ -124,9 +124,9 @@ int main()
 	// creates a shaderprogram out of the earlier added shaders
 	programs.createProgram();
 
-	bool first = programs.addShader("VertexShader.glsl", GL_VERTEX_SHADER);
+	bool first = programs.addShader("ParticleVertexShader.glsl", GL_VERTEX_SHADER);
 	bool second = programs.addShader("ParticleGeometryShader.glsl", GL_GEOMETRY_SHADER);
-	bool third = programs.addShader("FragmentShader.glsl", GL_FRAGMENT_SHADER);
+	bool third = programs.addShader("ParticleFragmentShader.glsl", GL_FRAGMENT_SHADER);
 	// creates a shaderprogram out of the earlier added shaders
 	programs.createProgram();
 

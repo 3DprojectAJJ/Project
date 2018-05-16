@@ -142,6 +142,12 @@
     <None Include="ParticleGeometryShader.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="ParticleFragmentShader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="ParticleVertexShader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Object Include="basicTriangle.obj">

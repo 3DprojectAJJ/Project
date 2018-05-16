@@ -35,7 +35,7 @@ void main()
 	float size = particleSize/2;
 
 	vec4 u4 = vec4(up*size, 0.0);
-	vec4 r4 = vec4(right*size, 0.0);
+	//vec4 r4 = vec4(right*size, 0.0);
 
 	gl_Position = projection*view*model*(gl_in[0].gl_Position + u4 - r4);
 	EmitVertex();
