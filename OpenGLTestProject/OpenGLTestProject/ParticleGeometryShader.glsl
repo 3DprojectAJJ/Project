@@ -15,6 +15,7 @@ out vec3 fragA;
 out vec3 fragD;
 out vec4 fragS;
 
+uniform float particleSize;
 uniform vec3 cameraPos;
 uniform mat4 model;
 uniform mat4 view;
@@ -27,18 +28,27 @@ vec3 normal()
 
 void main()
 {
-	gl_Position = projection*view*model*gl_in[0].gl_Position;
+	vec3 n = normal();
+	vec3 up = vec3(0.0, 1.0, 0.0);
+	vec3 right = cross(n, up);
+
+	float size = particleSize/2;
+
+	vec4 u4 = vec4(up*size, 0.0);
+	vec4 r4 = vec4(right*size, 0.0);
+
+	gl_Position = projection*view*model*(gl_in[0].gl_Position + u4 - r4);
 	EmitVertex();
-	gl_Position = projection*view*model*(gl_in[0].gl_Position + vec4(0.1, 0, 0, 1));
+	gl_Position = projection*view*model*(gl_in[0].gl_Position + u4 + r4);
 	EmitVertex();
-	gl_Position = projection*view*model*(gl_in[0].gl_Position + vec4(0.1, 0.1, 0, 1));
+	gl_Position = projection*view*model*(gl_in[0].gl_Position - u4 + r4);
 	EmitVertex();
 	EndPrimitive();
-	gl_Position = projection*view*model*gl_in[0].gl_Position;
+	gl_Position = projection*view*model*(gl_in[0].gl_Position + u4 - r4);
 	EmitVertex();
-	gl_Position = projection*view*model*(gl_in[0].gl_Position + vec4(0, -0.1, 0, 1));
+	gl_Position = projection*view*model*(gl_in[0].gl_Position - u4 - r4);
 	EmitVertex();
-	gl_Position = projection*view*model*(gl_in[0].gl_Position + vec4(0.1, -0.1, 0, 1));
+	gl_Position = projection*view*model*(gl_in[0].gl_Position - u4 + r4);
 	EmitVertex();
 	EndPrimitive();
 	//fragUV = UV[i];

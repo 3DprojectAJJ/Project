@@ -34,6 +34,8 @@ private:
 		}
 	};
 
+	float size;
+
 	Particle emitter;
 
 	GLuint vertexArrayID, vertexBuffer;
