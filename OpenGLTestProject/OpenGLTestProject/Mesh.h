@@ -1,8 +1,8 @@
 #ifndef MESH_H
 #define MESH_H
-
 #include "Entity.h"
 #include <vector>
+
 #pragma warning(disable:4996)
 
 class Mesh : public Entity
