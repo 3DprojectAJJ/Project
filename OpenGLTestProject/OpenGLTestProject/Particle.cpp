@@ -3,10 +3,9 @@
 void ParticleEmitter::render(GLuint program, glm::vec3 camPos)
 {
 	glUniform1f(glGetUniformLocation(program, "particleSize"), 0.1f);
+	glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, &world[0][0]);
 
 	glUseProgram(program);
-
-	glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, &world[0][0]);
 
 	// 1rst attribute buffer : vertices
 	glEnableVertexAttribArray(0);
@@ -67,7 +66,7 @@ ParticleEmitter::ParticleEmitter(glm::vec3 position, glm::vec3 initalVelocity, f
 	origin.lifeTime = lifeSpan;
 	origin.color = color;
 
-	world = glm::mat4(1.0f);
+	world = glm::translate(world, glm::vec3(0, 4, 0));
 	lastParticle = 0;
 
 	static const float vertexData[] = {
