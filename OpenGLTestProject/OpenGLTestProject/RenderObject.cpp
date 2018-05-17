@@ -45,8 +45,6 @@ RenderObject::RenderObject(std::vector<DataFormat> data, std::vector<unsigned in
 	layout.push<float>(3);
 	layout.push<float>(3);
 	layout.push<float>(4);
-
-	vao.addBuffer(vbo, layout);
 }
 
 RenderObject::~RenderObject()

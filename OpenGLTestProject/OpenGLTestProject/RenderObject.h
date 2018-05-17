@@ -6,6 +6,7 @@
 #include <GLM\vec4.hpp>
 #include "VertexArray.h"
 #include "IndexBuffer.h"
+
 class RenderObject
 {
 public:
@@ -28,7 +29,6 @@ private:
 public:
 	RenderObject(std::vector<DataFormat> data, std::vector<unsigned int> indexing);
 	~RenderObject();
-
 };
 
 #endif
