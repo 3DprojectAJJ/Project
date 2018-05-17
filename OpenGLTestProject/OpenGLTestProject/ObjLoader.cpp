@@ -187,7 +187,7 @@ bool ObjLoader::readOBJFile(const char * path)
 				d.diffuse = mat.diffuse;
 				d.specular = mat.specular;
 
-
+				m_data.push_back(d);
 			}
 
 		}

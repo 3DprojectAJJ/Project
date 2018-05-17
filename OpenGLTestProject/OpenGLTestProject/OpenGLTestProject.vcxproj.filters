@@ -66,6 +66,9 @@
     <ClCompile Include="RenderObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ObjLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -75,9 +78,6 @@
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Framebuffer.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui\imconfig.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="IndexBuffer.h">
@@ -136,6 +136,9 @@
     </ClInclude>
     <ClInclude Include="ObjLoader.h">
       <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imconfig.h">
+      <Filter>Imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
