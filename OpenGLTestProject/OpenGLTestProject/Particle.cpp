@@ -2,36 +2,71 @@
 
 void ParticleEmitter::render(GLuint program, glm::vec3 camPos)
 {
-	glUniform1f(glGetUniformLocation(program, "particleSize"), 0.1f);
-	glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, &world[0][0]);
-
 	glUseProgram(program);
 
-	// 1rst attribute buffer : vertices
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glVertexAttribPointer(
-		10,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-		3,                  // size
-		GL_FLOAT,           // type
-		GL_FALSE,           // normalized?
-		0,                  // stride
-		(void*)0            // array buffer offset
-	);
-	glEnableVertexAttribArray(1);
+	glUniform1f(glGetUniformLocation(program, "particleSize"), 1.0f);
+	glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, &world[0][0]);
+
 	glBindBuffer(GL_ARRAY_BUFFER, billboardVertexBuffer);
+
+	GLint quadPos = glGetAttribLocation(program, "corner");
+
+	if (quadPos == -1)
+	{
+		OutputDebugStringA("Error, cannot find 'corner' attribute in Particle Vertex shader\n");
+		return;
+	}
+
+	glEnableVertexAttribArray(quadPos);
+
 	glVertexAttribPointer(
-		11,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		quadPos,            // attribute 0. No particular reason for 0, but must match the layout in the shader.
 		3,                  // size
 		GL_FLOAT,           // type
 		GL_FALSE,           // normalized?
 		0,                  // stride
 		(void*)0            // array buffer offset
 	);
-	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+
+	// 1rst attribute buffer : vertices
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+	GLint vertexPos = glGetAttribLocation(program, "vertexPosition");
+
+	if (vertexPos == -1)
+	{
+		OutputDebugStringA("Error, cannot find 'vertexPosition' attribute in Particle Vertex shader\n");
+		return;
+	}
+
+	glEnableVertexAttribArray(vertexPos);
+
 	glVertexAttribPointer(
-		12,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		vertexPos,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+		3,                  // size
+		GL_FLOAT,           // type
+		GL_FALSE,           // normalized?
+		0,                  // stride
+		(void*)0            // array buffer offset
+	);
+
+
+
+	
+	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+
+	GLint color = glGetAttribLocation(program, "inColor");
+
+	if (color == -1)
+	{
+		OutputDebugStringA("Error, cannot find 'inColor' attribute in Particle Fragment shader\n");
+		return;
+	}
+
+	glEnableVertexAttribArray(color);
+
+	glVertexAttribPointer(
+		color,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 		4,                  // size
 		GL_FLOAT,           // type
 		GL_FALSE,           // normalized?
@@ -39,15 +74,15 @@ void ParticleEmitter::render(GLuint program, glm::vec3 camPos)
 		(void*)0            // array buffer offset
 	);
 
-	glVertexAttribDivisor(0, 0);
-	glVertexAttribDivisor(1, 1);
-	glVertexAttribDivisor(2, 1);
+	glVertexAttribDivisor(quadPos, quadPos);
+	glVertexAttribDivisor(vertexPos, vertexPos);
+	glVertexAttribDivisor(color, vertexPos);
 
 	glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, particles.size());
 
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(quadPos);
+	glDisableVertexAttribArray(vertexPos);
+	glDisableVertexAttribArray(color);
 }
 
 void ParticleEmitter::emittParticle()
@@ -66,10 +101,11 @@ ParticleEmitter::ParticleEmitter(glm::vec3 position, glm::vec3 initalVelocity, f
 	origin.lifeTime = lifeSpan;
 	origin.color = color;
 
-	world = glm::translate(world, glm::vec3(0, 4, 0));
+	world = glm::mat4(1.0f);
+	world += glm::translate(world, glm::vec3(0, 4, 0));
 	lastParticle = 0;
 
-	static const float vertexData[] = {
+	std::vector<float> vertexData = {
 		-0.5f, -0.5f, 0.0f,
 		0.5f, -0.5f, 0.0f,
 		-0.5f, 0.5f, 0.0f,
@@ -78,7 +114,7 @@ ParticleEmitter::ParticleEmitter(glm::vec3 position, glm::vec3 initalVelocity, f
 
 	glGenBuffers(1, &billboardVertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, billboardVertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), &vertexData[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -89,13 +125,13 @@ ParticleEmitter::ParticleEmitter(glm::vec3 position, glm::vec3 initalVelocity, f
 	glGenBuffers(1, &colorBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
 	// Initialize with empty (NULL) buffer : it will be updated later, each frame.
-	glBufferData(GL_ARRAY_BUFFER, PARTICLE_NUM * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, PARTICLE_NUM * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
 }
 
 void ParticleEmitter::update(GLuint program, glm::vec3 camPos, float dt)
 {
 	particleTimer += dt;
-	if (particleTimer >= 1 / PARTICLE_PER_SECOND) {
+	if (particleTimer >= (float)1/PARTICLE_PER_SECOND) {
 		emittParticle();
 		particleTimer = 0;
 	}
@@ -104,19 +140,24 @@ void ParticleEmitter::update(GLuint program, glm::vec3 camPos, float dt)
 		particles[i].position += particles[i].velocity * dt;
 		particles[i].lifeTime -= dt;
 
-		posData[i * 3] = particles[i].position.x;
-		posData[(i * 3) + 1] = particles[i].position.y;
-		posData[(i * 3) + 2] = particles[i].position.z;
+		posdata[i * 3] = particles[i].position.x;
+		posdata[i * 3 + 1] = particles[i].position.y;
+		posdata[i * 3 + 2] = particles[i].position.z;
+
+		colorData[i * 4] = particles[i].color.x;
+		colorData[i * 4 + 1] = particles[i].color.y;
+		colorData[i * 4 + 2] = particles[i].color.z;
+		colorData[i * 4 + 3] = 1.0f;
 	}
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, PARTICLE_NUM * 3 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, particles.size() * sizeof(GLfloat) * 3, posData);
-
+	glBufferSubData(GL_ARRAY_BUFFER, 0, particles.size() * sizeof(GLfloat) * 3, posdata);
+	
 	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-	glBufferData(GL_ARRAY_BUFFER, PARTICLE_NUM * 4 * sizeof(GLubyte), NULL, GL_STREAM_DRAW); 
-	glBufferSubData(GL_ARRAY_BUFFER, 0, particles.size() * sizeof(GLubyte) * 4, &particles[0].color);
-
+	glBufferData(GL_ARRAY_BUFFER, PARTICLE_NUM * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, particles.size() * sizeof(GLfloat) * 4, colorData);
+	
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	render(program, camPos);

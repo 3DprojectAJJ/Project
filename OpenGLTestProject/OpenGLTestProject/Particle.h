@@ -3,6 +3,7 @@
 #include <GL\glew.h>
 #include <GLM\common.hpp>
 #include <vector>
+#include <Windows.h>
 #include <GLM\mat4x4.hpp>
 #include <GLM\gtc\matrix_transform.hpp>
 #define GLM_ENABLE_EXPERIMENTAL
@@ -10,7 +11,7 @@
 #include <GLM\gtc\type_ptr.hpp>
 
 #define PARTICLE_NUM 500
-#define PARTICLE_PER_SECOND 2
+#define PARTICLE_PER_SECOND 5
 
 class ParticleEmitter {
 private:
@@ -22,7 +23,6 @@ private:
 	};
 
 	float size;
-	unsigned int nrOfParticle;
 	unsigned int lastParticle;
 
 	float particleTimer;
@@ -35,7 +35,9 @@ private:
 
 	glm::mat4 world;
 	std::vector<Particle> particles;
-	float posData[1500];
+
+	float posdata[1500];
+	float colorData[2000];
 	
 	void render(GLuint program, glm::vec3 camPos);
 	void emittParticle();

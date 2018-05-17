@@ -124,6 +124,15 @@ int main()
 	// creates a shaderprogram out of the earlier added shaders
 	programs.createProgram();
 
+	if (!programs.addShader("ParticleVertexShader.glsl", GL_VERTEX_SHADER)) {
+		OutputDebugStringA("ParticleVertexShader failed to compile\n");
+	}
+	if (!programs.addShader("ParticleFragmentShader.glsl", GL_FRAGMENT_SHADER)) {
+		OutputDebugStringA("ParticleFragmentShader failed to compile\n");
+	}
+	// creates a shaderprogram out of the earlier added shaders
+	programs.createProgram();
+
 	// Adds two shaders that are used for the second renderpass
 	if(!programs.addShader("FBOVertexShader.glsl", GL_VERTEX_SHADER)){
 		OutputDebugStringA("FBOVertexShader failed to compile\n");
@@ -134,16 +143,7 @@ int main()
 	// creates a shaderprogram out of the earlier added shaders
 	programs.createProgram();
 
-	if (!programs.addShader("ParticleVertexShader.glsl", GL_VERTEX_SHADER)) {
-		OutputDebugStringA("ParticleVertexShader failed to compile\n");
-	}
-	if (!programs.addShader("ParticleFragmentShader.glsl", GL_FRAGMENT_SHADER)){
-	OutputDebugStringA("ParticleFragmentShader failed to compile\n");
-	}
-	// creates a shaderprogram out of the earlier added shaders
-	programs.createProgram();
-
-	fbo.getUniform(programs.getProgramID(1));
+	fbo.getUniform(programs.getProgramID(2));
 
 	// sets the quads matrix so that the mesh moves 5 floats to the right on the x-axis
 	quad.setPosition(glm::vec3(-2.5, 5, 0));
@@ -154,7 +154,7 @@ int main()
 	
 	Terrain terrain("heightmap.bmp");
 
-	ParticleEmitter particle(glm::vec3(0, 4, 0), glm::vec3(0, 0.1, 0), 5, glm::vec3(128, 128, 128));
+	ParticleEmitter particle(glm::vec3(0, 3, 0), glm::vec3(0, 0.1, 0), 5, glm::vec3(128, 128, 128));
 
 	std::vector<Entity*> entities;
 
@@ -177,11 +177,12 @@ int main()
 		100.0f);
 
 	// Make IDs for the viewmatrix and the projectionmatrix so we don't have to get these in the loop
+
 	GLuint viewID = glGetUniformLocation(programs.getProgramID(0), "view");
 	GLuint projID = glGetUniformLocation(programs.getProgramID(0), "projection");
 
-	GLuint PviewID = glGetUniformLocation(programs.getProgramID(2), "view");
-	GLuint PprojID = glGetUniformLocation(programs.getProgramID(2), "projection");
+	GLuint pViewID = glGetUniformLocation(programs.getProgramID(1), "pView");
+	GLuint pProjID = glGetUniformLocation(programs.getProgramID(1), "pProjection");
 
 	// Initializes the fbo, so that it can be used in the draw passes
 	fbo.init();
@@ -197,6 +198,7 @@ int main()
 	fbo.addLight(glm::vec3(15, 25, 0), glm::vec4(0, 0.2f, 1, 500));
 	fbo.addLight(glm::vec3(0, 25, -15), glm::vec4(1, 0, 0.2f, 150));
 	fbo.addLight(glm::vec3(-15, 25, 0), glm::vec4(0, 0.2f, 1, 500));
+
 
 	do
 	{
@@ -220,12 +222,11 @@ int main()
 		// Asks GL to use the first program (the one where we draw meshes to fbo texxtures)
 		glUseProgram(programs.getProgramID(0));
 
+
 		// Set uniform variables of view and projection matrices in shader program to the following
 		glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
 		glUniformMatrix4fv(projID, 1, GL_FALSE, &projection[0][0]);
 
-		glUniformMatrix4fv(PviewID, 1, GL_FALSE, &view[0][0]);
-		glUniformMatrix4fv(PprojID, 1, GL_FALSE, &projection[0][0]);
 
 		// Drawcall
 		//quad.draw(programs.getProgramID(0));
@@ -239,10 +240,14 @@ int main()
 		for (int i = 0; i < entities.size(); i++) {
 			entities.at(i)->draw(programs.getProgramID(0));
 		}
-		particle.update(programs.getProgramID(2), camera.getPos(), dt);
 
 
+		glUseProgram(programs.getProgramID(1));
 
+		glUniformMatrix4fv(pViewID, 1, GL_FALSE, &view[0][0]);
+		glUniformMatrix4fv(pProjID, 1, GL_FALSE, &projection[0][0]);
+
+		particle.update(programs.getProgramID(1), camera.getPos(), dt);
 
 
 		//unbinds the fbo, we now draw to the window or default fbo instead
@@ -252,7 +257,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draws the quad to the window
-		fbo.draw(programs.getProgramID(1));
+		fbo.draw(programs.getProgramID(2));
 
 
 		{

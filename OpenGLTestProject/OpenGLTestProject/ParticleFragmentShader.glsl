@@ -1,12 +1,14 @@
 #version 430
 
 in vec2 fragUV;
+in vec3 fragColor;
+in vec4 fragPosition;
 
 uniform sampler2D tex;
 
 layout(location = 0) out vec3 color;
+layout(location = 1) out vec3 normal;
 layout(location = 2) out vec3 position;
-
 layout(location = 3) out vec3 depth;
 
 float LinearizeDepth(float zoverw){
@@ -17,9 +19,8 @@ float LinearizeDepth(float zoverw){
 
 void main()
 {
-	//color = texture(tex, fragUV).rgb;
-	color = vec3(128, 128, 128);
-	position = gl_FragCoord.xyz;
+	color = fragColor;
+	position = fragPosition.xyz;
 
 	float deptha;
 	deptha = LinearizeDepth(gl_FragCoord.z)*77;

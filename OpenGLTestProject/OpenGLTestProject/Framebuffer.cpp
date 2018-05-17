@@ -125,15 +125,17 @@ void Framebuffer::addLight(glm::vec3 pos, glm::vec4 color)
 void Framebuffer::draw(GLuint program)
 {
 	glUseProgram(program);
+
+	glUniform1i(colorLoc, 0);
+	glUniform1i(normalLoc, 1);
+	glUniform1i(posLoc, 2);
+	glUniform1i(depthLoc, 3);
+
 	for (int i = 0; i < nrOfTextures(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, getTexID()[i]);
 	}
-	glUniform1i(colorLoc, 0);
-	glUniform1i(normalLoc, 1);
-	glUniform1i(posLoc, 2);
-	glUniform1i(depthLoc, 3);
 
 	glm::vec3* pos = new glm::vec3[lights.size()];
 	glm::vec4* color = new glm::vec4[lights.size()];
