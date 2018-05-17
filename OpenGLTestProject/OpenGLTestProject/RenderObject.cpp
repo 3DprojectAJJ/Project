@@ -1,6 +1,6 @@
 #include "RenderObject.h"
 
-void RenderObject::addToData(DataFormat format)
+void RenderObject::addToData(ObjLoader::DataFormat format)
 {
 	m_data.push_back(format.pos.x);
 	m_data.push_back(format.pos.y);
@@ -27,7 +27,7 @@ void RenderObject::addToData(DataFormat format)
 	m_data.push_back(format.specular.w);
 }
 
-RenderObject::RenderObject(std::vector<DataFormat> data, std::vector<unsigned int> indexing) :ib(&indexing[0], indexing.size())
+RenderObject::RenderObject(std::vector<ObjLoader::DataFormat> data, std::vector<unsigned int> indexing) :ib(&indexing[0], indexing.size())
 {
 	unsigned int nrOfVertices = indexing.size();
 
@@ -36,7 +36,7 @@ RenderObject::RenderObject(std::vector<DataFormat> data, std::vector<unsigned in
 		addToData(data[indexing[i]]);
 	}
 
-	vbo.init(&data[0], nrOfVertices * sizeof(DataFormat));
+	vbo.init(&data[0], nrOfVertices * sizeof(ObjLoader::DataFormat));
 
 	VertexBufferLayout layout;
 	layout.push<float>(3);
