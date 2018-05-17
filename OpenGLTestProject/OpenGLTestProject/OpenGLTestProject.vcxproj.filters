@@ -54,9 +54,6 @@
     <ClCompile Include="imgui\imgui_impl_glfw_gl3.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
-    <ClCompile Include="Water.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Terrain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -76,6 +73,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VertexBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Particle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -116,9 +116,6 @@
     <ClInclude Include="imgui\imgui_impl_glfw_gl3.h">
       <Filter>imgui</Filter>
     </ClInclude>
-    <ClInclude Include="Water.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Terrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -141,6 +138,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VertexBufferLayout.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Particle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -167,9 +167,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="ParticleFragmentShader.glsl">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="ParticleGeometryShader.glsl">
       <Filter>Shaders</Filter>
     </None>
     <None Include="ParticleVertexShader.glsl">

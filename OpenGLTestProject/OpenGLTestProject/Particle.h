@@ -10,6 +10,7 @@
 #include <GLM\gtc\type_ptr.hpp>
 
 #define PARTICLE_NUM 500
+#define PARTICLE_PER_SECOND 2
 
 class ParticleEmitter {
 private:
@@ -17,33 +18,29 @@ private:
 		glm::vec3 position;
 		glm::vec3 velocity;
 		glm::vec3 color;
-		float gravity;
-		float lifeSpan;
-		float lifeTime = 0;
-		void update(float dt, Particle reset) {
-			if (lifeTime >= 0) {
-				position += velocity * dt;
-				velocity.y += gravity * dt;
-			}
-			lifeTime += dt;
-			if (lifeTime >= lifeSpan) {
-				lifeTime = 0;
-				position = reset.position;
-				velocity = reset.velocity;
-			}
-		}
+		float lifeTime;
 	};
 
 	float size;
+	unsigned int nrOfParticle;
+	unsigned int lastParticle;
 
-	Particle emitter;
+	float particleTimer;
+
+	Particle origin;
 
 	GLuint vertexArrayID, vertexBuffer;
+	GLuint billboardVertexBuffer;
+	GLuint colorBuffer;
 
-	glm::mat4 world = glm::mat4(1.0f);
+	glm::mat4 world;
 	std::vector<Particle> particles;
+	float posData[1500];
+	
+	void render(GLuint program, glm::vec3 camPos);
+	void emittParticle();
 public:
-	ParticleEmitter(glm::vec3 position, glm::vec3 initalVelocity, float gravity, float lifeSpan, glm::vec3 color);
+	ParticleEmitter(glm::vec3 position, glm::vec3 initalVelocity, float lifeSpan, glm::vec3 color);
 
 	void update(GLuint program, glm::vec3 camPos, float dt);
 

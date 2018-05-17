@@ -9,10 +9,10 @@ Camera::Camera(glm::vec3 up, glm::vec3 forward, glm::vec3 pos, double speed)
 	this->speed = speed;
 }
 
-Camera::Camera(double horisontalAngle, double verticalAngle, glm::vec3 pos, double speed)
+Camera::Camera(double inHorizontalAngle, double inVerticalAngle, glm::vec3 pos, double speed)
 {
-	horizontalAngle = horisontalAngle;
-	this->verticalAngle = verticalAngle;
+	this->horizontalAngle = glm::radians(inHorizontalAngle);
+	this->verticalAngle = glm::radians(inVerticalAngle);
 	this->pos = pos;
 	this->speed = speed;
 	forward = glm::normalize(glm::vec3(cos(verticalAngle)*sin(horizontalAngle), sin(verticalAngle), cos(verticalAngle) * cos(horizontalAngle)));
@@ -54,6 +54,7 @@ void Camera::update(GLFWwindow * window, float dt)
 	{
 		horizontalAngle += (speed / 10)*dt*float(mousePos.x - posX);
 		verticalAngle += (speed / 10)*dt*float(mousePos.y - posY);
+
 
 		if (horizontalAngle > 3.14 * 2)
 			horizontalAngle -= 3.14 * 2;

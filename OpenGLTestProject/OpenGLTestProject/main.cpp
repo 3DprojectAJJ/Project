@@ -98,8 +98,8 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	// Creates necessary variables
-	// Camera, pretty self explanatory
-	Camera camera(4.0f, -0.5f, glm::vec3(4, 3, 3));
+	// Camera, Horizontal angle, Vertical Angle, Position
+	Camera camera(180, -30, glm::vec3(0, 7, 10));
 	// A mesh for a quad
 	Mesh quad("quad.obj");
 	// A mesh for a triangle
@@ -112,21 +112,34 @@ int main()
 	FrontBackRender frontBackRender;
 
 	// Adds three shaders that are used for the first renderpass
-	programs.addShader("VertexShader.glsl", GL_VERTEX_SHADER);
-	programs.addShader("GeometryShader.glsl", GL_GEOMETRY_SHADER);
-	programs.addShader("FragmentShader.glsl", GL_FRAGMENT_SHADER);
+	if(!programs.addShader("VertexShader.glsl", GL_VERTEX_SHADER)){
+	OutputDebugStringA("VertexShader failed to compile\n");
+	}
+	if(!programs.addShader("GeometryShader.glsl", GL_GEOMETRY_SHADER)){
+	OutputDebugStringA("GeometryShader failed to compile\n");
+	}
+	if(!programs.addShader("FragmentShader.glsl", GL_FRAGMENT_SHADER)){
+	OutputDebugStringA("FragmentShader failed to compile\n");
+	}
 	// creates a shaderprogram out of the earlier added shaders
 	programs.createProgram();
 
 	// Adds two shaders that are used for the second renderpass
-	programs.addShader("FBOVertexShader.glsl", GL_VERTEX_SHADER);
-	programs.addShader("FBOFragmentShader.glsl", GL_FRAGMENT_SHADER);
+	if(!programs.addShader("FBOVertexShader.glsl", GL_VERTEX_SHADER)){
+		OutputDebugStringA("FBOVertexShader failed to compile\n");
+	}
+	if(!programs.addShader("FBOFragmentShader.glsl", GL_FRAGMENT_SHADER)){
+		OutputDebugStringA("FBOFragmentShader failed to compile\n");
+	}
 	// creates a shaderprogram out of the earlier added shaders
 	programs.createProgram();
 
-	bool first = programs.addShader("ParticleVertexShader.glsl", GL_VERTEX_SHADER);
-	bool second = programs.addShader("ParticleGeometryShader.glsl", GL_GEOMETRY_SHADER);
-	bool third = programs.addShader("ParticleFragmentShader.glsl", GL_FRAGMENT_SHADER);
+	if (!programs.addShader("ParticleVertexShader.glsl", GL_VERTEX_SHADER)) {
+		OutputDebugStringA("ParticleVertexShader failed to compile\n");
+	}
+	if (!programs.addShader("ParticleFragmentShader.glsl", GL_FRAGMENT_SHADER)){
+	OutputDebugStringA("ParticleFragmentShader failed to compile\n");
+	}
 	// creates a shaderprogram out of the earlier added shaders
 	programs.createProgram();
 
@@ -141,7 +154,7 @@ int main()
 	
 	Terrain terrain("heightmap.bmp");
 
-	ParticleEmitter particle(glm::vec3(0, 5, 0), glm::vec3(0, 0.5, 0), -0.25, 5, glm::vec3(128, 128, 128));
+	ParticleEmitter particle(glm::vec3(0, 4, 0), glm::vec3(0, 0.1, 0), 5, glm::vec3(128, 128, 128));
 
 	std::vector<Entity*> entities;
 
@@ -222,11 +235,11 @@ int main()
 			pos.push_back(entities.at(i)->getPosition());
 		}
 		std::vector<glm::vec2> order = sort(&pos, camera.getPos(), programs.getProgramID(0));
-		particle.update(programs.getProgramID(2), camera.getPos(), dt);
+
 		for (int i = 0; i < entities.size(); i++) {
 			entities.at(i)->draw(programs.getProgramID(0));
 		}
-
+		particle.update(programs.getProgramID(2), camera.getPos(), dt);
 
 
 
