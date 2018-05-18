@@ -9,8 +9,6 @@
 #include <stdio.h>
 #include <vector>
 
-#pragma warning(disable:4996)
-
 class ObjLoader
 {
 public:
