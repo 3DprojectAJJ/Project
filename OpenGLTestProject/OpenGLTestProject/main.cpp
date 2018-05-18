@@ -99,11 +99,12 @@ int main()
 
 	// Creates necessary variables
 	// Camera, Horizontal angle, Vertical Angle, Position
-	Camera camera(180, -30, glm::vec3(0, 7, 10));
+	Camera camera(180, -20, glm::vec3(0, 3, 7));
 	// A mesh for a quad
 	Mesh quad("quad.obj");
 	// A mesh for a triangle
 	Mesh triangle("basicTriangle.obj");
+	Mesh log("firewood.obj");
 	// A handler of shaders that stores all our shaderprograms.
 	ShaderHandler programs;
 	// The framebuffer object that will be used for deferred rendering.
@@ -146,24 +147,27 @@ int main()
 	fbo.getUniform(programs.getProgramID(2));
 
 	// sets the quads matrix so that the mesh moves 5 floats to the right on the x-axis
-	quad.setPosition(glm::vec3(-2.5, 5, 0));
-	triangle.setPosition(glm::vec3(2.5, 5, 0));
+	quad.setPosition(glm::vec3(-4, 0.5f, -1));
+	triangle.setPosition(glm::vec3(4, 0.5f, -1));
 	triangle.setRotation(glm::vec3(0, -45, 0));
 	quad.setRotation(glm::vec3(0, 45, 0));
+	log.setPosition(glm::vec3(0, 0, 0));
 	// Reads the obj files so that the quad and triangle get their vertices
 	
 	Terrain terrain("heightmap.bmp");
 
-	ParticleEmitter particle(glm::vec3(0, 3, 0), glm::vec3(0, 0.1, 0), 5, glm::vec3(128, 128, 128));
+	ParticleEmitter particle(glm::vec3(0, 0.1f, 0), glm::vec3(0, 1, 0), 2, glm::vec3(0.1f, 0, 0), glm::vec3(1.0f, 0.40f, 0.15f));
 
 	std::vector<Entity*> entities;
 
 	// Makes buffers so that the meshes becomes ready to be drawn.
 	quad.makeBuffer(programs.getProgramID(0));
 	triangle.makeBuffer(programs.getProgramID(0));
+	log.makeBuffer(programs.getProgramID(0));
 
 	entities.push_back(&quad);
 	entities.push_back(&triangle);
+	entities.push_back(&log);
 	entities.push_back(&terrain);
 
 	// Sets the initial cameraview value to the viewmatrix
@@ -194,10 +198,7 @@ int main()
 
 	bool * showImguiWindow = new bool[fbo.nrOfTextures()];
 
-	fbo.addLight(glm::vec3(0, 25, 15), glm::vec4(1, 0, 0.2f, 150));
-	fbo.addLight(glm::vec3(15, 25, 0), glm::vec4(0, 0.2f, 1, 500));
-	fbo.addLight(glm::vec3(0, 25, -15), glm::vec4(1, 0, 0.2f, 150));
-	fbo.addLight(glm::vec3(-15, 25, 0), glm::vec4(0, 0.2f, 1, 500));
+	fbo.addLight(glm::vec3(0, 0.5f, 0), glm::vec4(1, 0.5f, 0.1f, 20));
 
 
 	do
@@ -222,11 +223,9 @@ int main()
 		// Asks GL to use the first program (the one where we draw meshes to fbo texxtures)
 		glUseProgram(programs.getProgramID(0));
 
-
 		// Set uniform variables of view and projection matrices in shader program to the following
 		glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
 		glUniformMatrix4fv(projID, 1, GL_FALSE, &projection[0][0]);
-
 
 		// Drawcall
 		//quad.draw(programs.getProgramID(0));
@@ -247,7 +246,7 @@ int main()
 		glUniformMatrix4fv(pViewID, 1, GL_FALSE, &view[0][0]);
 		glUniformMatrix4fv(pProjID, 1, GL_FALSE, &projection[0][0]);
 
-		particle.update(programs.getProgramID(1), camera.getPos(), dt);
+		particle.update(programs.getProgramID(1), &camera, dt);
 
 
 		//unbinds the fbo, we now draw to the window or default fbo instead

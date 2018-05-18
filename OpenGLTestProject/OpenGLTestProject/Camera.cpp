@@ -81,6 +81,11 @@ glm::vec3 Camera::getPos() const
 	return pos;
 }
 
+glm::vec3 Camera::getForward() const
+{
+	return forward;
+}
+
 glm::mat4 Camera::viewMat()
 {
 	return glm::lookAt(pos,pos + forward,up);
