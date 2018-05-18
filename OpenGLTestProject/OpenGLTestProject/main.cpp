@@ -165,6 +165,7 @@ int main()
 	// Makes buffers so that the meshes becomes ready to be drawn.
 	quad.makeBuffer(programs.getProgramID(0));
 	triangle.makeBuffer(programs.getProgramID(0));
+	quad.loadNormalMap(programs.getProgramID(0), "normal.bmp");
 
 	entities.push_back(&quad);
 	entities.push_back(&triangle);
@@ -230,7 +231,7 @@ int main()
 		// Drawcall
 		//quad.draw(programs.getProgramID(0));
 		//frontBackRender.render(&entities, camera.getPos(), programs.getProgramID(0));
-		/*std::vector<glm::vec3> pos;
+		std::vector<glm::vec3> pos;
 		for (int i = 0; i < entities.size(); i++) {
 			pos.push_back(entities.at(i)->getPosition());
 		}
@@ -238,9 +239,9 @@ int main()
 
 		for (int i = 0; i < entities.size(); i++) {
 			entities.at(i)->draw(programs.getProgramID(0));
-		}*/
+		}
 
-		tst.draw(programs.getProgramID(0));
+		//tst.draw(programs.getProgramID(0));
 
 
 		glUseProgram(programs.getProgramID(1));

@@ -60,6 +60,7 @@ private:
 	GLuint vao;
 	GLuint vbo;
 	GLuint elementbuffer;
+	GLuint normalID;
 
 	bool readMTLFile(const char * path);
 	GLuint loadImage(const char * imagepath);
@@ -69,6 +70,7 @@ public:
 	void makeBuffer(GLuint program);
 	bool readOBJFile(const char * path);
 	void draw(GLuint program);
+	void loadNormalMap(GLuint program, const char * path);
 	std::vector<vertexInfo> getVertices() const;
 	std::vector<material> getMaterials() const;
 	std::vector<index> getIndices() const;

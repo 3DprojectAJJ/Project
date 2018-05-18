@@ -6,8 +6,11 @@ in vec3 fragPosition;
 in vec3 fragA;
 in vec3 fragD;
 in vec4 fragS;
+in mat3 TBN;
 
 uniform sampler2D tex;
+uniform sampler2D normalMap;
+uniform int useNormalMap;
 
 layout(location = 0) out vec3 color;
 layout(location = 1) out vec3 normal;
@@ -26,9 +29,15 @@ float LinearizeDepth(float zoverw){
 
 void main()
 {
-	color = texture(tex,fragUV).rgb;
-	normal = fragNormal;
+	color = texture(tex, fragUV).rgb;
 	position = fragPosition;
+	
+
+	if(useNormalMap != 0){
+	normal = texture(normalMap, fragUV).rgb;
+	}else{
+	normal = fragNormal;
+	}
 
 	float deptha;
 	deptha = LinearizeDepth(gl_FragCoord.z)*77;

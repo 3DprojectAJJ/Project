@@ -15,6 +15,8 @@ out vec3 fragA;
 out vec3 fragD;
 out vec4 fragS;
 
+out mat3 TBN;
+
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
@@ -34,13 +36,28 @@ void main()
 
 	if(d<0)
 	{
+	vec3 v1 = (gl_in[1].gl_Position - gl_in[0].gl_Position).xyz;
+	vec3 v2 = (gl_in[2].gl_Position - gl_in[0].gl_Position).xyz;
+
+	vec2 u1 = UV[1] - UV[0];
+	vec2 u2 = UV[2] - UV[0];
+
+	float r = 1.0f / (u1.x * u2.y - u1.y * u2.x);
+	vec3 tangent = normalize(model * vec4((v1 * u2.y - v2 * u2.y)*r, 0.0f)).xyz;
+	vec3 normalV = normal();
+	vec3 bitangent = cross(tangent, normalV);
+
+	TBN = transpose(mat3(tangent, bitangent, normalV));
+
+	fragNormal = (model * vec4(normalV, 0.0f)).xyz;
+
 		for(int i = 0; i < 3; i++)
 		{
 			fragUV = UV[i];
 			fragA = a[i];
 			fragD = diff[i];
 			fragS = s[i];
-			fragNormal = (model * vec4(normal(), 0.0f)).xyz;
+			
 			fragPosition = (model * gl_in[i].gl_Position).xyz;
 			gl_Position = projection*view*model*gl_in[i].gl_Position;
 			EmitVertex();

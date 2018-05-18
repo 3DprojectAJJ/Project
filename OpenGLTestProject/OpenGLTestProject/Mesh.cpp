@@ -277,6 +277,13 @@ void Mesh::makeBuffer(GLuint program)
 void Mesh::draw(GLuint program)
 {
 	glUseProgram(program);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, normalID);
+
+	glUniform1i(glGetUniformLocation(program, "normalMap"), 1);
+	glUniform1i(glGetUniformLocation(program, "useNormalMap"), normalID);
+
 	glEnableVertexAttribArray(0);
 	GLint vertexPos = glGetAttribLocation(program, "vertexPosition");
 
@@ -288,6 +295,24 @@ void Mesh::draw(GLuint program)
 
 	glVertexAttribPointer(
 		vertexPos,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		0,
+		(void*)0
+	);
+
+	glEnableVertexAttribArray(1);
+	GLint vertexUV = glGetAttribLocation(program, "vertexUV");
+
+	if (vertexUV == -1)
+	{
+		OutputDebugStringA("Error, cannot find 'vertexPosition' attribute in Vertex shader\n");
+		return;
+	}
+
+	glVertexAttribPointer(
+		vertexUV,
 		3,
 		GL_FLOAT,
 		GL_FALSE,
@@ -314,6 +339,11 @@ void Mesh::draw(GLuint program)
 	}
 	glDisableVertexAttribArray(0);
 	//glDisableVertexAttribArray(1);
+}
+
+void Mesh::loadNormalMap(GLuint program, const char * path)
+{
+	normalID = loadImage(path);
 }
 
 std::vector<Mesh::vertexInfo> Mesh::getVertices() const
