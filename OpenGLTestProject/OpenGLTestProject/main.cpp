@@ -99,11 +99,12 @@ int main()
 
 	// Creates necessary variables
 	// Camera, Horizontal angle, Vertical Angle, Position
-	Camera camera(180, -30, glm::vec3(0, 7, 10));
+	Camera camera(180, -20, glm::vec3(0, 3, 7));
 	// A mesh for a quad
 	Mesh quad("quad.obj");
 	// A mesh for a triangle
 	Mesh triangle("basicTriangle.obj");
+	Mesh log("firewood.obj");
 	// A handler of shaders that stores all our shaderprograms.
 	ShaderHandler programs;
 	// The framebuffer object that will be used for deferred rendering.
@@ -124,6 +125,15 @@ int main()
 	// creates a shaderprogram out of the earlier added shaders
 	programs.createProgram();
 
+	if (!programs.addShader("ParticleVertexShader.glsl", GL_VERTEX_SHADER)) {
+		OutputDebugStringA("ParticleVertexShader failed to compile\n");
+	}
+	if (!programs.addShader("ParticleFragmentShader.glsl", GL_FRAGMENT_SHADER)) {
+		OutputDebugStringA("ParticleFragmentShader failed to compile\n");
+	}
+	// creates a shaderprogram out of the earlier added shaders
+	programs.createProgram();
+
 	// Adds two shaders that are used for the second renderpass
 	if(!programs.addShader("FBOVertexShader.glsl", GL_VERTEX_SHADER)){
 		OutputDebugStringA("FBOVertexShader failed to compile\n");
@@ -134,36 +144,30 @@ int main()
 	// creates a shaderprogram out of the earlier added shaders
 	programs.createProgram();
 
-	if (!programs.addShader("ParticleVertexShader.glsl", GL_VERTEX_SHADER)) {
-		OutputDebugStringA("ParticleVertexShader failed to compile\n");
-	}
-	if (!programs.addShader("ParticleFragmentShader.glsl", GL_FRAGMENT_SHADER)){
-	OutputDebugStringA("ParticleFragmentShader failed to compile\n");
-	}
-	// creates a shaderprogram out of the earlier added shaders
-	programs.createProgram();
-
-	fbo.getUniform(programs.getProgramID(1));
+	fbo.getUniform(programs.getProgramID(2));
 
 	// sets the quads matrix so that the mesh moves 5 floats to the right on the x-axis
-	quad.setPosition(glm::vec3(-2.5, 5, 0));
-	triangle.setPosition(glm::vec3(2.5, 5, 0));
+	quad.setPosition(glm::vec3(-4, 0.5f, -1));
+	triangle.setPosition(glm::vec3(4, 0.5f, -1));
 	triangle.setRotation(glm::vec3(0, -45, 0));
 	quad.setRotation(glm::vec3(0, 45, 0));
+	log.setPosition(glm::vec3(0, 0, 0));
 	// Reads the obj files so that the quad and triangle get their vertices
 	
 	Terrain terrain("heightmap.bmp");
 
-	ParticleEmitter particle(glm::vec3(0, 4, 0), glm::vec3(0, 0.1, 0), 5, glm::vec3(128, 128, 128));
+	ParticleEmitter particle(glm::vec3(0, 0.1f, 0), glm::vec3(0, 1, 0), 2, glm::vec3(0.1f, 0, 0), glm::vec3(1.0f, 0.40f, 0.15f));
 
 	std::vector<Entity*> entities;
 
 	// Makes buffers so that the meshes becomes ready to be drawn.
 	quad.makeBuffer(programs.getProgramID(0));
 	triangle.makeBuffer(programs.getProgramID(0));
+	log.makeBuffer(programs.getProgramID(0));
 
 	entities.push_back(&quad);
 	entities.push_back(&triangle);
+	entities.push_back(&log);
 	entities.push_back(&terrain);
 
 	// Sets the initial cameraview value to the viewmatrix
@@ -177,11 +181,12 @@ int main()
 		100.0f);
 
 	// Make IDs for the viewmatrix and the projectionmatrix so we don't have to get these in the loop
+
 	GLuint viewID = glGetUniformLocation(programs.getProgramID(0), "view");
 	GLuint projID = glGetUniformLocation(programs.getProgramID(0), "projection");
 
-	GLuint PviewID = glGetUniformLocation(programs.getProgramID(2), "view");
-	GLuint PprojID = glGetUniformLocation(programs.getProgramID(2), "projection");
+	GLuint pViewID = glGetUniformLocation(programs.getProgramID(1), "pView");
+	GLuint pProjID = glGetUniformLocation(programs.getProgramID(1), "pProjection");
 
 	// Initializes the fbo, so that it can be used in the draw passes
 	fbo.init();
@@ -193,10 +198,8 @@ int main()
 
 	bool * showImguiWindow = new bool[fbo.nrOfTextures()];
 
-	fbo.addLight(glm::vec3(0, 25, 15), glm::vec4(1, 0, 0.2f, 150));
-	fbo.addLight(glm::vec3(15, 25, 0), glm::vec4(0, 0.2f, 1, 500));
-	fbo.addLight(glm::vec3(0, 25, -15), glm::vec4(1, 0, 0.2f, 150));
-	fbo.addLight(glm::vec3(-15, 25, 0), glm::vec4(0, 0.2f, 1, 500));
+	fbo.addLight(glm::vec3(0, 0.5f, 0), glm::vec4(1, 0.5f, 0.1f, 20));
+
 
 	do
 	{
@@ -224,9 +227,6 @@ int main()
 		glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
 		glUniformMatrix4fv(projID, 1, GL_FALSE, &projection[0][0]);
 
-		glUniformMatrix4fv(PviewID, 1, GL_FALSE, &view[0][0]);
-		glUniformMatrix4fv(PprojID, 1, GL_FALSE, &projection[0][0]);
-
 		// Drawcall
 		//quad.draw(programs.getProgramID(0));
 		//frontBackRender.render(&entities, camera.getPos(), programs.getProgramID(0));
@@ -239,10 +239,14 @@ int main()
 		for (int i = 0; i < entities.size(); i++) {
 			entities.at(i)->draw(programs.getProgramID(0));
 		}
-		particle.update(programs.getProgramID(2), camera.getPos(), dt);
 
 
+		glUseProgram(programs.getProgramID(1));
 
+		glUniformMatrix4fv(pViewID, 1, GL_FALSE, &view[0][0]);
+		glUniformMatrix4fv(pProjID, 1, GL_FALSE, &projection[0][0]);
+
+		particle.update(programs.getProgramID(1), &camera, dt);
 
 
 		//unbinds the fbo, we now draw to the window or default fbo instead
@@ -252,7 +256,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draws the quad to the window
-		fbo.draw(programs.getProgramID(1));
+		fbo.draw(programs.getProgramID(2));
 
 
 		{

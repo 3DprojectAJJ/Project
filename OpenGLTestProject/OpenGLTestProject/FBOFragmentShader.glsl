@@ -24,10 +24,14 @@ void main(){
 
 	color = vec3(0.0f);
 
-	for(int i = 0; i < nrOfLights; i++){
+	if(normal.x == 0 && normal.y == 0 && normal.z == 0){
+		color = texture(colorTexture, UV).xyz;
+	}else{
+		for(int i = 0; i < nrOfLights; i++){
 		float diffuse = dot(normal, normalize(lightPosition[i] - position));
 		float distance = length(lightPosition[i] - position);
 
-		color += lightColor[i].xyz * diffuse * texture(colorTexture, UV).xyz * 1/(distance * distance) * lightColor[i].w;
+		color += clamp(lightColor[i].xyz * diffuse * texture(colorTexture, UV).xyz * 1/(distance * distance) * lightColor[i].w, 0, 1);
+		}
 	}
 }
