@@ -104,7 +104,6 @@ int main()
 	Mesh quad("quad.obj");
 	// A mesh for a triangle
 	Mesh triangle("basicTriangle.obj");
-	Mesh log("firewood.obj");
 	// A handler of shaders that stores all our shaderprograms.
 	ShaderHandler programs;
 	// The framebuffer object that will be used for deferred rendering.
@@ -151,7 +150,6 @@ int main()
 	triangle.setPosition(glm::vec3(4, 0.5f, -1));
 	triangle.setRotation(glm::vec3(0, -45, 0));
 	quad.setRotation(glm::vec3(0, 45, 0));
-	log.setPosition(glm::vec3(0, 0, 0));
 	// Reads the obj files so that the quad and triangle get their vertices
 	
 	Terrain terrain("heightmap.bmp");
@@ -163,11 +161,9 @@ int main()
 	// Makes buffers so that the meshes becomes ready to be drawn.
 	quad.makeBuffer(programs.getProgramID(0));
 	triangle.makeBuffer(programs.getProgramID(0));
-	log.makeBuffer(programs.getProgramID(0));
 
 	entities.push_back(&quad);
 	entities.push_back(&triangle);
-	entities.push_back(&log);
 	entities.push_back(&terrain);
 
 	// Sets the initial cameraview value to the viewmatrix
