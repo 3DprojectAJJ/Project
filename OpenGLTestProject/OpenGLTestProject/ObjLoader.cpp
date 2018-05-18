@@ -1,4 +1,5 @@
 #include "ObjLoader.h"
+
 bool ObjLoader::readMTLFile(const char * path)
 {
 	FILE * file;
@@ -20,15 +21,19 @@ bool ObjLoader::readMTLFile(const char * path)
 		}
 		else if (std::strcmp(lineHeader, "Ka") == 0)
 		{
-			fscanf(file, "%f %f %f\n", &mat.ambient.x, &mat.ambient.y, &mat.ambient.z);
+			fscanf(file, "%f %f %f\n", &mat.ambient);
 		}
 		else if (std::strcmp(lineHeader, "Kd") == 0)
 		{
-			fscanf(file, "%f %f %f\n", &mat.diffuse.x, &mat.diffuse.y, &mat.diffuse.z);
+			fscanf(file, "%f %f %f\n", &mat.diffuse);
 		}
 		else if (std::strcmp(lineHeader, "Ks") == 0)
 		{
-			fscanf(file, "%f %f %f\n", &mat.specular.x, &mat.specular.y, &mat.specular.z);
+			glm::vec3 tmp;
+			fscanf(file, "%f %f %f\n", &tmp);
+			mat.specular.x = tmp.x;
+			mat.specular.y = tmp.y;
+			mat.specular.z = tmp.z;
 		}
 		// Assumption, each object only has one texture
 		else if (std::strcmp(lineHeader, "map_Kd") == 0)
@@ -181,36 +186,8 @@ bool ObjLoader::readOBJFile(const char * path)
 				d.ambient = mat.ambient;
 				d.diffuse = mat.diffuse;
 				d.specular = mat.specular;
-				bool theSame = true;
-				for (unsigned int i = 0; i < m_data.size(); i++)
-				{
-					theSame = true;
 
-					if (m_data[i].pos != d.pos)
-					{
-						theSame = false;
-					}
-					else if (m_data[i].uv != d.uv)
-					{
-						theSame = false;
-					}
-					else if (m_data[i].normal != d.normal)
-					{
-						theSame = false;
-					}
-					// not necessary ambient, diffuse or specular since we assume there is only onw material.
-					if (theSame)
-					{
-						indexing.push_back(i);
-						break;
-					}
-				}
-
-				if (!theSame || m_data.size() == 0)
-				{
-					indexing.push_back(m_data.size());
-					m_data.push_back(d);
-				}
+				m_data.push_back(d);
 			}
 
 		}
@@ -227,14 +204,4 @@ bool ObjLoader::readOBJFile(const char * path)
 	} while(true);
 
 	return false;
-}
-
-std::vector<ObjLoader::DataFormat> ObjLoader::getData()
-{
-	return m_data;
-}
-
-std::vector<unsigned int> ObjLoader::getIndices()
-{
-	return indexing;
 }
