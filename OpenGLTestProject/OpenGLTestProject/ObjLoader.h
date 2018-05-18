@@ -30,6 +30,7 @@ private:
 	};
 
 	std::vector<DataFormat> m_data;
+	std::vector<unsigned int> indexing;
 	Material mat;
 	GLuint texID;
 	bool readMTLFile(const char * path);
@@ -39,5 +40,8 @@ public:
 	~ObjLoader();
 
 	bool readOBJFile(const char * path);
+
+	std::vector<DataFormat> getData();
+	std::vector<unsigned int> getIndices();
 };
 #endif

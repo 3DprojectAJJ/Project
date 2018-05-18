@@ -7,6 +7,7 @@ class VertexArray
 {
 private:
 	unsigned int id;
+	std::vector<unsigned int> attribArrays;
 public:
 	VertexArray();
 	~VertexArray();

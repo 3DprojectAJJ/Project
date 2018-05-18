@@ -19,7 +19,10 @@ private:
 	void addToData(ObjLoader::DataFormat format);
 public:
 	RenderObject(std::vector<ObjLoader::DataFormat> data, std::vector<unsigned int> indexing);
+	RenderObject(const void * data, unsigned int size, const unsigned int * indices, unsigned int count);
 	~RenderObject();
+	void draw();
+	void setTex(GLuint id);
 };
 
 #endif
