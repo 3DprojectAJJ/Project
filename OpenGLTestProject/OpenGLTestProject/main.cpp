@@ -154,7 +154,7 @@ int main()
 	
 	Terrain terrain("heightmap.bmp");
 
-	ParticleEmitter particle(glm::vec3(0, 0.1f, 0), glm::vec3(0, 1, 0), 2, glm::vec3(0.1f, 0, 0), glm::vec3(1.0f, 0.40f, 0.15f));
+	ParticleEmitter particle(glm::vec3(0.0f, 0.1f, 0.0f), glm::vec3(0.0f, 2.0f, 0.0f), 2, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.5f, 0.15f));
 
 	std::vector<Entity*> entities;
 

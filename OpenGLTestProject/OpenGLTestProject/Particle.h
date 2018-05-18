@@ -11,7 +11,7 @@
 #include <GLM\gtx\transform.hpp>
 #include <GLM\gtc\type_ptr.hpp>
 
-#define PARTICLE_NUM 2000
+#define PARTICLE_NUM 3000
 #define PARTICLE_PER_SECOND 500
 
 class ParticleEmitter {

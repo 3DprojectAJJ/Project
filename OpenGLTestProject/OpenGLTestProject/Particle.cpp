@@ -112,6 +112,7 @@ void ParticleEmitter::interpolateColor(int index)
 	particles[index].color.x = (particles[index].lifeTime - origin.lifeTime) * origin.color.x + (origin.lifeTime - particles[index].lifeTime) * endColor.x;
 	particles[index].color.y = (particles[index].lifeTime - origin.lifeTime) * origin.color.y + (origin.lifeTime - particles[index].lifeTime) * endColor.y;
 	particles[index].color.z = (particles[index].lifeTime - origin.lifeTime) * origin.color.z + (origin.lifeTime - particles[index].lifeTime) * endColor.z;
+	particles[index].color = glm::clamp(particles[index].color, glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
 }
 
 void ParticleEmitter::init(glm::vec3 position, glm::vec3 initalVelocity, float lifeSpan)
@@ -163,9 +164,9 @@ ParticleEmitter::ParticleEmitter(glm::vec3 position, glm::vec3 initalVelocity, f
 void ParticleEmitter::update(GLuint program, Camera *cam, float dt)
 {
 	particleTimer += dt;
-	if (particleTimer >= 1.0f/PARTICLE_PER_SECOND) {
+	if (particleTimer >= 1.0f/(float)PARTICLE_PER_SECOND) {
 		while (particleTimer > 0) {
-			particleTimer =- 1.0f / PARTICLE_PER_SECOND;
+			particleTimer -= 1.0f/(float)PARTICLE_PER_SECOND;
 			emittParticle();
 		}
 		particleTimer = 0;

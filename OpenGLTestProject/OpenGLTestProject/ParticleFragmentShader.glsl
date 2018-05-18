@@ -24,7 +24,7 @@ float LinearizeDepth(float zoverw){
 
 void main()
 {
-	color = fragColor;
+	color = clamp(fragColor, 0, 1);
 	position = fragPosition.xyz;
 	normal = vec3(0.0f, 0.0f, 0.0f);
 

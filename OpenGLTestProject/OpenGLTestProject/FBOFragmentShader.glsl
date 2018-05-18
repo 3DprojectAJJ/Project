@@ -19,12 +19,12 @@ uniform sampler2D diffuseTexture;
 uniform sampler2D specularTexture;
 
 void main(){
-	vec3 normal = normalize(texture(normalTexture, UV).xyz);
+	vec3 normal = texture(normalTexture, UV).xyz;
 	vec3 position = texture(positionTexture, UV).xyz;
 
 	color = vec3(0.0f);
 
-	if(normal.x == 0 && normal.y == 0 && normal.z == 0){
+	if(normal.x == 0 && normal.y == 0 && normal.z == 0.0){
 		color = texture(colorTexture, UV).xyz;
 	}else{
 		for(int i = 0; i < nrOfLights; i++){
