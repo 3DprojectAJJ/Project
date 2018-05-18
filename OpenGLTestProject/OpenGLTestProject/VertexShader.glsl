@@ -7,7 +7,7 @@ layout (location = 1) in vec2 vertexUV;
 layout (location = 2) in vec3 vertexAmbient;
 layout (location = 3) in vec3 vertexDiffuse;
 layout (location = 4) in vec3 vertexSpecular;
-layout (location = 5) in int vertexSpecularExponent;
+layout (location = 5) in float vertexSpecularExponent;
 
 
 out vec2 UV;

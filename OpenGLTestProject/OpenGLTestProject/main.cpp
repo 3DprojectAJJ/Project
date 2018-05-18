@@ -7,6 +7,8 @@
 #include "Particle.h"
 #include "imgui\imgui.h"
 #include "imgui\imgui_impl_glfw_gl3.h"
+#include "ObjLoader.h"
+#include "RenderObject.h"
 
 #include <GLFW\glfw3.h>
 #include <fstream>
@@ -97,6 +99,9 @@ int main()
 	// Enables the automatic depth test, we won't have to worry about it no more
 	glEnable(GL_DEPTH_TEST);
 
+	ObjLoader ldr;
+	ldr.readOBJFile("quad.obj");
+	RenderObject tst(ldr.getData(),ldr.getIndices(), ldr.getTex());
 	// Creates necessary variables
 	// Camera, Horizontal angle, Vertical Angle, Position
 	Camera camera(180, -20, glm::vec3(0, 3, 7));
@@ -155,7 +160,6 @@ int main()
 	Terrain terrain("heightmap.bmp");
 
 	ParticleEmitter particle(glm::vec3(0.0f, 0.1f, 0.0f), glm::vec3(0.0f, 2.0f, 0.0f), 2, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.5f, 0.15f));
-
 	std::vector<Entity*> entities;
 
 	// Makes buffers so that the meshes becomes ready to be drawn.
@@ -226,7 +230,7 @@ int main()
 		// Drawcall
 		//quad.draw(programs.getProgramID(0));
 		//frontBackRender.render(&entities, camera.getPos(), programs.getProgramID(0));
-		std::vector<glm::vec3> pos;
+		/*std::vector<glm::vec3> pos;
 		for (int i = 0; i < entities.size(); i++) {
 			pos.push_back(entities.at(i)->getPosition());
 		}
@@ -234,7 +238,9 @@ int main()
 
 		for (int i = 0; i < entities.size(); i++) {
 			entities.at(i)->draw(programs.getProgramID(0));
-		}
+		}*/
+
+		tst.draw(programs.getProgramID(0));
 
 
 		glUseProgram(programs.getProgramID(1));
