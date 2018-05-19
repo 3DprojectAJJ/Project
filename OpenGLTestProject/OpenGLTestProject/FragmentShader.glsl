@@ -32,11 +32,10 @@ void main()
 	color = texture(tex, fragUV).rgb;
 	position = fragPosition;
 	
-
 	if(useNormalMap != 0){
-	normal = texture(normalMap, fragUV).rgb;
+		normal = TBN * (texture(normalMap, fragUV).rgb * 2.0 - vec3(1, 1, 1));
 	}else{
-	normal = fragNormal;
+		normal = fragNormal;
 	}
 
 	float deptha;

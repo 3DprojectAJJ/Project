@@ -53,6 +53,11 @@ private:
 	std::vector<glm::vec2> vertexUVs;
 	std::vector<glm::vec3> vertexNormals;
 
+	std::vector<glm::vec3> tangents;
+	GLuint tangentID;
+	std::vector<glm::vec3> bitangents;
+	GLuint bitangentID;
+
 	std::vector<vertexInfo> vertices;
 	std::vector<GLuint> endOfMat;
 	std::vector<GLuint> startOfMat;

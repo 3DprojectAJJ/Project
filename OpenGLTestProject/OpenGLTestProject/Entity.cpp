@@ -24,7 +24,7 @@ void Entity::setPosition(glm::vec3 position)
 void Entity::setRotation(glm::vec3 rotation)
 {
 	glm::mat4 temp = glm::mat4(1.0f);
-	this->rotation = rotation;
+	this->rotation = glm::radians(rotation);
 	if (rotation.x != 0) {
 		temp = glm::rotate(rotation.x, glm::vec3(1, 0, 0));
 	}

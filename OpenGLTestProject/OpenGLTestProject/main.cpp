@@ -151,8 +151,8 @@ int main()
 	fbo.getUniform(programs.getProgramID(2));
 
 	// sets the quads matrix so that the mesh moves 5 floats to the right on the x-axis
-	quad.setPosition(glm::vec3(-4, 0.5f, -1));
-	triangle.setPosition(glm::vec3(4, 0.5f, -1));
+	quad.setPosition(glm::vec3(-4, 1, -1));
+	triangle.setPosition(glm::vec3(4, 1, -1));
 	triangle.setRotation(glm::vec3(0, -45, 0));
 	quad.setRotation(glm::vec3(0, 45, 0));
 	// Reads the obj files so that the quad and triangle get their vertices
@@ -166,6 +166,7 @@ int main()
 	quad.makeBuffer(programs.getProgramID(0));
 	triangle.makeBuffer(programs.getProgramID(0));
 	quad.loadNormalMap(programs.getProgramID(0), "normal.bmp");
+	//terrain.loadNormalMap(programs.getProgramID(0), "groundNormal.bmp");
 
 	entities.push_back(&quad);
 	entities.push_back(&triangle);
