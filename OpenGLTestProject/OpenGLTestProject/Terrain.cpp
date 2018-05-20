@@ -208,7 +208,7 @@ void Terrain::draw(GLuint program)
 
 	if (tangent == -1)
 	{
-		OutputDebugStringA("Error, cannot find 'vertexPosition' attribute in Vertex shader\n");
+		OutputDebugStringA("Error, cannot find 'tangents attribute in Vertex shader\n");
 		//return;
 	}
 
@@ -227,7 +227,7 @@ void Terrain::draw(GLuint program)
 
 	if (tangent == -1)
 	{
-		OutputDebugStringA("Error, cannot find 'vertexPosition' attribute in Vertex shader\n");
+		OutputDebugStringA("Error, cannot find 'bitangents' attribute in Vertex shader\n");
 		//return;
 	}
 

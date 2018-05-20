@@ -18,6 +18,6 @@ void main()
 
 	vec4 eyePos = model * pView * vec4(vertexPosition, 1.0f);	  //transform to eye-space
     eyePos.xy += particleSize * (corner - vec2(0.5)); //add corner position
-	fragPosition = pProjection * eyePos;
-	gl_Position = fragPosition;
+	fragPosition = model * vec4(vertexPosition, 1.0f);
+	gl_Position = pProjection * eyePos;
 }

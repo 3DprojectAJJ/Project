@@ -69,6 +69,9 @@
     <ClCompile Include="ObjLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mouse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -140,6 +143,9 @@
     <ClInclude Include="imgui\imconfig.h">
       <Filter>Imgui</Filter>
     </ClInclude>
+    <ClInclude Include="Mouse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="blue.bmp">
@@ -179,6 +185,12 @@
     </None>
     <None Include="terrain.mtl">
       <Filter>Resource</Filter>
+    </None>
+    <None Include="MouseVertexShader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="MouseFragmentShader.glsl">
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

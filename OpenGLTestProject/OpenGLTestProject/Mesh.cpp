@@ -291,7 +291,7 @@ void Mesh::draw(GLuint program)
 	if (vertexPos == -1)
 	{
 		OutputDebugStringA("Error, cannot find 'vertexPosition' attribute in Vertex shader\n");
-		return;
+		//return;
 	}
 
 	glVertexAttribPointer(
@@ -309,8 +309,8 @@ void Mesh::draw(GLuint program)
 
 	if (vertexUV == -1)
 	{
-		OutputDebugStringA("Error, cannot find 'vertexPosition' attribute in Vertex shader\n");
-		return;
+		OutputDebugStringA("Error, cannot find 'vertexUV' attribute in Vertex shader\n");
+		//return;
 	}
 
 	glVertexAttribPointer(
@@ -328,7 +328,7 @@ void Mesh::draw(GLuint program)
 
 	if (tangent == -1)
 	{
-		OutputDebugStringA("Error, cannot find 'vertexPosition' attribute in Vertex shader\n");
+		OutputDebugStringA("Error, cannot find 'tangents' attribute in Vertex shader\n");
 		//return;
 	}
 
@@ -347,7 +347,7 @@ void Mesh::draw(GLuint program)
 
 	if (tangent == -1)
 	{
-		OutputDebugStringA("Error, cannot find 'vertexPosition' attribute in Vertex shader\n");
+		OutputDebugStringA("Error, cannot find 'bitangents' attribute in Vertex shader\n");
 		//return;
 	}
 

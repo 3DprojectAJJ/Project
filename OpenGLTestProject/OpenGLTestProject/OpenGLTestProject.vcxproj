@@ -129,6 +129,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="MeshHandler.cpp" />
+    <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="ObjLoader.cpp" />
     <ClCompile Include="Particle.cpp" />
     <ClCompile Include="Renderer.cpp" />
@@ -153,6 +154,7 @@
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="MeshHandler.h" />
+    <ClInclude Include="Mouse.h" />
     <ClInclude Include="ObjLoader.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Renderer.h" />
@@ -168,6 +170,8 @@
     <None Include="FBOVertexShader.glsl" />
     <None Include="FragmentShader.glsl" />
     <None Include="GeometryShader.glsl" />
+    <None Include="MouseFragmentShader.glsl" />
+    <None Include="MouseVertexShader.glsl" />
     <None Include="ParticleFragmentShader.glsl" />
     <None Include="ParticleVertexShader.glsl" />
     <None Include="simple.mtl">
