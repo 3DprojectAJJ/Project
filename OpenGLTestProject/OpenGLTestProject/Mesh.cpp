@@ -322,44 +322,46 @@ void Mesh::draw(GLuint program)
 		(void*)0
 	);
 
-	glEnableVertexAttribArray(6);
-	glBindBuffer(GL_ARRAY_BUFFER, tangentID);
-	GLint tangent = glGetAttribLocation(program, "tangents");
-
-	if (tangent == -1)
+	if (normalID != 0)
 	{
-		OutputDebugStringA("Error, cannot find 'tangents' attribute in Vertex shader\n");
-		//return;
+		glEnableVertexAttribArray(6);
+		glBindBuffer(GL_ARRAY_BUFFER, tangentID);
+		GLint tangent = glGetAttribLocation(program, "tangents");
+
+		if (tangent == -1)
+		{
+			OutputDebugStringA("Error, cannot find 'tangents' attribute in Vertex shader\n");
+			//return;
+		}
+
+		glVertexAttribPointer(
+			tangent,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			0,
+			(void*)0
+		);
+
+		glEnableVertexAttribArray(7);
+		glBindBuffer(GL_ARRAY_BUFFER, bitangentID);
+		GLint bitangent = glGetAttribLocation(program, "bitangents");
+
+		if (tangent == -1)
+		{
+			OutputDebugStringA("Error, cannot find 'bitangents' attribute in Vertex shader\n");
+			//return;
+		}
+
+		glVertexAttribPointer(
+			bitangent,
+			3,
+			GL_FLOAT,
+			GL_FALSE,
+			0,
+			(void*)0
+		);
 	}
-
-	glVertexAttribPointer(
-		tangent,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		0,
-		(void*)0
-	);
-
-	glEnableVertexAttribArray(7);
-	glBindBuffer(GL_ARRAY_BUFFER, bitangentID);
-	GLint bitangent = glGetAttribLocation(program, "bitangents");
-
-	if (tangent == -1)
-	{
-		OutputDebugStringA("Error, cannot find 'bitangents' attribute in Vertex shader\n");
-		//return;
-	}
-
-	glVertexAttribPointer(
-		bitangent,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		0,
-		(void*)0
-	);
-
 	// bind index buffer for positions
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
