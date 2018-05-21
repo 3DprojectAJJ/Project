@@ -277,13 +277,21 @@ void Mesh::makeBuffer(GLuint program)
 void Mesh::draw(GLuint program)
 {
 	glUseProgram(program);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, normalID);
+
+	glUniform1i(glGetUniformLocation(program, "normalMap"), 1);
+	glUniform1i(glGetUniformLocation(program, "useNormalMap"), normalID);
+
 	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	GLint vertexPos = glGetAttribLocation(program, "vertexPosition");
 
 	if (vertexPos == -1)
 	{
 		OutputDebugStringA("Error, cannot find 'vertexPosition' attribute in Vertex shader\n");
-		return;
+		//return;
 	}
 
 	glVertexAttribPointer(
@@ -294,10 +302,64 @@ void Mesh::draw(GLuint program)
 		0,
 		(void*)0
 	);
-	/*glEnableVertexAttribArray(1);*/
-	glBindVertexArray(vao);
+
+	glEnableVertexAttribArray(1);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	
+	GLint vertexUV = glGetAttribLocation(program, "vertexUV");
+
+	if (vertexUV == -1)
+	{
+		OutputDebugStringA("Error, cannot find 'vertexUV' attribute in Vertex shader\n");
+		//return;
+	}
+
+	glVertexAttribPointer(
+		vertexUV,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		0,
+		(void*)0
+	);
+
+	glEnableVertexAttribArray(6);
+	glBindBuffer(GL_ARRAY_BUFFER, tangentID);
+	GLint tangent = glGetAttribLocation(program, "tangents");
+
+	if (tangent == -1)
+	{
+		OutputDebugStringA("Error, cannot find 'tangents' attribute in Vertex shader\n");
+		//return;
+	}
+
+	glVertexAttribPointer(
+		tangent,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		0,
+		(void*)0
+	);
+
+	glEnableVertexAttribArray(7);
+	glBindBuffer(GL_ARRAY_BUFFER, bitangentID);
+	GLint bitangent = glGetAttribLocation(program, "bitangents");
+
+	if (tangent == -1)
+	{
+		OutputDebugStringA("Error, cannot find 'bitangents' attribute in Vertex shader\n");
+		//return;
+	}
+
+	glVertexAttribPointer(
+		bitangent,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		0,
+		(void*)0
+	);
+
 	// bind index buffer for positions
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
@@ -314,6 +376,47 @@ void Mesh::draw(GLuint program)
 	}
 	glDisableVertexAttribArray(0);
 	//glDisableVertexAttribArray(1);
+}
+
+void Mesh::loadNormalMap(GLuint program, const char * path)
+{
+	normalID = loadImage(path);
+
+	for (int i = 0; i < indices.size(); i+=3) {
+		glm::vec3 v0 = vertexPositions[indices[i].pos-1];
+		glm::vec3 v1 = vertexPositions[indices[i+1].pos-1];
+		glm::vec3 v2 = vertexPositions[indices[i+2].pos-1];
+
+		glm::vec2 u0 = vertexUVs[indices[i].uv-1];
+		glm::vec2 u1 = vertexUVs[indices[i+1].uv-1];
+		glm::vec2 u2 = vertexUVs[indices[i+2].uv-1];
+
+		glm::vec3 dV1 = v1 - v0;
+		glm::vec3 dV2 = v2 - v0;
+
+		glm::vec2 dU1 = u1 - u0;
+		glm::vec2 dU2 = u2 - u0;
+
+		float r = 1.0f / (dU1.x * dU2.y - dU1.y * dU2.x);
+		glm::vec3 tangent = (dV1 * dU2.y - dV2 * dU1.y)*r;
+		glm::vec3 bitangent = (dV2 * dU1.x - dV1 * dU2.x)*r;
+
+		tangents.push_back(tangent);
+		tangents.push_back(tangent);
+		tangents.push_back(tangent);
+
+		bitangents.push_back(bitangent);
+		bitangents.push_back(bitangent);
+		bitangents.push_back(bitangent);
+	}
+
+	glGenBuffers(1, &tangentID);
+	glBindBuffer(GL_ARRAY_BUFFER, tangentID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*tangents.size(), &tangents[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &bitangentID);
+	glBindBuffer(GL_ARRAY_BUFFER, bitangentID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*bitangents.size(), &bitangents[0], GL_STATIC_DRAW);
 }
 
 std::vector<Mesh::vertexInfo> Mesh::getVertices() const

@@ -24,7 +24,7 @@ void main(){
 
 	color = vec3(0.0f);
 
-	if(normal.x == 0 && normal.y == 0 && normal.z == 0.0){
+	if(normal.x == 0 && normal.y == 0 && normal.z == 0){
 		color = texture(colorTexture, UV).xyz;
 	}else{
 		for(int i = 0; i < nrOfLights; i++){

@@ -53,6 +53,11 @@ private:
 	std::vector<glm::vec2> vertexUVs;
 	std::vector<glm::vec3> vertexNormals;
 
+	std::vector<glm::vec3> tangents;
+	GLuint tangentID;
+	std::vector<glm::vec3> bitangents;
+	GLuint bitangentID;
+
 	std::vector<vertexInfo> vertices;
 	std::vector<GLuint> endOfMat;
 	std::vector<GLuint> startOfMat;
@@ -60,6 +65,7 @@ private:
 	GLuint vao;
 	GLuint vbo;
 	GLuint elementbuffer;
+	GLuint normalID;
 
 	bool readMTLFile(const char * path);
 	GLuint loadImage(const char * imagepath);
@@ -69,6 +75,7 @@ public:
 	void makeBuffer(GLuint program);
 	bool readOBJFile(const char * path);
 	void draw(GLuint program);
+	void loadNormalMap(GLuint program, const char * path);
 	std::vector<vertexInfo> getVertices() const;
 	std::vector<material> getMaterials() const;
 	std::vector<index> getIndices() const;

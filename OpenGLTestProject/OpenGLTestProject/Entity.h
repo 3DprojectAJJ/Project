@@ -14,17 +14,21 @@ private:
 protected:
 	glm::vec3 position;
 	glm::vec3 rotation;
-	int scaling;
+	glm::vec3 scale;
 
 	glm::mat4 world;
+
+	void setWorld();
 public:
 	Entity();
 
 	virtual void draw(GLuint program) = 0;
 	glm::vec3 getPosition() const;
 	glm::vec3 getRotation() const;
+	glm::vec3 getScale() const;
 	void setPosition(glm::vec3 position);
 	void setRotation(glm::vec3 rotation);
+	void setScale(glm::vec3 scale);
 };
 
 #endif // !ENTITY_H

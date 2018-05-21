@@ -109,9 +109,9 @@ void ParticleEmitter::emittParticle()
 
 void ParticleEmitter::interpolateColor(int index)
 {
-	particles[index].color.x = (particles[index].lifeTime - origin.lifeTime) * origin.color.x + (origin.lifeTime - particles[index].lifeTime) * endColor.x;
-	particles[index].color.y = (particles[index].lifeTime - origin.lifeTime) * origin.color.y + (origin.lifeTime - particles[index].lifeTime) * endColor.y;
-	particles[index].color.z = (particles[index].lifeTime - origin.lifeTime) * origin.color.z + (origin.lifeTime - particles[index].lifeTime) * endColor.z;
+	particles[index].color.x = (particles[index].lifeTime / origin.lifeTime) * origin.color.x + ((origin.lifeTime - particles[index].lifeTime) / origin.lifeTime) * endColor.x;
+	particles[index].color.y = (particles[index].lifeTime / origin.lifeTime) * origin.color.y + ((origin.lifeTime - particles[index].lifeTime) / origin.lifeTime) * endColor.y;
+	particles[index].color.z = (particles[index].lifeTime / origin.lifeTime) * origin.color.z + ((origin.lifeTime - particles[index].lifeTime) / origin.lifeTime) * endColor.z;
 	particles[index].color = glm::clamp(particles[index].color, glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
 }
 

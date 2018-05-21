@@ -5,8 +5,9 @@
 #include "Terrain.h"
 #include "FrontBackRender.h"
 #include "Particle.h"
-#include "imgui\imgui.h"
-#include "imgui\imgui_impl_glfw_gl3.h"
+#include "ObjLoader.h"
+#include "RenderObject.h"
+#include "Mouse.h"
 
 #include <GLFW\glfw3.h>
 #include <fstream>
@@ -97,17 +98,24 @@ int main()
 	// Enables the automatic depth test, we won't have to worry about it no more
 	glEnable(GL_DEPTH_TEST);
 
+	ObjLoader ldr;
+	ldr.readOBJFile("quad.obj");
+	RenderObject tst(ldr.getData(),ldr.getIndices(), ldr.getTex());
 	// Creates necessary variables
 	// Camera, Horizontal angle, Vertical Angle, Position
 	Camera camera(180, -20, glm::vec3(0, 3, 7));
 	// A mesh for a quad
 	Mesh quad("quad.obj");
+	Mesh quad1("quad.obj");
+	Mesh quad2("quad.obj");
+	Mesh quad3("quad.obj");
 	// A mesh for a triangle
 	Mesh triangle("basicTriangle.obj");
 	// A handler of shaders that stores all our shaderprograms.
 	ShaderHandler programs;
 	// The framebuffer object that will be used for deferred rendering.
 	Framebuffer fbo;
+	Mouse mouse;
 
 	FrontBackRender frontBackRender;
 
@@ -146,25 +154,48 @@ int main()
 	fbo.getUniform(programs.getProgramID(2));
 
 	// sets the quads matrix so that the mesh moves 5 floats to the right on the x-axis
-	quad.setPosition(glm::vec3(-4, 0.5f, -1));
-	triangle.setPosition(glm::vec3(4, 0.5f, -1));
+	quad.setPosition(glm::vec3(-4, 1, -3));
+	quad.setRotation(glm::vec3(0, 0, 0));
+	quad1.setPosition(glm::vec3(-2, 1, -3));
+	quad1.setRotation(glm::vec3(0, 0, 0));
+	quad2.setPosition(glm::vec3(0, 1, -3));
+	quad2.setRotation(glm::vec3(0, 0, 0));
+	quad3.setPosition(glm::vec3(2, 1, -3));
+	quad3.setRotation(glm::vec3(0, 0, 0));
+	triangle.setPosition(glm::vec3(4, 1, -1));
 	triangle.setRotation(glm::vec3(0, -45, 0));
-	quad.setRotation(glm::vec3(0, 45, 0));
-	// Reads the obj files so that the quad and triangle get their vertices
-	
+
 	Terrain terrain("heightmap.bmp");
 
-	ParticleEmitter particle(glm::vec3(0.0f, 0.1f, 0.0f), glm::vec3(0.0f, 2.0f, 0.0f), 2, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.5f, 0.15f));
-
+	ParticleEmitter particle(glm::vec3(0.0f, 0.1f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 2, glm::vec3(0.2f, 0.0f, 0.0f), glm::vec3(1.0f, 0.8f, 0.15f));
+	ParticleEmitter particle1(glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 0.5f, 0.0f), 10, glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.8f, 0.8f, 0.8f));
 	std::vector<Entity*> entities;
 
 	// Makes buffers so that the meshes becomes ready to be drawn.
 	quad.makeBuffer(programs.getProgramID(0));
+	quad.loadNormalMap(programs.getProgramID(0), "normal.bmp");
+	quad1.makeBuffer(programs.getProgramID(0));
+	quad1.loadNormalMap(programs.getProgramID(0), "normal.bmp");
+	quad2.makeBuffer(programs.getProgramID(0));
+	quad2.loadNormalMap(programs.getProgramID(0), "normal.bmp");
+	quad3.makeBuffer(programs.getProgramID(0));
+	quad3.loadNormalMap(programs.getProgramID(0), "normal.bmp");
+
 	triangle.makeBuffer(programs.getProgramID(0));
+	//terrain.loadNormalMap(programs.getProgramID(0), "groundNormal.bmp");
 
 	entities.push_back(&quad);
+	entities.push_back(&quad1);
+	entities.push_back(&quad2);
+	entities.push_back(&quad3);
 	entities.push_back(&triangle);
 	entities.push_back(&terrain);
+
+	mouse.loadEntity(&quad);
+	mouse.loadEntity(&quad1);
+	mouse.loadEntity(&quad2);
+	mouse.loadEntity(&quad3);
+	mouse.loadEntity(&triangle);
 
 	// Sets the initial cameraview value to the viewmatrix
 	view = camera.viewMat();
@@ -229,6 +260,7 @@ int main()
 		// Drawcall
 		//quad.draw(programs.getProgramID(0));
 		//frontBackRender.render(&entities, camera.getPos(), programs.getProgramID(0));
+		
 		std::vector<glm::vec3> pos;
 		for (int i = 0; i < entities.size(); i++) {
 			pos.push_back(entities.at(i)->getPosition());
@@ -236,9 +268,10 @@ int main()
 		std::vector<glm::vec2> order = sort(&pos, camera.getPos(), programs.getProgramID(0));
 
 		for (int i = 0; i < entities.size(); i++) {
-			entities.at(i)->draw(programs.getProgramID(0));
+			entities.at(order[i].y)->draw(programs.getProgramID(0));
 		}
 
+		//tst.draw(programs.getProgramID(0));
 
 		glUseProgram(programs.getProgramID(1));
 
@@ -246,10 +279,13 @@ int main()
 		glUniformMatrix4fv(pProjID, 1, GL_FALSE, &projection[0][0]);
 
 		particle.update(programs.getProgramID(1), &camera, dt);
+		particle1.update(programs.getProgramID(1), &camera, dt);
 
 
 		//unbinds the fbo, we now draw to the window or default fbo instead
 		fbo.unbindFBO(1024, 720);
+
+		mouse.update(Window, view, projection);
 
 		// clears the window from earlier draws.
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -258,18 +294,19 @@ int main()
 		fbo.draw(programs.getProgramID(2));
 
 
-		{
-			ImGui::SetWindowSize(ImVec2(480, 220));
+		{		
+			ImGui::SetWindowSize(ImVec2(400, 420));
+			ImGui::SetWindowPos(ImVec2(0, 0));
 			for (int i = 0; i < fbo.nrOfTextures() - 1; i++) {
 				if (ImGui::ImageButton((GLuint*)fbo.getTexID()[i], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
 				{
 					showImguiWindow[i] = true;
 				}
-				if (i != 3) {
+				if (i != 2) {
 					ImGui::SameLine();
 				}
 			}
-			if (ImGui::Button("Options"))
+			ImGui::NewLine();
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::Text("Camera Position: %.2f x, %.2f y, %.2f z", camera.getPos().x, camera.getPos().y, camera.getPos().z);
 		}

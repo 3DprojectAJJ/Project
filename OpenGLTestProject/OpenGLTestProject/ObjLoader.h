@@ -9,8 +9,6 @@
 #include <stdio.h>
 #include <vector>
 
-#pragma warning(disable:4996)
-
 class ObjLoader
 {
 public:
@@ -32,6 +30,7 @@ private:
 	};
 
 	std::vector<DataFormat> m_data;
+	std::vector<unsigned int> indexing;
 	Material mat;
 	GLuint texID;
 	bool readMTLFile(const char * path);
@@ -41,5 +40,9 @@ public:
 	~ObjLoader();
 
 	bool readOBJFile(const char * path);
+
+	std::vector<ObjLoader::DataFormat> getData();
+	std::vector<unsigned int> getIndices();
+	GLuint getTex();
 };
 #endif

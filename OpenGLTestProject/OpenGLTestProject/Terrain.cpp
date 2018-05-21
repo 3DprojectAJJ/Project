@@ -110,14 +110,12 @@ void Terrain::readHeightMap(const char* filepath)
 	//Everything is in memory now, the file can be closed
 	fclose(file);
 
-	glm::vec2* heightmaptex = new glm::vec2[width*height];
-
 	float vertexWidth = 0.25f;
 
 	for (unsigned int i = 0; i < height; i++) {
 		for (unsigned int j = 0; j < width; j++) {
 			heightmap.push_back(glm::vec3((float)(j * vertexWidth) - (float)(width * (vertexWidth * 0.5f)), (float)data[(j + i * height) * 3] * heightScaling / 255, (float)(i * vertexWidth) - (float)(height * (vertexWidth * 0.5f))));
-			heightmaptex[j + i * height] = glm::vec2(j / width, i / height);
+			heightmaptex.push_back(glm::vec2((float)j / width, (float)i / height));
 		}
 	}
 
@@ -148,18 +146,17 @@ void Terrain::readHeightMap(const char* filepath)
 	// The following commands will talk about our 'vertexbuffer' buffer
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	// Give our vertices to OpenGL.
-	glBufferData(GL_ARRAY_BUFFER, width * height * sizeof(glm::vec3), &heightmap[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, heightmap.size() * sizeof(glm::vec3), &heightmap[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &texbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, texbuffer);
-	glBufferData(GL_ARRAY_BUFFER, width * height * sizeof(glm::vec2), &heightmaptex[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, heightmap.size() * sizeof(glm::vec2), &heightmaptex[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &elementbuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
 	delete data;
-	delete heightmaptex;
 }
 
 void Terrain::draw(GLuint program)
@@ -167,6 +164,12 @@ void Terrain::draw(GLuint program)
 	glUseProgram(program);
 
 	glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, &world[0][0]);
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, normalID);
+
+	glUniform1i(glGetUniformLocation(program, "normalMap"), 1);
+	glUniform1i(glGetUniformLocation(program, "useNormalMap"), normalID);
 
 	// Index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
@@ -189,7 +192,6 @@ void Terrain::draw(GLuint program)
 
 	// 2nd attribute buffer : colors
 	glEnableVertexAttribArray(1);
-	GLint loc = glGetAttribLocation(program, "vertexUV");
 	glBindBuffer(GL_ARRAY_BUFFER, texbuffer);
 	glVertexAttribPointer(
 		1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
@@ -198,6 +200,44 @@ void Terrain::draw(GLuint program)
 		GL_FALSE,                         // normalized?
 		0,                                // stride
 		(void*)0                          // array buffer offset
+	);
+
+	glEnableVertexAttribArray(6);
+	glBindBuffer(GL_ARRAY_BUFFER, tangentID);
+	GLint tangent = glGetAttribLocation(program, "tangents");
+
+	if (tangent == -1)
+	{
+		OutputDebugStringA("Error, cannot find 'tangents attribute in Vertex shader\n");
+		//return;
+	}
+
+	glVertexAttribPointer(
+		tangent,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		0,
+		(void*)0
+	);
+
+	glEnableVertexAttribArray(7);
+	glBindBuffer(GL_ARRAY_BUFFER, bitangentID);
+	GLint bitangent = glGetAttribLocation(program, "bitangents");
+
+	if (tangent == -1)
+	{
+		OutputDebugStringA("Error, cannot find 'bitangents' attribute in Vertex shader\n");
+		//return;
+	}
+
+	glVertexAttribPointer(
+		bitangent,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		0,
+		(void*)0
 	);
 
 	// Draw the triangles !
