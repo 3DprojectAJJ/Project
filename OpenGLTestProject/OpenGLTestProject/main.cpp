@@ -164,8 +164,7 @@ int main()
 	quad3.setRotation(glm::vec3(0, 0, 0));
 	triangle.setPosition(glm::vec3(4, 1, -1));
 	triangle.setRotation(glm::vec3(0, -45, 0));
-	// Reads the obj files so that the quad and triangle get their vertices
-	
+
 	Terrain terrain("heightmap.bmp");
 
 	ParticleEmitter particle(glm::vec3(0.0f, 0.1f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 2, glm::vec3(0.2f, 0.0f, 0.0f), glm::vec3(1.0f, 0.8f, 0.15f));
@@ -181,6 +180,7 @@ int main()
 	quad2.loadNormalMap(programs.getProgramID(0), "normal.bmp");
 	quad3.makeBuffer(programs.getProgramID(0));
 	quad3.loadNormalMap(programs.getProgramID(0), "normal.bmp");
+
 	triangle.makeBuffer(programs.getProgramID(0));
 	//terrain.loadNormalMap(programs.getProgramID(0), "groundNormal.bmp");
 

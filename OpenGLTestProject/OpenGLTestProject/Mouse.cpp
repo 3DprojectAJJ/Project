@@ -36,7 +36,7 @@ void Mouse::update(GLFWwindow * window, glm::mat4 view, glm::mat4 projection)
 		glUniformMatrix4fv(glGetUniformLocation(program.getProgramID(0), "mview"), 1, GL_FALSE, &view[0][0]);
 		glUniformMatrix4fv(glGetUniformLocation(program.getProgramID(0), "mprojection"), 1, GL_FALSE, &projection[0][0]);
 		for (int i = 0; i < entities.size(); i++) {
-			glUniform1f(glGetUniformLocation(program.getProgramID(0), "index"), (float)(i + 1)/(255.0f * 0.25));
+			glUniform1f(glGetUniformLocation(program.getProgramID(0), "index"), (float)(i + 1)/255.0f);
 
 			entities[i]->draw(program.getProgramID(0));
 		}
@@ -57,7 +57,7 @@ void Mouse::update(GLFWwindow * window, glm::mat4 view, glm::mat4 projection)
 		if (xPos >= 0 && yPos >= 0 && xPos <= 1024 && yPos <= 720) {
 			glReadPixels(xPos, 720 - yPos, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
 			if(data[0] != 0)
-			pickedIndex = (int)(data[0] / 4 - 1);
+			pickedIndex = (int)(data[0] - 1);
 		}
 		framebuffer.unbindFBO(1024, 720);
 	}
