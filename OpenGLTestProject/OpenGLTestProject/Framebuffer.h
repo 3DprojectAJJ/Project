@@ -26,13 +26,19 @@ private:
 	GLuint colorID;
 	GLuint quadID;
 	GLuint lightID;
+	GLuint depthMapFBO;
+	GLuint depthCubemap;
 	int width;
 	int height;
+	const unsigned int shadowWidth = 1024;
+	const unsigned int shadowHeight = 1024;
 public:
 	Framebuffer(const int width = 1024, const int height = 768);
 	~Framebuffer();
 	void init();
+	void shadowInit();
 	void bindFBO();
+	void bindShadowFBO();
 	void unbindFBO(int width, int height);
 	void getUniform(GLuint program);
 	unsigned int nrOfTextures();

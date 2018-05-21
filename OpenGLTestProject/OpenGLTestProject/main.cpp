@@ -186,6 +186,7 @@ int main()
 
 	// Initializes the fbo, so that it can be used in the draw passes
 	fbo.init();
+	fbo.shadowInit();
 
 	// Necessary variables to track time while in the loop
 	double dt = 0;
@@ -196,7 +197,9 @@ int main()
 
 	fbo.addLight(glm::vec3(0, 0.5f, 0), glm::vec4(1, 0.5f, 0.1f, 20));
 
-
+	fbo.bindShadowFBO();
+	glClear(GL_DEPTH_BUFFER_BIT);
+	
 	do
 	{
 		ImGui_ImplGlfwGL3_NewFrame();
