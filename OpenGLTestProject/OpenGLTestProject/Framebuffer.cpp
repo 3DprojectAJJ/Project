@@ -152,6 +152,11 @@ void Framebuffer::addLight(glm::vec3 pos, glm::vec4 color)
 
 }
 
+glm::vec3 Framebuffer::getLightPos(int index)
+{
+	return lights[index].pos;
+}
+
 void Framebuffer::draw(GLuint program)
 {
 	glUseProgram(program);

@@ -20,9 +20,6 @@
 #include <crtdbg.h>
 #pragma warning(disable:4996)
 #define GLM_ENABLE_EXPERIMENTAL
-glm::mat4 model;
-glm::mat4 view;
-glm::mat4 projection;
 
 GLuint Vertexbuffer;
 GLuint VertexArrayID;
@@ -59,31 +56,10 @@ void initImgui(GLFWwindow * window)
 	ImGui::StyleColorsDark();
 }
 
-float distance(glm::vec3 p0, glm::vec3 p1)
+void configShaderMatrices()
 {
-	glm::vec3 vec = (p0 - p1) * (p0 - p1);
-	return vec.x + vec.y + vec.z;
-}
-
-std::vector<glm::vec2> sort(std::vector<glm::vec3> *entities, glm::vec3 cameraPos, GLuint program)
-{
-	std::vector<glm::vec2> order;
-
-	for (int i = 0; i < entities->size(); i++) {
-		order.push_back(glm::vec2(distance(cameraPos, entities->at(i)), i));
-	}
-	for (int i = 0; i < entities->size() - 1; i++) {
-		int index = i;
-		for (int j = i + 1; j < entities->size(); j++) {
-			if (order[i].x > order[j].x) {
-				index = j;
-			}
-		}
-		if (index != i) {
-			iter_swap(order.begin() + i, order.begin() + index);
-		}
-	}
-	return order;
+	glm::mat4 shadowProjection = glm::perspective(glm::radians(90.0f), (float)1024 / (float)1024, 0.1f, 100.f);
+	std::vector<glm::mat4> shadowTransf;
 }
 
 int main()
@@ -116,6 +92,9 @@ int main()
 	// The framebuffer object that will be used for deferred rendering.
 	Framebuffer fbo;
 	Mouse mouse;
+	glm::mat4 model;
+	glm::mat4 view;
+	glm::mat4 projection;
 
 	FrontBackRender frontBackRender;
 
@@ -201,11 +180,7 @@ int main()
 	view = camera.viewMat();
 
 	// Adds a value to the projectionmatrix
-	projection = glm::perspective(
-		glm::radians(45.0f), 
-		(float)1280 / (float)720, 
-		0.1f, 
-		100.0f);
+	projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 100.0f);
 
 	// Make IDs for the viewmatrix and the projectionmatrix so we don't have to get these in the loop
 
@@ -230,7 +205,10 @@ int main()
 
 	fbo.bindShadowFBO();
 	glClear(GL_DEPTH_BUFFER_BIT);
-	
+
+	configShaderMatrices();
+
+
 	do
 	{
 		ImGui_ImplGlfwGL3_NewFrame();
@@ -259,17 +237,8 @@ int main()
 
 		// Drawcall
 		//quad.draw(programs.getProgramID(0));
-		//frontBackRender.render(&entities, camera.getPos(), programs.getProgramID(0));
+		frontBackRender.render(&entities, camera.getPos(), programs.getProgramID(0));
 		
-		std::vector<glm::vec3> pos;
-		for (int i = 0; i < entities.size(); i++) {
-			pos.push_back(entities.at(i)->getPosition());
-		}
-		std::vector<glm::vec2> order = sort(&pos, camera.getPos(), programs.getProgramID(0));
-
-		for (int i = 0; i < entities.size(); i++) {
-			entities.at(order[i].y)->draw(programs.getProgramID(0));
-		}
 
 		//tst.draw(programs.getProgramID(0));
 
