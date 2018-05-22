@@ -22,6 +22,9 @@ private:
 public:
 	RenderObject(std::vector<ObjLoader::DataFormat> data, std::vector<unsigned int> indexing, GLuint texID, GLuint programID);
 	RenderObject(const void * data, unsigned int size, const unsigned int * indices, unsigned int count);
+	/**
+	Takes in an array of data, the number of floats in this array, an array of vertex indices, the number of indices, an id for a texture and a std::vector of layouts or attribpointer sizes
+	*/
 	RenderObject(const float * data, unsigned int size, const unsigned int * indices, unsigned int count, GLuint texID, std::vector<unsigned int> layouts);
 	~RenderObject();
 	void draw(unsigned int program);

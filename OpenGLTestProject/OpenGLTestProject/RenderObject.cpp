@@ -95,7 +95,7 @@ RenderObject::RenderObject(const float * data, unsigned int size, const unsigned
 	vao.bind();
 	vbo.init(&m_data[0], size*sizeof(float));
 	VertexBufferLayout layout;
-	for (int i = 0; i < layouts.size; i++)
+	for (int i = 0; i < layouts.size(); i++)
 	{
 		layout.push<float>(layouts[i]);
 	}

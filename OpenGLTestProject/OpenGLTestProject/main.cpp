@@ -211,11 +211,48 @@ int main()
 	glUseProgram(programs.getProgramID(0));
 	ObjLoader ldr;
 	ldr.readOBJFile("quad.obj");
-	RenderObject tst(ldr.getData(), ldr.getIndices(), ldr.getTex(), programs.getProgramID(0));
+
+	std::vector<float> data;
+
+	std::vector<ObjLoader::DataFormat> ldrData = ldr.getData();
+
+	for (int i = 0; i < ldrData.size(); i++)
+	{
+		data.push_back(ldrData[i].pos.x);
+		data.push_back(ldrData[i].pos.y);
+		data.push_back(ldrData[i].pos.z);
+
+		data.push_back(ldrData[i].uv.x);
+		data.push_back(ldrData[i].uv.y);
+
+		data.push_back(ldrData[i].ambient.x);
+		data.push_back(ldrData[i].ambient.y);
+		data.push_back(ldrData[i].ambient.z);
+
+		data.push_back(ldrData[i].diffuse.x);
+		data.push_back(ldrData[i].diffuse.y);
+		data.push_back(ldrData[i].diffuse.z);
+
+		data.push_back(ldrData[i].specular.x);
+		data.push_back(ldrData[i].specular.y);
+		data.push_back(ldrData[i].specular.z);
+		data.push_back(ldrData[i].specular.w);
+	}
+
+	std::vector<unsigned int> layouts;
+	layouts.push_back(3);
+	layouts.push_back(2);
+	layouts.push_back(3);
+	layouts.push_back(3);
+	layouts.push_back(4);
+
+	std::vector<unsigned int> indices = ldr.getIndices();
+	glUseProgram(programs.getProgramID(0));
+	RenderObject tst(&data[0], (unsigned int)data.size() , &indices[0], indices.size(), ldr.getTex(), layouts);
 	GLuint image = tst.loadImage("red.bmp");
 
 
-	float positions[] = {
+/*	float positions[] = {
 		-1.0f, -1.0f, 0.0f, 1.0f,
 		 1.0f, -1.0f, 1.0f, 1.0f,
 		 1.0f,  1.0f, 1.0f, 0.0f,
@@ -273,7 +310,7 @@ int main()
 	glBindVertexArray(0);
 	glUseProgram(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);*/
 
 	do
 	{
