@@ -5,6 +5,8 @@
 #include <GLM\gtc\type_ptr.hpp>
 #include <vector>
 #include <string>
+#include "VertexArray.h"
+#include "IndexBuffer.h"
 
 #define NUM_OF_TEXTURES 7
 
@@ -17,7 +19,11 @@ private:
 	};
 
 	std::vector<Light> lights;
-
+	VertexArray vao;
+	VertexBuffer vbo;
+	VertexBufferLayout layout;
+	IndexBuffer ib;
+	GLuint vaoID;
 	GLuint id;
 	GLuint textures[NUM_OF_TEXTURES];
 	GLint colorLoc, normalLoc, posLoc, depthLoc;
@@ -35,7 +41,7 @@ private:
 public:
 	Framebuffer(const int width = 1024, const int height = 768);
 	~Framebuffer();
-	void init();
+	void init(GLuint program);
 	void shadowInit();
 	void bindFBO();
 	void bindShadowFBO();

@@ -88,6 +88,6 @@ bool ShaderHandler::createProgram()
 
 GLuint ShaderHandler::getProgramID(int index)
 {
-	glUseProgram(programIDs[index]);
+	//glUseProgram(programIDs[index]);
 	return programIDs[index];
 }

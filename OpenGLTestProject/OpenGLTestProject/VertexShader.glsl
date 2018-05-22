@@ -24,7 +24,7 @@ out vec3 mBitangents;
 void main()
 {
 	gl_Position = vec4(vertexPosition, 1.0f);
-	UV = vec2(vertexUV.x, vertexUV.y);
+	UV = vec2(vertexUV.x, 1-vertexUV.y);
 	a = vertexAmbient;
 	diff = vertexDiffuse;
 	s = vec4(vertexSpecular,vertexSpecularExponent);

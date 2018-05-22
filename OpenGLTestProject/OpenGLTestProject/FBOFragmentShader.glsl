@@ -22,7 +22,7 @@ void main(){
 	vec3 normal = texture(normalTexture, UV).xyz;
 	vec3 position = texture(positionTexture, UV).xyz;
 
-	color = vec3(0.0f);
+	/*color = vec3(0.0f);
 
 	if(normal.x == 0 && normal.y == 0 && normal.z == 0){
 		color = texture(colorTexture, UV).xyz;
@@ -33,5 +33,7 @@ void main(){
 
 		color += clamp(lightColor[i].xyz * diffuse * texture(colorTexture, UV).xyz * 1/(distance * distance) * lightColor[i].w, 0, 1);
 		}
-	}
+	}*/
+
+	color = texture(colorTexture, UV).xyz;
 }

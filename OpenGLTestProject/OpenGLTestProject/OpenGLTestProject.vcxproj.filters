@@ -27,9 +27,6 @@
     <ClCompile Include="Entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Framebuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FrontBackRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -72,15 +69,15 @@
     <ClCompile Include="Mouse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Framebuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Entity.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="Framebuffer.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="IndexBuffer.h">
@@ -144,6 +141,9 @@
       <Filter>Imgui</Filter>
     </ClInclude>
     <ClInclude Include="Mouse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Framebuffer.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

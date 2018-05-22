@@ -11,8 +11,9 @@ Framebuffer::~Framebuffer()
 {
 }
 
-void Framebuffer::init()
+void Framebuffer::init(GLuint program)
 {
+	glUseProgram(program);
 	//generate and bind fbo
 	glGenFramebuffers(1, &id);
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
@@ -60,21 +61,41 @@ void Framebuffer::init()
 	glBindFramebuffer(GL_FRAMEBUFFER, id);
 
 	//The quad that will be used for second renderpass
-	GLuint vertexArrayID;
-	glGenVertexArrays(1, &vertexArrayID);
-	glBindVertexArray(vertexArrayID);
+	glGenVertexArrays(1, &vaoID);
+	glBindVertexArray(vaoID);
 
-	static const GLfloat gQuadVertexBufferData[] = {
-		-1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		1.0f,  1.0f, 0.0f,
+	float gQuadVertexBufferData[] = {
+		-1.0f, -1.0f, 0.0f, 1.0f,
+		 1.0f, -1.0f, 1.0f, 1.0f,
+		 1.0f,  1.0f, 1.0f, 0.0f,
+		-1.0f,  1.0f, 0.0f, 0.0f
 	};
+
+	unsigned int indices[] = {
+		0,1,2,
+		2,3,0
+	};
+
+	// 4 vertices, 2 values in each. Each value is a float.
+	vbo.init(gQuadVertexBufferData, 4 * 4 * sizeof(float));
+	ib.init(indices, 6);
+	layout.push<float>(2);
+	layout.push<float>(2);
+
+	vao.addBuffer(vbo, layout);
+
+	/*
 	glGenBuffers(1, &quadID);
 	glBindBuffer(GL_ARRAY_BUFFER, quadID);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(gQuadVertexBufferData), gQuadVertexBufferData, GL_STATIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), nullptr);*/
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glUseProgram(0);
 }
 
 void Framebuffer::shadowInit()
@@ -184,19 +205,23 @@ void Framebuffer::draw(GLuint program)
 	glUniform4fv(glGetUniformLocation(program, "lightColor"), lights.size(), glm::value_ptr(color[0]));
 	glUniform1i(glGetUniformLocation(program, "nrOfLights"), lights.size());
 
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, quadID);
+	//glBindVertexArray(vaoID);
+	//glEnableVertexAttribArray(0);
+	//glBindBuffer(GL_ARRAY_BUFFER, quadID);
 
-	glVertexAttribPointer(
+	/*glVertexAttribPointer(
 		0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
 		3,                  // size
 		GL_FLOAT,           // type
 		GL_FALSE,           // normalized?
 		0,                  // stride
 		(void*)0            // array buffer offset
-	);
-
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	);*/
+	vao.bind();
+	ib.bind();
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+	vao.unBind();
+	ib.unBind();
 
 	for (int i = 0; i < NUM_OF_TEXTURES; i++)
 	{

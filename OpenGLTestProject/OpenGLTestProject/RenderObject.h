@@ -20,11 +20,12 @@ private:
 	IndexBuffer ib;
 	void addToData(ObjLoader::DataFormat format);
 public:
-	RenderObject(std::vector<ObjLoader::DataFormat> data, std::vector<unsigned int> indexing, GLuint texID);
+	RenderObject(std::vector<ObjLoader::DataFormat> data, std::vector<unsigned int> indexing, GLuint texID, GLuint programID);
 	RenderObject(const void * data, unsigned int size, const unsigned int * indices, unsigned int count);
 	~RenderObject();
 	void draw(unsigned int program);
 	void setTex(GLuint id);
+	GLuint loadImage(const char * imagepath);
 };
 
 #endif

@@ -69,14 +69,12 @@ int main()
 	// initializes the window and GLEW
 	Window = init();
 
-	initImgui(Window);
+	//initImgui(Window);
 
 	// Enables the automatic depth test, we won't have to worry about it no more
 	glEnable(GL_DEPTH_TEST);
 
-	ObjLoader ldr;
-	ldr.readOBJFile("quad.obj");
-	RenderObject tst(ldr.getData(),ldr.getIndices(), ldr.getTex());
+
 	// Creates necessary variables
 	// Camera, Horizontal angle, Vertical Angle, Position
 	Camera camera(180, -20, glm::vec3(0, 3, 7));
@@ -91,7 +89,7 @@ int main()
 	ShaderHandler programs;
 	// The framebuffer object that will be used for deferred rendering.
 	Framebuffer fbo;
-	Mouse mouse;
+	//Mouse mouse;
 	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 projection;
@@ -170,11 +168,13 @@ int main()
 	entities.push_back(&triangle);
 	entities.push_back(&terrain);
 
-	mouse.loadEntity(&quad);
+	/*mouse.loadEntity(&quad);
 	mouse.loadEntity(&quad1);
 	mouse.loadEntity(&quad2);
 	mouse.loadEntity(&quad3);
-	mouse.loadEntity(&triangle);
+	mouse.loadEntity(&triangle);*/
+
+	model = glm::mat4(1.0f);
 
 	// Sets the initial cameraview value to the viewmatrix
 	view = camera.viewMat();
@@ -183,7 +183,7 @@ int main()
 	projection = glm::perspective(glm::radians(45.0f), (float)1280 / (float)720, 0.1f, 100.0f);
 
 	// Make IDs for the viewmatrix and the projectionmatrix so we don't have to get these in the loop
-
+	GLuint modelID = glGetUniformLocation(programs.getProgramID(0), "model");
 	GLuint viewID = glGetUniformLocation(programs.getProgramID(0), "view");
 	GLuint projID = glGetUniformLocation(programs.getProgramID(0), "projection");
 
@@ -191,7 +191,7 @@ int main()
 	GLuint pProjID = glGetUniformLocation(programs.getProgramID(1), "pProjection");
 
 	// Initializes the fbo, so that it can be used in the draw passes
-	fbo.init();
+	fbo.init(programs.getProgramID(2));
 	fbo.shadowInit();
 
 	// Necessary variables to track time while in the loop
@@ -199,19 +199,85 @@ int main()
 	double curr = 0;
 	double last = 0;
 
-	bool * showImguiWindow = new bool[fbo.nrOfTextures()];
+	//bool * showImguiWindow = new bool[fbo.nrOfTextures()];
 
 	fbo.addLight(glm::vec3(0, 0.5f, 0), glm::vec4(1, 0.5f, 0.1f, 20));
 
-	fbo.bindShadowFBO();
+	//fbo.bindShadowFBO();
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	configShaderMatrices();
+	//configShaderMatrices();
 
+	glUseProgram(programs.getProgramID(0));
+	ObjLoader ldr;
+	ldr.readOBJFile("quad.obj");
+	RenderObject tst(ldr.getData(), ldr.getIndices(), ldr.getTex(), programs.getProgramID(0));
+	GLuint image = tst.loadImage("red.bmp");
+
+
+	float positions[] = {
+		-1.0f, -1.0f, 0.0f, 1.0f,
+		 1.0f, -1.0f, 1.0f, 1.0f,
+		 1.0f,  1.0f, 1.0f, 0.0f,
+		-1.0f,  1.0f, 0.0f, 0.0f
+	};
+
+	unsigned int indices[] = {
+		0,1,2,
+		2,3,0
+	};
+
+	VertexArray va;
+	VertexBuffer vb;
+	IndexBuffer ib;
+	VertexBufferLayout layout;
+
+	vb.init(positions, 4 * 4 * sizeof(float));
+	ib.init(indices, 6);
+
+	layout.push<float>(2);
+	layout.push<float>(2);
+
+	va.addBuffer(vb, layout);
+
+	glBindVertexArray(0);
+	glUseProgram(programs.getProgramID(2));
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	
+	float gQuadVertexBufferData[] = {
+		-1.0f, -1.0f,
+		1.0f, -1.0f,
+		1.0f,  1.0f,
+		-1.0f,  1.0f
+	};
+
+	unsigned int FBOindices[] = {
+		0,1,2,
+		2,3,0
+	};
+
+	VertexArray vaoFBO;
+	VertexBuffer vboFBO;
+	IndexBuffer ibFBO;
+	VertexBufferLayout layoutFBO;
+
+	vboFBO.init(gQuadVertexBufferData, 4*2 * sizeof(float));
+	ibFBO.init(FBOindices, 6);
+
+	layoutFBO.push<float>(2);
+
+	vaoFBO.addBuffer(vboFBO, layoutFBO);
+
+	glBindVertexArray(0);
+	glUseProgram(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	do
 	{
-		ImGui_ImplGlfwGL3_NewFrame();
+		//ImGui_ImplGlfwGL3_NewFrame();
 		// gets the current time
 		curr = glfwGetTime();
 		// gets the difference since last time call
@@ -222,7 +288,7 @@ int main()
 		glfwSetTime(curr);
 		
 		// clears the scene and sets the background to the inputted color
-		glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+		glClearColor(0.0f, 0.0f, 0.5f, 0.0f);
 		// Binds fbo so that the program draws to fbo textures
 		fbo.bindFBO();
 		// clears the fbo textures from earlier draws.
@@ -232,29 +298,45 @@ int main()
 		glUseProgram(programs.getProgramID(0));
 
 		// Set uniform variables of view and projection matrices in shader program to the following
+		glUniformMatrix4fv(modelID, 1, GL_FALSE, &model[0][0]);
 		glUniformMatrix4fv(viewID, 1, GL_FALSE, &view[0][0]);
 		glUniformMatrix4fv(projID, 1, GL_FALSE, &projection[0][0]);
 
+		/*va.bind();
+		ib.bind();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, image);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		va.unBind();
+		ib.unBind();*/
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, image);
+		tst.draw(programs.getProgramID(0));
+
+		/*vaoFBO.bind();
+		ibFBO.bind();
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		vaoFBO.unBind();
+		ibFBO.unBind();*/
 		// Drawcall
 		//quad.draw(programs.getProgramID(0));
-		frontBackRender.render(&entities, camera.getPos(), programs.getProgramID(0));
+		//frontBackRender.render(&entities, camera.getPos(), programs.getProgramID(0));
+		//tst.draw(programs.getProgramID(0));
 		
 
-		//tst.draw(programs.getProgramID(0));
+		//glUseProgram(programs.getProgramID(1));
 
-		glUseProgram(programs.getProgramID(1));
+		//glUniformMatrix4fv(pViewID, 1, GL_FALSE, &view[0][0]);
+		//glUniformMatrix4fv(pProjID, 1, GL_FALSE, &projection[0][0]);
 
-		glUniformMatrix4fv(pViewID, 1, GL_FALSE, &view[0][0]);
-		glUniformMatrix4fv(pProjID, 1, GL_FALSE, &projection[0][0]);
-
-		particle.update(programs.getProgramID(1), &camera, dt);
-		particle1.update(programs.getProgramID(1), &camera, dt);
+		//particle.update(programs.getProgramID(1), &camera, dt);
+		//particle1.update(programs.getProgramID(1), &camera, dt);
 
 
 		//unbinds the fbo, we now draw to the window or default fbo instead
 		fbo.unbindFBO(1024, 720);
 
-		mouse.update(Window, view, projection);
+		//mouse.update(Window, view, projection);
 
 		// clears the window from earlier draws.
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -263,7 +345,7 @@ int main()
 		fbo.draw(programs.getProgramID(2));
 
 
-		{		
+		/*{		
 			ImGui::SetWindowSize(ImVec2(400, 420));
 			ImGui::SetWindowPos(ImVec2(0, 0));
 			for (int i = 0; i < fbo.nrOfTextures() - 1; i++) {
@@ -281,7 +363,7 @@ int main()
 		}
 
 		ImGui::Render();
-		ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+		ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());*/
 
 		// Swaps buffers so that the window actually shows the new scene
 		glfwSwapBuffers(Window);
@@ -295,13 +377,13 @@ int main()
 		// if the user presses the "x" on the window or the esc key, the loop stops.
 	} while (glfwGetKey(Window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(Window) == 0);
 
-	ImGui_ImplGlfwGL3_Shutdown();
-	ImGui::DestroyContext();
+	//ImGui_ImplGlfwGL3_Shutdown();
+	//ImGui::DestroyContext();
 
 	//The window closes
 	glfwDestroyWindow(Window);
 	//makes sure that glfw does not leave memoryleaks
 	glfwTerminate();
-	delete[] showImguiWindow;
+	//delete[] showImguiWindow;
 	return 0;
 }

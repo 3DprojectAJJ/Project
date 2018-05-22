@@ -67,6 +67,7 @@ bool Mesh::readMTLFile(const char * path)
 	}
 	return true;
 }
+
 GLuint Mesh::loadImage(const char * imagepath) {
 
 	unsigned char header[54];
@@ -229,9 +230,8 @@ bool Mesh::readOBJFile(const char * path)
 
 	endOfMat.push_back(indices.size());
 
-	//position = vertices.at(0).pos;
-
 	std::fclose(file);
+
 	return true;
 }
 
@@ -240,9 +240,33 @@ void Mesh::makeBuffer(GLuint program)
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
+	for (int i = 0; i < indices.size(); i++)
+	{
+		data.push_back(vertexPositions[indices[i].pos - 1].x);
+		data.push_back(vertexPositions[indices[i].pos - 1].y);
+		data.push_back(vertexPositions[indices[i].pos - 1].z);
+
+		data.push_back(vertexUVs[indices[i].uv - 1].x);
+		data.push_back(vertexUVs[indices[i].uv - 1].y);
+
+		data.push_back(materials[indices[i].mat].Ka.x);
+		data.push_back(materials[indices[i].mat].Ka.y);
+		data.push_back(materials[indices[i].mat].Ka.z);
+
+		data.push_back(materials[indices[i].mat].Kd.x);
+		data.push_back(materials[indices[i].mat].Kd.y);
+		data.push_back(materials[indices[i].mat].Kd.z);
+
+		data.push_back(materials[indices[i].mat].Ks.x);
+		data.push_back(materials[indices[i].mat].Ks.y);
+		data.push_back(materials[indices[i].mat].Ks.z);
+
+		data.push_back(materials[indices[i].mat].Ns);
+	}
+
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*vertexPositions.size(), &vertexPositions[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*data.size(), &data[0], GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	GLint vertexPos = glGetAttribLocation(program, "vertexPosition");
@@ -278,6 +302,7 @@ void Mesh::draw(GLuint program)
 {
 	glUseProgram(program);
 
+	glBindVertexArray(vao);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, normalID);
 
@@ -315,12 +340,19 @@ void Mesh::draw(GLuint program)
 
 	glVertexAttribPointer(
 		vertexUV,
-		3,
+		2,
 		GL_FLOAT,
 		GL_FALSE,
-		0,
+		3*4,
 		(void*)0
 	);
+
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	GLint vertexAmbient = glGetAttribLocation(program, "vertexAmbient");
+
+	glVertexAttribPointer(vertexAmbient, 3, GL_FLOAT, GL_FALSE, 3*2*4, (void*)0);
+
 
 	if (normalID != 0)
 	{

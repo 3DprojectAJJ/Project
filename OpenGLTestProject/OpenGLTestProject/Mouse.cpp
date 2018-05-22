@@ -21,7 +21,7 @@ Mouse::Mouse()
 
 	framebuffer.getUniform(program.getProgramID(1));
 
-	framebuffer.init();
+	framebuffer.init(program.getProgramID(2));
 }
 
 void Mouse::update(GLFWwindow * window, glm::mat4 view, glm::mat4 projection)
