@@ -240,27 +240,34 @@ void Mesh::makeBuffer(GLuint program)
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*vertexPositions.size(), &vertexPositions[0], GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	GLint vertexPos = glGetAttribLocation(program, "vertexPosition");
-
-	if (vertexPos == -1)
+	for (int i = 0; i < indices.size(); i++)
 	{
-		OutputDebugStringA("Error, cannot find 'vertexPosition' attribute in Vertex shader\n");
-		return;
+		data.push_back(vertexPositions[indices[i].pos-1].x);
+		data.push_back(vertexPositions[indices[i].pos-1].y);
+		data.push_back(vertexPositions[indices[i].pos-1].z);
+
+		data.push_back(vertexUVs[indices[i].uv - 1].x);
+		data.push_back(vertexUVs[indices[i].uv - 1].y);
+
+		data.push_back(materials[indices[i].mat].Ka.x);
+		data.push_back(materials[indices[i].mat].Ka.y);
+		data.push_back(materials[indices[i].mat].Ka.z);
+
+		data.push_back(materials[indices[i].mat].Kd.x);
+		data.push_back(materials[indices[i].mat].Kd.y);
+		data.push_back(materials[indices[i].mat].Kd.z);
+
+		data.push_back(materials[indices[i].mat].Ks.x);
+		data.push_back(materials[indices[i].mat].Ks.y);
+		data.push_back(materials[indices[i].mat].Ks.z);
+
+		data.push_back(materials[indices[i].mat].Ns);
 	}
 
-	glVertexAttribPointer(
-		vertexPos,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		0,
-		(void*)0
-	);
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*data.size(), &data[0], GL_STATIC_DRAW);
+
 
 	glGenBuffers(1, &elementbuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
@@ -299,7 +306,7 @@ void Mesh::draw(GLuint program)
 		3,
 		GL_FLOAT,
 		GL_FALSE,
-		0,
+		15*4,
 		(void*)0
 	);
 
@@ -315,11 +322,64 @@ void Mesh::draw(GLuint program)
 
 	glVertexAttribPointer(
 		vertexUV,
+		2,
+		GL_FLOAT,
+		GL_FALSE,
+		15 * 4,
+		(void*)(3*4)
+	);
+
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	GLint vertexAmbient = glGetAttribLocation(program, "vertexAmbient");
+
+	glVertexAttribPointer(
+		vertexAmbient,
 		3,
 		GL_FLOAT,
 		GL_FALSE,
-		0,
-		(void*)0
+		15 * 4,
+		(void*)((3 + 2)* 4)
+		);
+
+	glEnableVertexAttribArray(3);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	GLint vertexDiffuse = glGetAttribLocation(program, "vertexDiffuse");
+
+	glVertexAttribPointer(
+		vertexDiffuse,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		15 * 4,
+		(void*)((3 + 2 + 3) * 4)
+	);
+
+
+	glEnableVertexAttribArray(4);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	GLint vertexSpecular = glGetAttribLocation(program, "vertexSpecular");
+
+	glVertexAttribPointer(
+		vertexSpecular,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		15 * 4,
+		(void*)((3 + 2 + 3 + 3) * 4)
+	);
+
+	glEnableVertexAttribArray(5);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	GLint vertexSpecularExponent = glGetAttribLocation(program, "vertexSpecularExponent");
+
+	glVertexAttribPointer(
+		vertexSpecularExponent,
+		1,
+		GL_FLOAT,
+		GL_FALSE,
+		15 * 4,
+		(void*)((3 + 2 + 3 + 3 + 3) * 4)
 	);
 
 	if (normalID != 0)
@@ -339,7 +399,7 @@ void Mesh::draw(GLuint program)
 			3,
 			GL_FLOAT,
 			GL_FALSE,
-			0,
+			6*4,
 			(void*)0
 		);
 
@@ -358,8 +418,8 @@ void Mesh::draw(GLuint program)
 			3,
 			GL_FLOAT,
 			GL_FALSE,
-			0,
-			(void*)0
+			6 * 4,
+			(void*)(3*4)
 		);
 	}
 	// bind index buffer for positions

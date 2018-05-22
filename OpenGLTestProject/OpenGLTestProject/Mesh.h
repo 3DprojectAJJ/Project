@@ -45,6 +45,7 @@ public:
 		unsigned int mat;
 	};
 private:
+	std::vector<float> data;
 	std::vector<index> indices;
 	std::vector<unsigned int> posIndices;
 	std::vector<material> materials;
