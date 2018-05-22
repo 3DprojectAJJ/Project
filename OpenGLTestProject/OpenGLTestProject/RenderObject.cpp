@@ -84,6 +84,26 @@ RenderObject::RenderObject(const void * data, unsigned int size, const unsigned 
 	vao.addBuffer(vbo, layout);
 }
 
+RenderObject::RenderObject(const float * data, unsigned int size, const unsigned int * indices, unsigned int count, GLuint texID,  std::vector<unsigned int> layouts)
+{
+	m_texID = texID;
+	ib.init(indices, count);
+	for (int i = 0; i < size; i++)
+	{
+		m_data.push_back(data[i]);
+	}
+	vao.bind();
+	vbo.init(&m_data[0], size*sizeof(float));
+	VertexBufferLayout layout;
+	for (int i = 0; i < layouts.size; i++)
+	{
+		layout.push<float>(layouts[i]);
+	}
+	vao.addBuffer(vbo,layout);
+	vao.unBind();
+	ib.unBind();
+}
+
 RenderObject::~RenderObject()
 {
 }
