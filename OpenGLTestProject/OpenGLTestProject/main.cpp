@@ -309,8 +309,8 @@ int main()
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 		va.unBind();
 		ib.unBind();*/
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, image);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, image);
 		tst.draw(programs.getProgramID(0));
 
 		/*vaoFBO.bind();

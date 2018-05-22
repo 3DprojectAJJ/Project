@@ -93,7 +93,8 @@ void RenderObject::draw(unsigned int program)
 	glUseProgram(program);
 	vao.bind();
 	ib.bind();
-
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_texID);
 	/*GLint vertexPos = glGetAttribLocation(program, "vertexPosition");
 	glBindBuffer(GL_ARRAY_BUFFER, vbo.getID());
 	glVertexAttribPointer(vertexPos, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
