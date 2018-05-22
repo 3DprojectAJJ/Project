@@ -65,12 +65,12 @@ void Framebuffer::init()
 	glBindVertexArray(vertexArrayID);
 
 	static const GLfloat gQuadVertexBufferData[] = {
-		-1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f,
-		-1.0f,  1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		1.0f,  1.0f, 0.0f,
+		- 1.0f, -1.0f, 0.0f, 0.0, 1.0,
+		  1.0f, -1.0f, 0.0f, 1.0, 1.0,
+		- 1.0f,  1.0f, 0.0f, 0.0, 0.0,
+		- 1.0f,  1.0f, 0.0f, 0.0, 0.0,
+		  1.0f, -1.0f, 0.0f, 1.0, 1.0,
+		  1.0f,  1.0f, 0.0f, 1.0, 0.0
 	};
 	glGenBuffers(1, &quadID);
 	glBindBuffer(GL_ARRAY_BUFFER, quadID);
@@ -192,9 +192,21 @@ void Framebuffer::draw(GLuint program)
 		3,                  // size
 		GL_FLOAT,           // type
 		GL_FALSE,           // normalized?
-		0,                  // stride
+		5*4,                  // stride
 		(void*)0            // array buffer offset
 	);
+
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, quadID);
+
+	glVertexAttribPointer(
+			1,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+			2,                  // size
+			GL_FLOAT,           // type
+			GL_FALSE,           // normalized?
+			5 * 4,                  // stride
+			(void*)(3*4)            // array buffer offset
+		);
 
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 
