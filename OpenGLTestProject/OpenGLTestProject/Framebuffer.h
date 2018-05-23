@@ -21,6 +21,7 @@ private:
 	GLuint id;
 	GLuint textures[NUM_OF_TEXTURES];
 	GLint colorLoc, normalLoc, posLoc, depthLoc;
+	GLint ambientLoc, diffuseLoc, specularLoc;
 	GLuint depthID;
 	GLuint texID;
 	GLuint colorID;

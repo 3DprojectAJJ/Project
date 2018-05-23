@@ -125,6 +125,9 @@ void Framebuffer::getUniform(GLuint program)
 	normalLoc = glGetUniformLocation(program, "normalTexture");
 	posLoc = glGetUniformLocation(program, "positionTexture");
 	depthLoc = glGetUniformLocation(program, "depthTexture");
+	ambientLoc = glGetUniformLocation(program, "ambientTexture");
+	diffuseLoc = glGetUniformLocation(program, "diffuseTexture");
+	specularLoc = glGetUniformLocation(program, "specularTexture");
 }
 
 unsigned int Framebuffer::nrOfTextures()
@@ -165,6 +168,9 @@ void Framebuffer::draw(GLuint program, glm::vec3 camPos)
 	glUniform1i(normalLoc, 1);
 	glUniform1i(posLoc, 2);
 	glUniform1i(depthLoc, 3);
+	glUniform1i(ambientLoc, 4);
+	glUniform1i(diffuseLoc, 5);
+	glUniform1i(specularLoc, 6);
 
 	for (int i = 0; i < nrOfTextures(); i++)
 	{
