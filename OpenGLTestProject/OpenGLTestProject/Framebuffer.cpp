@@ -157,7 +157,7 @@ glm::vec3 Framebuffer::getLightPos(int index)
 	return lights[index].pos;
 }
 
-void Framebuffer::draw(GLuint program)
+void Framebuffer::draw(GLuint program, glm::vec3 camPos)
 {
 	glUseProgram(program);
 
@@ -183,6 +183,7 @@ void Framebuffer::draw(GLuint program)
 	glUniform3fv(glGetUniformLocation(program, "lightPosition"), lights.size(), glm::value_ptr(pos[0]));
 	glUniform4fv(glGetUniformLocation(program, "lightColor"), lights.size(), glm::value_ptr(color[0]));
 	glUniform1i(glGetUniformLocation(program, "nrOfLights"), lights.size());
+	glUniform3f(glGetUniformLocation(program, "camPos"), camPos.x, camPos.y, camPos.z);
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, quadID);

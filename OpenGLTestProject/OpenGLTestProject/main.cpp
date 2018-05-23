@@ -261,7 +261,7 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draws the quad to the window
-		fbo.draw(programs.getProgramID(2));
+		fbo.draw(programs.getProgramID(2), camera.getPos());
 
 
 		{		

@@ -49,7 +49,7 @@ public:
 	void addLight(glm::vec3 pos, glm::vec4 color);
 	glm::vec3 getLightPos(int index);
 
-	void draw(GLuint program);
+	void draw(GLuint program, glm::vec3 camPos);
 };
 
 #endif
