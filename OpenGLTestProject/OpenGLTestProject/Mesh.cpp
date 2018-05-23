@@ -229,8 +229,6 @@ bool Mesh::readOBJFile(const char * path)
 
 	endOfMat.push_back(indices.size());
 
-	//position = vertices.at(0).pos;
-
 	std::fclose(file);
 	return true;
 }
@@ -242,26 +240,48 @@ void Mesh::makeBuffer(GLuint program)
 
 	for (int i = 0; i < indices.size(); i++)
 	{
-		data.push_back(vertexPositions[indices[i].pos-1].x);
-		data.push_back(vertexPositions[indices[i].pos-1].y);
-		data.push_back(vertexPositions[indices[i].pos-1].z);
+		bool notInData = true;
+		for (int j = 0; j < data.size(); j+=21)
+		{
+			if (data[j] == vertexPositions[indices[i].pos - 1].x && data[j + 1] == vertexPositions[indices[i].pos - 1].y &&data[j + 2] == vertexPositions[indices[i].pos - 1].z)
+			{
+				notInData = false;
+			}
+		}
+		if (notInData)
+		{
+			data.push_back(vertexPositions[indices[i].pos - 1].x);
+			data.push_back(vertexPositions[indices[i].pos - 1].y);
+			data.push_back(vertexPositions[indices[i].pos - 1].z);
 
-		data.push_back(vertexUVs[indices[i].uv - 1].x);
-		data.push_back(vertexUVs[indices[i].uv - 1].y);
+			data.push_back(vertexUVs[indices[i].uv - 1].x);
+			data.push_back(vertexUVs[indices[i].uv - 1].y);
 
-		data.push_back(materials[indices[i].mat].Ka.x);
-		data.push_back(materials[indices[i].mat].Ka.y);
-		data.push_back(materials[indices[i].mat].Ka.z);
+			data.push_back(materials[indices[i].mat].Ka.x);
+			data.push_back(materials[indices[i].mat].Ka.y);
+			data.push_back(materials[indices[i].mat].Ka.z);
 
-		data.push_back(materials[indices[i].mat].Kd.x);
-		data.push_back(materials[indices[i].mat].Kd.y);
-		data.push_back(materials[indices[i].mat].Kd.z);
+			data.push_back(materials[indices[i].mat].Kd.x);
+			data.push_back(materials[indices[i].mat].Kd.y);
+			data.push_back(materials[indices[i].mat].Kd.z);
 
-		data.push_back(materials[indices[i].mat].Ks.x);
-		data.push_back(materials[indices[i].mat].Ks.y);
-		data.push_back(materials[indices[i].mat].Ks.z);
+			data.push_back(materials[indices[i].mat].Ks.x);
+			data.push_back(materials[indices[i].mat].Ks.y);
+			data.push_back(materials[indices[i].mat].Ks.z);
 
-		data.push_back(materials[indices[i].mat].Ns);
+			data.push_back(materials[indices[i].mat].Ns);
+
+			if (normalID != 0)
+			{
+				data.push_back(tangents[i].x);
+				data.push_back(tangents[i].y);
+				data.push_back(tangents[i].z);
+
+				data.push_back(bitangents[i].x);
+				data.push_back(bitangents[i].y);
+				data.push_back(bitangents[i].z);
+			}
+		}
 	}
 
 	glGenBuffers(1, &vbo);
@@ -274,25 +294,33 @@ void Mesh::makeBuffer(GLuint program)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*posIndices.size(), &posIndices[0], GL_STATIC_DRAW);
 
 	glDisableVertexAttribArray(0);
-	/*glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(3);
 	glDisableVertexAttribArray(4);
 	glDisableVertexAttribArray(5);
-	glDisableVertexAttribArray(6);*/
+	glDisableVertexAttribArray(6);
+	glDisableVertexAttribArray(7);
 }
 
 void Mesh::draw(GLuint program)
 {
 	glUseProgram(program);
-
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, normalID);
 
 	glUniform1i(glGetUniformLocation(program, "normalMap"), 1);
 	glUniform1i(glGetUniformLocation(program, "useNormalMap"), normalID);
 
+	GLsizei stride = 15*sizeof(float);
+
+	if (normalID != 0)
+	{
+		stride = 21 * sizeof(float);
+	}
+
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
 	GLint vertexPos = glGetAttribLocation(program, "vertexPosition");
 
 	if (vertexPos == -1)
@@ -306,7 +334,7 @@ void Mesh::draw(GLuint program)
 		3,
 		GL_FLOAT,
 		GL_FALSE,
-		15*4,
+		stride,
 		(void*)0
 	);
 
@@ -325,12 +353,12 @@ void Mesh::draw(GLuint program)
 		2,
 		GL_FLOAT,
 		GL_FALSE,
-		15 * 4,
+		stride,
 		(void*)(3*4)
 	);
 
 	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	GLint vertexAmbient = glGetAttribLocation(program, "vertexAmbient");
 
 	glVertexAttribPointer(
@@ -338,12 +366,12 @@ void Mesh::draw(GLuint program)
 		3,
 		GL_FLOAT,
 		GL_FALSE,
-		15 * 4,
+		stride,
 		(void*)((3 + 2)* 4)
 		);
 
 	glEnableVertexAttribArray(3);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	GLint vertexDiffuse = glGetAttribLocation(program, "vertexDiffuse");
 
 	glVertexAttribPointer(
@@ -351,13 +379,13 @@ void Mesh::draw(GLuint program)
 		3,
 		GL_FLOAT,
 		GL_FALSE,
-		15 * 4,
+		stride,
 		(void*)((3 + 2 + 3) * 4)
 	);
 
 
 	glEnableVertexAttribArray(4);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	GLint vertexSpecular = glGetAttribLocation(program, "vertexSpecular");
 
 	glVertexAttribPointer(
@@ -365,12 +393,12 @@ void Mesh::draw(GLuint program)
 		3,
 		GL_FLOAT,
 		GL_FALSE,
-		15 * 4,
+		stride,
 		(void*)((3 + 2 + 3 + 3) * 4)
 	);
 
 	glEnableVertexAttribArray(5);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	GLint vertexSpecularExponent = glGetAttribLocation(program, "vertexSpecularExponent");
 
 	glVertexAttribPointer(
@@ -378,14 +406,14 @@ void Mesh::draw(GLuint program)
 		1,
 		GL_FLOAT,
 		GL_FALSE,
-		15 * 4,
+		stride,
 		(void*)((3 + 2 + 3 + 3 + 3) * 4)
 	);
 
 	if (normalID != 0)
 	{
 		glEnableVertexAttribArray(6);
-		glBindBuffer(GL_ARRAY_BUFFER, tangentID);
+		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		GLint tangent = glGetAttribLocation(program, "tangents");
 
 		if (tangent == -1)
@@ -399,12 +427,12 @@ void Mesh::draw(GLuint program)
 			3,
 			GL_FLOAT,
 			GL_FALSE,
-			6*4,
-			(void*)0
+			stride,
+			(void*)((3 + 2 + 3 + 3 + 3 + 1) * 4)
 		);
 
 		glEnableVertexAttribArray(7);
-		glBindBuffer(GL_ARRAY_BUFFER, bitangentID);
+		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		GLint bitangent = glGetAttribLocation(program, "bitangents");
 
 		if (tangent == -1)
@@ -418,8 +446,8 @@ void Mesh::draw(GLuint program)
 			3,
 			GL_FLOAT,
 			GL_FALSE,
-			6 * 4,
-			(void*)(3*4)
+			stride,
+			(void*)((3 + 2 + 3 + 3 + 3 + 1 + 3) * 4)
 		);
 	}
 	// bind index buffer for positions
@@ -434,7 +462,7 @@ void Mesh::draw(GLuint program)
 		//GLuint tmp = glGetUniformLocation(program, "tex");
 		glUniform1i(glGetUniformLocation(program, "tex"), 0);
 		//glDrawArrays(GL_TRIANGLES, startOfMat[i], endOfMat[i]);
-		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, (void*)0);
+		glDrawElements(GL_TRIANGLES, posIndices.size(), GL_UNSIGNED_INT, (void*)0);
 	}
 	glDisableVertexAttribArray(0);
 	//glDisableVertexAttribArray(1);
@@ -472,13 +500,13 @@ void Mesh::loadNormalMap(GLuint program, const char * path)
 		bitangents.push_back(bitangent);
 	}
 
-	glGenBuffers(1, &tangentID);
+	/*glGenBuffers(1, &tangentID);
 	glBindBuffer(GL_ARRAY_BUFFER, tangentID);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*tangents.size(), &tangents[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &bitangentID);
 	glBindBuffer(GL_ARRAY_BUFFER, bitangentID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*bitangents.size(), &bitangents[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*bitangents.size(), &bitangents[0], GL_STATIC_DRAW);*/
 }
 
 std::vector<Mesh::vertexInfo> Mesh::getVertices() const

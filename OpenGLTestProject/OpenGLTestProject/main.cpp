@@ -151,14 +151,15 @@ int main()
 	std::vector<Entity*> entities;
 
 	// Makes buffers so that the meshes becomes ready to be drawn.
-	quad.makeBuffer(programs.getProgramID(0));
 	quad.loadNormalMap(programs.getProgramID(0), "normal.bmp");
-	quad1.makeBuffer(programs.getProgramID(0));
+	quad.makeBuffer(programs.getProgramID(0));
 	quad1.loadNormalMap(programs.getProgramID(0), "normal.bmp");
-	quad2.makeBuffer(programs.getProgramID(0));
+	quad1.makeBuffer(programs.getProgramID(0));
 	quad2.loadNormalMap(programs.getProgramID(0), "normal.bmp");
-	quad3.makeBuffer(programs.getProgramID(0));
+	quad2.makeBuffer(programs.getProgramID(0));
 	quad3.loadNormalMap(programs.getProgramID(0), "normal.bmp");
+	quad3.makeBuffer(programs.getProgramID(0));
+
 
 	triangle.makeBuffer(programs.getProgramID(0));
 	//terrain.loadNormalMap(programs.getProgramID(0), "groundNormal.bmp");
