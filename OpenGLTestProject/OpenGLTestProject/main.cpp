@@ -56,10 +56,28 @@ void initImgui(GLFWwindow * window)
 	ImGui::StyleColorsDark();
 }
 
-void configShaderMatrices()
+void configShaderMatrices(Framebuffer fbo, ShaderHandler programs)
 {
 	glm::mat4 shadowProjection = glm::perspective(glm::radians(90.0f), (float)1024 / (float)1024, 0.1f, 100.f);
-	std::vector<glm::mat4> shadowTransf;
+	std::vector<glm::mat4> shadowTransforms;
+	shadowTransforms.push_back(shadowProjection * glm::lookAt(fbo.getLightPos(0), fbo.getLightPos(0) + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+	shadowTransforms.push_back(shadowProjection * glm::lookAt(fbo.getLightPos(0), fbo.getLightPos(0) + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
+	shadowTransforms.push_back(shadowProjection * glm::lookAt(fbo.getLightPos(0), fbo.getLightPos(0) + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
+	shadowTransforms.push_back(shadowProjection * glm::lookAt(fbo.getLightPos(0), fbo.getLightPos(0) + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
+	shadowTransforms.push_back(shadowProjection * glm::lookAt(fbo.getLightPos(0), fbo.getLightPos(0) + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
+	shadowTransforms.push_back(shadowProjection * glm::lookAt(fbo.getLightPos(0), fbo.getLightPos(0) + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
+
+	if (!programs.addShader("ShadowVertexShader.glsl", GL_VERTEX_SHADER)) {
+		OutputDebugStringA("ShadowVertexShader failed to compile\n");
+	}
+	if (!programs.addShader("ShadowGeometryShader.glsl", GL_GEOMETRY_SHADER)) {
+		OutputDebugStringA("ShadowGeometryShader failed to compile\n");
+	}
+	if (!programs.addShader("ShadowFragmentShader.glsl", GL_FRAGMENT_SHADER)) {
+		OutputDebugStringA("ShadowFragmentShader failed to compile\n");
+	}
+
+	programs.createProgram();
 }
 
 int main()
@@ -207,7 +225,7 @@ int main()
 	fbo.bindShadowFBO();
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	configShaderMatrices();
+	configShaderMatrices(fbo, programs);
 
 
 	do
