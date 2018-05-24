@@ -117,9 +117,9 @@ void Terrain::readHeightMap(const char* filepath)
 			heightmap.push_back(glm::vec3((float)(j * vertexWidth) - (float)(width * (vertexWidth * 0.5f)), (float)data[(j + i * height) * 3] * heightScaling / 255, (float)(i * vertexWidth) - (float)(height * (vertexWidth * 0.5f))));
 			heightmaptex.push_back(glm::vec2((float)j / width, (float)i / height));
 
-			ambient.push_back(glm::vec3(0.1, 0.1, 0.1));
-			diffuse.push_back(glm::vec3(0.1, 0.1, 0.1));
-			specular.push_back(glm::vec4(0.5, 0.5, 0.5, 3));
+			ambient.push_back(glm::vec3(0.5, 0.5, 0.5));
+			diffuse.push_back(glm::vec3(0.7, 0.7, 0.7));
+			specular.push_back(glm::vec4(0.1, 0.1, 0.1, 1));
 		}
 	}
 
@@ -312,4 +312,10 @@ void Terrain::draw(GLuint program)
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(3);
+	glDisableVertexAttribArray(4);
+	glDisableVertexAttribArray(5);
+	glDisableVertexAttribArray(6);
+	glDisableVertexAttribArray(7);
 }

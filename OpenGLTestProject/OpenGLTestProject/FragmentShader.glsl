@@ -17,9 +17,9 @@ layout(location = 1) out vec3 normal;
 layout(location = 2) out vec3 position;
 
 layout(location = 3) out vec3 depth;
-layout(location = 4) out vec3 diffuse;
-layout(location = 5) out vec4 specular;
-layout(location = 6) out vec3 ambient;
+layout(location = 4) out vec3 ambient;
+layout(location = 5) out vec3 diffuse;
+layout(location = 6) out vec4 specular;
 
 float LinearizeDepth(float zoverw){
 		float n = 1.0; // camera z near
