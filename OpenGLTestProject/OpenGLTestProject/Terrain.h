@@ -32,7 +32,8 @@ public:
 	void loadNormalMap(GLuint program, const char * path);
 	void readHeightMap(const char* filepath);
 	void draw(GLuint program);
-
+	unsigned int getWidth();
+	float getHeight(unsigned int index);
 };
 
 #endif // !TERRAIN_H

@@ -132,7 +132,7 @@ int main()
 	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 projection;
-
+	bool orbit = false;
 	FrontBackRender frontBackRender;
 
 	// Adds three shaders that are used for the first renderpass
@@ -327,6 +327,45 @@ int main()
 
 		// Updates the camera position and view direction
 		camera.update(Window, dt);
+		if (glfwGetKey(Window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		{
+			orbit = !orbit;
+		}
+		if (orbit == false) {
+
+			float h = 0;
+
+			float x = camera.getPos().x;
+
+			float z = camera.getPos().z;
+
+			int index = ((int)(x + 25) * 4) + ((int)(z + 25) * 4) * terrain.getWidth();
+
+			if (x >= -25 & x <= 25 & z >= -25 & z <= 25)
+
+			{
+				float y1 = terrain.getHeight((unsigned int)index);
+
+				float y2 = terrain.getHeight((unsigned int)index + 1);
+
+				float y3 = terrain.getHeight((unsigned int)index + terrain.getWidth());
+
+				float y4 = terrain.getHeight((unsigned int)index + terrain.getWidth() + 1);
+
+				float xfrac = x - floor(x);
+
+				float zfrac = z - floor(z);
+
+				float yleft = y1 + (y2 - y1) * xfrac;
+
+				float yright = y3 + (y4 - y3) * xfrac;
+
+				h = yleft + (yright - yleft) * zfrac + 1;
+
+			}
+			camera.setCameraPos(glm::vec3(x, h, z));
+		}
+
 		view = camera.viewMat();
 
 		// if the user presses the "x" on the window or the esc key, the loop stops.

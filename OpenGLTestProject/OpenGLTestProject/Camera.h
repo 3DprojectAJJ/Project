@@ -29,6 +29,8 @@ public:
 	glm::vec3 getForward()const;
 
 	glm::mat4 viewMat();
+
+	void setCameraPos(glm::vec3 pos);
 };
 
 #endif
