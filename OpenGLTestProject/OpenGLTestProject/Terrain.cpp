@@ -319,3 +319,13 @@ void Terrain::draw(GLuint program)
 	glDisableVertexAttribArray(6);
 	glDisableVertexAttribArray(7);
 }
+
+unsigned int Terrain::getWidth()
+{
+	return (unsigned int)width;
+}
+
+float Terrain::getHeight(unsigned int index)
+{
+	return heightmap[index].y;
+}

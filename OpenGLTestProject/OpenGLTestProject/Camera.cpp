@@ -90,3 +90,8 @@ glm::mat4 Camera::viewMat()
 {
 	return glm::lookAt(pos,pos + forward,up);
 }
+
+void Camera::setCameraPos(glm::vec3 pos)
+{
+	this->pos = pos;
+}
