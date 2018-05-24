@@ -61,11 +61,12 @@ void main(){
 			}
 
 			// specular
-			vec3 reflect_ray = reflect(-light_ray,normal);
+			vec3 reflect_ray = reflect(-light_ray, normal);
 			float cosAlpha = clamp(dot(eye_direction, reflect_ray), 0, 1);
+
 			if(cosTheta > 0)
 			{
-				final += Ks * pow(cosAlpha,Ns)*lightColor[i].xyz * (lightColor[i].x + lightColor[i].y + lightColor[i].z); 
+				final += Ks * pow(cosAlpha, Ns) * lightColor[i].xyz * (lightColor[i].x + lightColor[i].y + lightColor[i].z);
 			}
 		}
 		color = final;
