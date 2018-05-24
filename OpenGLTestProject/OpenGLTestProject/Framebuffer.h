@@ -42,6 +42,8 @@ public:
 	void bindShadowFBO();
 	void unbindFBO(int width, int height);
 	void getUniform(GLuint program);
+	GLuint getCubeMap();
+	void setCubemap(GLuint CubeMap);
 	unsigned int nrOfTextures();
 
 	GLuint * getTexID();

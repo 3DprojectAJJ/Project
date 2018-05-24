@@ -86,7 +86,7 @@ void Framebuffer::shadowInit()
 	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
 
 	for (unsigned int i = 0; i < 6; i++)
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -128,6 +128,16 @@ void Framebuffer::getUniform(GLuint program)
 	ambientLoc = glGetUniformLocation(program, "ambientTexture");
 	diffuseLoc = glGetUniformLocation(program, "diffuseTexture");
 	specularLoc = glGetUniformLocation(program, "specularTexture");
+}
+
+GLuint Framebuffer::getCubeMap()
+{
+	return depthCubemap;
+}
+
+void Framebuffer::setCubemap(GLuint CubeMap)
+{
+	this->depthCubemap = CubeMap;
 }
 
 unsigned int Framebuffer::nrOfTextures()
@@ -172,6 +182,9 @@ void Framebuffer::draw(GLuint program, glm::vec3 camPos)
 	glUniform1i(diffuseLoc, 5);
 	glUniform1i(specularLoc, 6);
 
+	glActiveTexture(GL_TEXTURE10);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+
 	for (int i = 0; i < nrOfTextures(); i++)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
@@ -190,6 +203,7 @@ void Framebuffer::draw(GLuint program, glm::vec3 camPos)
 	glUniform4fv(glGetUniformLocation(program, "lightColor"), lights.size(), glm::value_ptr(color[0]));
 	glUniform1i(glGetUniformLocation(program, "nrOfLights"), lights.size());
 	glUniform3f(glGetUniformLocation(program, "camPos"), camPos.x, camPos.y, camPos.z);
+	glUniform1i(glGetUniformLocation(program, "depthCubemap"), depthCubemap);
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, quadID);

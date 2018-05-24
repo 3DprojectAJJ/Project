@@ -192,6 +192,15 @@
     <None Include="MouseFragmentShader.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="ShadowFragmentShader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="ShadowGeometryShader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="ShadowVertexShader.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header">
