@@ -1,8 +1,8 @@
 newmtl mat1
-Ns 3
+Ns 5
 Ka 0.0 0.0 0.0
 Kd 0.5 0.5 0.5
-Ks 0.7 0.7 0.7
+Ks 0.7 0.7 0.9
 map_Kd tstTex.bmp
 newmtl mat2
 Ns 3
@@ -11,8 +11,8 @@ Kd 0.5 0.5 0.5
 Ks 0.7 0.7 0.7
 map_Kd red.bmp
 newmtl mat3
-Ns 3
-Ka 0.0 0.0 0.0
-Kd 0.5 0.5 0.5
-Ks 0.7 0.7 0.7
+Ns 2
+Ka 0.1 0.1 0.1
+Kd 0.2 0.2 0.2
+Ks 0.1 0.1 0.1
 map_Kd blue.bmp

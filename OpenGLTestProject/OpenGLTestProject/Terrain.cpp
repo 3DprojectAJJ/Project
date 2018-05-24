@@ -116,6 +116,10 @@ void Terrain::readHeightMap(const char* filepath)
 		for (unsigned int j = 0; j < width; j++) {
 			heightmap.push_back(glm::vec3((float)(j * vertexWidth) - (float)(width * (vertexWidth * 0.5f)), (float)data[(j + i * height) * 3] * heightScaling / 255, (float)(i * vertexWidth) - (float)(height * (vertexWidth * 0.5f))));
 			heightmaptex.push_back(glm::vec2((float)j / width, (float)i / height));
+
+			ambient.push_back(glm::vec3(0.1, 0.1, 0.1));
+			diffuse.push_back(glm::vec3(0.1, 0.1, 0.1));
+			specular.push_back(glm::vec4(0.5, 0.5, 0.5, 3));
 		}
 	}
 
@@ -130,9 +134,9 @@ void Terrain::readHeightMap(const char* filepath)
 			// Top triangle (T0)
 			indices[index++] = vertexIndex;                           // V0
 			indices[index++] = vertexIndex + width + 1;        // V3
-			indices[index++] = vertexIndex + 1;                       // V1
-																	  // Bottom triangle (T1)
-			indices[index++] = vertexIndex;                           // V0
+			indices[index++] = vertexIndex + 1;                // V1
+															   // Bottom triangle (T1)
+			indices[index++] = vertexIndex;                    // V0
 			indices[index++] = vertexIndex + width;            // V2
 			indices[index++] = vertexIndex + width + 1;        // V3
 		}
@@ -151,6 +155,18 @@ void Terrain::readHeightMap(const char* filepath)
 	glGenBuffers(1, &texbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, texbuffer);
 	glBufferData(GL_ARRAY_BUFFER, heightmap.size() * sizeof(glm::vec2), &heightmaptex[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &amBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, amBuffer);
+	glBufferData(GL_ARRAY_BUFFER, ambient.size() * sizeof(glm::vec3), &ambient[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &diffBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, diffBuffer);
+	glBufferData(GL_ARRAY_BUFFER, diffuse.size() * sizeof(glm::vec3), &diffuse[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &specBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, specBuffer);
+	glBufferData(GL_ARRAY_BUFFER, specular.size() * sizeof(glm::vec4), &specular[0], GL_STATIC_DRAW);
 
 	glGenBuffers(1, &elementbuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
@@ -200,6 +216,50 @@ void Terrain::draw(GLuint program)
 		GL_FALSE,                         // normalized?
 		0,                                // stride
 		(void*)0                          // array buffer offset
+	);
+
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, amBuffer);
+	glVertexAttribPointer(
+		2,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		0,
+		(void*)0
+	);
+
+	glEnableVertexAttribArray(3);
+	glBindBuffer(GL_ARRAY_BUFFER, diffBuffer);
+	glVertexAttribPointer(
+		3,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		0,
+		(void*)0
+	);
+
+	glEnableVertexAttribArray(4);
+	glBindBuffer(GL_ARRAY_BUFFER, specBuffer);
+	glVertexAttribPointer(
+		4,
+		3,
+		GL_FLOAT,
+		GL_FALSE,
+		4*4,
+		(void*)0
+	);
+
+	glEnableVertexAttribArray(5);
+	glBindBuffer(GL_ARRAY_BUFFER, specBuffer);
+	glVertexAttribPointer(
+		5,
+		1,
+		GL_FLOAT,
+		GL_FALSE,
+		4*4,
+		(void*)(3*4)
 	);
 
 	if (normalID != 0)

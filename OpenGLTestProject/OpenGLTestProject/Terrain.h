@@ -12,6 +12,10 @@ private:
 	std::vector<int> indices;
 	std::vector<glm::vec3> heightmap;
 	std::vector<glm::vec2> heightmaptex;
+
+	std::vector<glm::vec3> ambient;
+	std::vector<glm::vec3> diffuse;
+	std::vector<glm::vec4> specular;
 	glm::mat4 world;
 
 	std::vector<glm::vec3> tangents;
@@ -20,7 +24,7 @@ private:
 	GLuint bitangentID;
 
 	GLuint normalID;
-	GLuint vertexArrayID, vertexBuffer, texbuffer, elementbuffer, tex;
+	GLuint vertexArrayID, vertexBuffer, texbuffer, elementbuffer, tex, amBuffer, diffBuffer, specBuffer;
 	GLuint loadImage(const char * imagepath);
 public:
 	Terrain(const char* filepath);
