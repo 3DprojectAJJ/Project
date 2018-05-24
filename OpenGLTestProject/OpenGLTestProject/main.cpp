@@ -56,7 +56,7 @@ void initImgui(GLFWwindow * window)
 	ImGui::StyleColorsDark();
 }
 
-void configShaderMatrices(Framebuffer fbo, ShaderHandler programs)
+void configShaderMatrices(Framebuffer fbo, ShaderHandler programs, std::vector<Entity*> entities)
 {
 	glm::mat4 shadowProjection = glm::perspective(glm::radians(90.0f), (float)1024 / (float)1024, 0.1f, 100.f);
 	std::vector<glm::mat4> shadowTransforms;
@@ -78,6 +78,15 @@ void configShaderMatrices(Framebuffer fbo, ShaderHandler programs)
 	}
 
 	programs.createProgram();
+
+	glUniform4fv(glGetUniformLocation(programs.getProgramID(3), "shadowMatrices"), shadowTransforms.size(), glm::value_ptr(shadowProjection[0]));
+	glUniform3f(glGetUniformLocation(programs.getProgramID(3), "lightPos"), fbo.getLightPos(0).x, fbo.getLightPos(0).y, fbo.getLightPos(0).z);
+	glUniform1f(glGetUniformLocation(programs.getProgramID(3), "farplane"), 100.0f);
+
+	for (int i = 0; i < entities.size(); i++)
+	{
+		entities[i]->draw(programs.getProgramID(3));
+	}
 }
 
 int main()
@@ -165,7 +174,6 @@ int main()
 	Terrain terrain("heightmap.bmp");
 
 	ParticleEmitter particle(glm::vec3(0.0f, 0.1f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), 2, glm::vec3(0.2f, 0.0f, 0.0f), glm::vec3(1.0f, 0.8f, 0.15f));
-	ParticleEmitter particle1(glm::vec3(0.0f, 2.0f, 0.0f), glm::vec3(0.0f, 0.5f, 0.0f), 10, glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.8f, 0.8f, 0.8f));
 	std::vector<Entity*> entities;
 
 	// Makes buffers so that the meshes becomes ready to be drawn.
@@ -225,7 +233,7 @@ int main()
 	fbo.bindShadowFBO();
 	glClear(GL_DEPTH_BUFFER_BIT);
 
-	configShaderMatrices(fbo, programs);
+	configShaderMatrices(fbo, programs, entities);
 
 
 	do
@@ -267,7 +275,6 @@ int main()
 		glUniformMatrix4fv(pProjID, 1, GL_FALSE, &projection[0][0]);
 
 		particle.update(programs.getProgramID(1), &camera, dt);
-		particle1.update(programs.getProgramID(1), &camera, dt);
 
 
 		//unbinds the fbo, we now draw to the window or default fbo instead
