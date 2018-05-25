@@ -22,6 +22,7 @@ private:
 	GLuint textures[NUM_OF_TEXTURES];
 	GLint colorLoc, normalLoc, posLoc, depthLoc;
 	GLint ambientLoc, diffuseLoc, specularLoc;
+	GLint shadowLoc;
 	GLuint depthID;
 	GLuint texID;
 	GLuint colorID;
@@ -29,10 +30,11 @@ private:
 	GLuint lightID;
 	GLuint depthMapFBO;
 	GLuint depthMap;
+	glm::mat4 lightSpaceMatrix;
 	int width;
 	int height;
-	const unsigned int shadowWidth = 1024;
-	const unsigned int shadowHeight = 1024;
+	const unsigned int shadowWidth = 2048;
+	const unsigned int shadowHeight = 2048;
 public:
 	Framebuffer(const int width = 1024, const int height = 768);
 	~Framebuffer();
@@ -44,6 +46,7 @@ public:
 	void getUniform(GLuint program);
 	GLuint getDepthMap();
 	void setDepthMap(GLuint DepthMap);
+	void setLightSpaceMatrix(glm::mat4 lightSpaceMatrix);
 	unsigned int nrOfTextures();
 
 	GLuint * getTexID();

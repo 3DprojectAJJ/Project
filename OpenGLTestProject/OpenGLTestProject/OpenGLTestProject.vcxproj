@@ -175,7 +175,6 @@
     <None Include="ParticleFragmentShader.glsl" />
     <None Include="ParticleVertexShader.glsl" />
     <None Include="ShadowFragmentShader.glsl" />
-    <None Include="ShadowGeometryShader.glsl" />
     <None Include="ShadowVertexShader.glsl" />
     <None Include="simple.mtl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

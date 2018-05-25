@@ -85,8 +85,7 @@ void Framebuffer::shadowInit()
 
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-		shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -127,6 +126,7 @@ void Framebuffer::getUniform(GLuint program)
 	ambientLoc = glGetUniformLocation(program, "ambientTexture");
 	diffuseLoc = glGetUniformLocation(program, "diffuseTexture");
 	specularLoc = glGetUniformLocation(program, "specularTexture");
+	shadowLoc = glGetUniformLocation(program, "depthMap");
 }
 
 GLuint Framebuffer::getDepthMap()
@@ -137,6 +137,11 @@ GLuint Framebuffer::getDepthMap()
 void Framebuffer::setDepthMap(GLuint DepthMap)
 {
 	this->depthMap = DepthMap;
+}
+
+void Framebuffer::setLightSpaceMatrix(glm::mat4 lightSpaceMatrix)
+{
+	this->lightSpaceMatrix = lightSpaceMatrix;
 }
 
 unsigned int Framebuffer::nrOfTextures()
@@ -180,9 +185,10 @@ void Framebuffer::draw(GLuint program, glm::vec3 camPos)
 	glUniform1i(ambientLoc, 4);
 	glUniform1i(diffuseLoc, 5);
 	glUniform1i(specularLoc, 6);
+	glUniform1i(shadowLoc, 10);
 
 	glActiveTexture(GL_TEXTURE10);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
 
 	for (int i = 0; i < nrOfTextures(); i++)
 	{
@@ -202,7 +208,7 @@ void Framebuffer::draw(GLuint program, glm::vec3 camPos)
 	glUniform4fv(glGetUniformLocation(program, "lightColor"), lights.size(), glm::value_ptr(color[0]));
 	glUniform1i(glGetUniformLocation(program, "nrOfLights"), lights.size());
 	glUniform3f(glGetUniformLocation(program, "camPos"), camPos.x, camPos.y, camPos.z);
-	glUniform1i(glGetUniformLocation(program, "depthCubemap"), depthMap);
+	glUniformMatrix4fv(glGetUniformLocation(program, "lightSpaceMat"), 1, GL_FALSE, &lightSpaceMatrix[0][0]);
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, quadID);

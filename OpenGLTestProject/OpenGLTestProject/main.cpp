@@ -58,24 +58,25 @@ void initImgui(GLFWwindow * window)
 
 GLuint configShaderMatrices(Framebuffer *fbo, ShaderHandler * programs, std::vector<Entity*> entities)
 {
+	fbo->shadowInit();
 	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
-	glm::mat4 lightView = glm::lookAt(glm::vec3(0, 0.5f, 0), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0, 1.0f, 0));
+	glm::mat4 lightView = glm::lookAt(glm::vec3(0.0f, 4.0f, 3.0f), glm::vec3(0.0f, 1.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMat = lightProjection * lightView;
+
+	fbo->setLightSpaceMatrix(lightSpaceMat);
 
 	if (!programs->addShader("ShadowVertexShader.glsl", GL_VERTEX_SHADER)) {
 		OutputDebugStringA("ShadowVertexShader failed to compile\n");
 	}
-	/*if (!programs->addShader("ShadowGeometryShader.glsl", GL_GEOMETRY_SHADER)) {
-		OutputDebugStringA("ShadowGeometryShader failed to compile\n");
-	}*/
 	if (!programs->addShader("ShadowFragmentShader.glsl", GL_FRAGMENT_SHADER)) {
 		OutputDebugStringA("ShadowFragmentShader failed to com,pile\n");
 	}
 
 	programs->createProgram();
+
 	glUseProgram(programs->getProgramID(programs->getSize() - 1));
-	fbo->shadowInit();
-	glUniform4fv(glGetUniformLocation(programs->getProgramID(programs->getSize() - 1), "lightSpaceMat"), 1, &lightSpaceMat[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(programs->getProgramID(programs->getSize() - 1), "lightSpaceMat"), 1, GL_FALSE, &lightSpaceMat[0][0]);
+
 	fbo->bindShadowFBO();
 	glClear(GL_DEPTH_BUFFER_BIT);
 	for (int i = 0; i < entities.size(); i++)
@@ -216,7 +217,6 @@ int main()
 
 	// Initializes the fbo, so that it can be used in the draw passes
 	fbo.init();
-	//fbo.shadowInit();
 
 	// Necessary variables to track time while in the loop
 	double dt = 0;
@@ -225,7 +225,7 @@ int main()
 
 	bool * showImguiWindow = new bool[fbo.nrOfTextures()];
 
-	fbo.addLight(glm::vec3(0, 0.5f, 0), glm::vec4(1, 0.5f, 0.1f, 20));
+	fbo.addLight(glm::vec3(0, 4.0f, 3), glm::vec4(1, 0.5f, 0.1f, 50));
 
 	configShaderMatrices(&fbo, &programs, entities);
 
@@ -296,12 +296,7 @@ int main()
 					ImGui::SameLine();
 				}
 			}
-			if(ImGui::ImageButton("Walk/Orbit", ImVec2(102, 77))) {
-				switch (orbit) {
-				case true: orbit = false; break;
-				case false: orbit = true; break;
-				}
-			}
+
 			ImGui::NewLine();
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::Text("Camera Position: %.2f x, %.2f y, %.2f z", camera.getPos().x, camera.getPos().y, camera.getPos().z);

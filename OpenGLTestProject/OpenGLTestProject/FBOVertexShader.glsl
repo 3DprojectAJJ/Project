@@ -6,6 +6,7 @@ layout(location = 1) in vec3 vertexUV_modelspace;
 
 // Output data ; will be interpolated for each fragment.
 out vec2 UV;
+out vec4 lightSpaceVector;
 
 void main(){
 	gl_Position =  vec4(vertexPosition_modelspace,1);
