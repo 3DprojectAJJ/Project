@@ -91,3 +91,8 @@ GLuint ShaderHandler::getProgramID(int index)
 	glUseProgram(programIDs[index]);
 	return programIDs[index];
 }
+
+unsigned int ShaderHandler::getSize()
+{
+	return programIDs.size();
+}

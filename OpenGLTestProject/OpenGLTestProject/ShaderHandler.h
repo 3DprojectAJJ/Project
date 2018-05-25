@@ -23,6 +23,7 @@ public:
 	bool addShader(const char * path, GLenum type);
 	bool createProgram();
 	GLuint getProgramID(int index);
+	unsigned int getSize();
 };
 
 #endif

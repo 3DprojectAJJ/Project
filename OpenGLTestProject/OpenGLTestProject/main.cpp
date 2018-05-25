@@ -56,46 +56,34 @@ void initImgui(GLFWwindow * window)
 	ImGui::StyleColorsDark();
 }
 
-GLuint configShaderMatrices(Framebuffer *fbo, Framebuffer *fbo1, ShaderHandler programs, std::vector<Entity*> entities)
+GLuint configShaderMatrices(Framebuffer *fbo, ShaderHandler * programs, std::vector<Entity*> entities)
 {
-	fbo->bindFBO();
-	GLuint depthCubeMap = fbo->getCubeMap();
-	glm::mat4 shadowProjection = glm::perspective(glm::radians(90.0f), (float)1024 / (float)1024, 0.1f, 100.f);
-	std::vector<glm::mat4> shadowTransforms;
-	shadowTransforms.push_back(shadowProjection * glm::lookAt(fbo1->getLightPos(0), fbo1->getLightPos(0) + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-	shadowTransforms.push_back(shadowProjection * glm::lookAt(fbo1->getLightPos(0), fbo1->getLightPos(0) + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)));
-	shadowTransforms.push_back(shadowProjection * glm::lookAt(fbo1->getLightPos(0), fbo1->getLightPos(0) + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)));
-	shadowTransforms.push_back(shadowProjection * glm::lookAt(fbo1->getLightPos(0), fbo1->getLightPos(0) + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)));
-	shadowTransforms.push_back(shadowProjection * glm::lookAt(fbo1->getLightPos(0), fbo1->getLightPos(0) + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)));
-	shadowTransforms.push_back(shadowProjection * glm::lookAt(fbo1->getLightPos(0), fbo1->getLightPos(0) + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)));
+	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
+	glm::mat4 lightView = glm::lookAt(glm::vec3(0, 0.5f, 0), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0, 1.0f, 0));
+	glm::mat4 lightSpaceMat = lightProjection * lightView;
 
-	if (!programs.addShader("ShadowVertexShader.glsl", GL_VERTEX_SHADER)) {
+	if (!programs->addShader("ShadowVertexShader.glsl", GL_VERTEX_SHADER)) {
 		OutputDebugStringA("ShadowVertexShader failed to compile\n");
 	}
-	if (!programs.addShader("ShadowGeometryShader.glsl", GL_GEOMETRY_SHADER)) {
+	/*if (!programs->addShader("ShadowGeometryShader.glsl", GL_GEOMETRY_SHADER)) {
 		OutputDebugStringA("ShadowGeometryShader failed to compile\n");
-	}
-	if (!programs.addShader("ShadowFragmentShader.glsl", GL_FRAGMENT_SHADER)) {
+	}*/
+	if (!programs->addShader("ShadowFragmentShader.glsl", GL_FRAGMENT_SHADER)) {
 		OutputDebugStringA("ShadowFragmentShader failed to com,pile\n");
 	}
 
-	programs.createProgram();
-
-	glUseProgram(programs.getProgramID(3));
-
-	glUniform4fv(glGetUniformLocation(programs.getProgramID(3), "shadowMatrices"), shadowTransforms.size(), glm::value_ptr(shadowProjection[0]));
-	glUniform3f(glGetUniformLocation(programs.getProgramID(3), "lightPos"), fbo1->getLightPos(0).x, fbo1->getLightPos(0).y, fbo1->getLightPos(0).z);
-	glUniform1f(glGetUniformLocation(programs.getProgramID(3), "farplane"), 100.0f);
-
-	glActiveTexture(GL_TEXTURE10);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubeMap);
+	programs->createProgram();
+	glUseProgram(programs->getProgramID(programs->getSize() - 1));
+	fbo->shadowInit();
+	glUniform4fv(glGetUniformLocation(programs->getProgramID(programs->getSize() - 1), "lightSpaceMat"), 1, &lightSpaceMat[0][0]);
+	fbo->bindShadowFBO();
+	glClear(GL_DEPTH_BUFFER_BIT);
 	for (int i = 0; i < entities.size(); i++)
 	{
-		entities[i]->draw(programs.getProgramID(3));
+		entities[i]->draw(programs->getProgramID(programs->getSize() - 1));
 	}
-	fbo->setCubemap(depthCubeMap);
 	fbo->unbindFBO(1024, 720);
-	return fbo->getCubeMap();
+	return fbo->getDepthMap();
 }
 
 int main()
@@ -127,7 +115,6 @@ int main()
 	ShaderHandler programs;
 	// The framebuffer object that will be used for deferred rendering.
 	Framebuffer fbo;
-	Framebuffer shadowFbo;
 	Mouse mouse;
 	glm::mat4 model;
 	glm::mat4 view;
@@ -229,7 +216,7 @@ int main()
 
 	// Initializes the fbo, so that it can be used in the draw passes
 	fbo.init();
-	shadowFbo.shadowInit();
+	//fbo.shadowInit();
 
 	// Necessary variables to track time while in the loop
 	double dt = 0;
@@ -240,10 +227,7 @@ int main()
 
 	fbo.addLight(glm::vec3(0, 0.5f, 0), glm::vec4(1, 0.5f, 0.1f, 20));
 
-	shadowFbo.bindShadowFBO();
-	glClear(GL_DEPTH_BUFFER_BIT);
-
-	fbo.setCubemap(configShaderMatrices(&shadowFbo, &fbo, programs, entities));
+	configShaderMatrices(&fbo, &programs, entities);
 
 
 	do
@@ -302,7 +286,7 @@ int main()
 		{		
 			ImGui::SetWindowSize(ImVec2(400, 420));
 			ImGui::SetWindowPos(ImVec2(0, 0));
-			//ImGui::ImageButton((GLuint*)fbo.getCubeMap(), ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0));
+			ImGui::ImageButton((GLuint*)fbo.getDepthMap(), ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0));
 			for (int i = 0; i < fbo.nrOfTextures() - 1; i++) {
 				if (ImGui::ImageButton((GLuint*)fbo.getTexID()[i], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
 				{
@@ -310,6 +294,12 @@ int main()
 				}
 				if (i != 2) {
 					ImGui::SameLine();
+				}
+			}
+			if(ImGui::ImageButton("Walk/Orbit", ImVec2(102, 77))) {
+				switch (orbit) {
+				case true: orbit = false; break;
+				case false: orbit = true; break;
 				}
 			}
 			ImGui::NewLine();

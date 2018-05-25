@@ -28,7 +28,7 @@ private:
 	GLuint quadID;
 	GLuint lightID;
 	GLuint depthMapFBO;
-	GLuint depthCubemap;
+	GLuint depthMap;
 	int width;
 	int height;
 	const unsigned int shadowWidth = 1024;
@@ -42,8 +42,8 @@ public:
 	void bindShadowFBO();
 	void unbindFBO(int width, int height);
 	void getUniform(GLuint program);
-	GLuint getCubeMap();
-	void setCubemap(GLuint CubeMap);
+	GLuint getDepthMap();
+	void setDepthMap(GLuint DepthMap);
 	unsigned int nrOfTextures();
 
 	GLuint * getTexID();

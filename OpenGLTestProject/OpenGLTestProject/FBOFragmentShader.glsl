@@ -22,18 +22,6 @@ uniform sampler2D specularTexture;
 
 uniform samplerCube depthCubemap;
 
-float shadowCalculation(vec3 pos, vec3 lightPos)
-{
-	vec3 fragToLight = pos - lightPos;
-	float closestDepth = texture(depthCubemap, fragToLight).r;
-	closestDepth *= 100;
-	float currentDepth = length(fragToLight);
-	float bias = 0.05;
-	float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
-
-	return shadow;
-}
-
 void main(){
 	vec3 normal = texture(normalTexture, UV).xyz;
 	vec3 position = texture(positionTexture, UV).xyz;
@@ -61,7 +49,6 @@ void main(){
 		vec3 eye_direction = normalize(camPos - position);
 		for(int i = 0; i < nrOfLights; i++)
 		{
-			shadow = shadowCalculation(position, lightPosition[i]);
 			/*float diffuse = dot(normal, normalize(lightPosition[i] - position));
 			float distance = length(lightPosition[i] - position);
 			color += clamp(lightColor[i].xyz * diffuse * texture(colorTexture, UV).xyz * 1/(distance * distance) * lightColor[i].w, 0, 1);*/
@@ -73,7 +60,7 @@ void main(){
 
 			if(cosTheta > 0)
 			{
-				final += shadow * base * Kd * cosTheta * lightColor[i].xyz * (lightColor[i].x + lightColor[i].y + lightColor[i].z); 
+				final += base * Kd * cosTheta * lightColor[i].xyz * (lightColor[i].x + lightColor[i].y + lightColor[i].z); 
 			}
 
 			// specular
@@ -85,6 +72,6 @@ void main(){
 				final += Ks * pow(cosAlpha, Ns) * lightColor[i].xyz * (lightColor[i].x + lightColor[i].y + lightColor[i].z);
 			}
 		}
-		color = vec3(shadow, shadow, shadow);
+		color = final;
 	}
 }
