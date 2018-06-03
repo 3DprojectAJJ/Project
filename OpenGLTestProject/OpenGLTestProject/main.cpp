@@ -1,12 +1,10 @@
-#include "MeshHandler.h"
+#include "Mesh.h"
 #include "Camera.h"
 #include "Framebuffer.h"
 #include "ShaderHandler.h"
 #include "Terrain.h"
 #include "FrontBackRender.h"
 #include "Particle.h"
-#include "ObjLoader.h"
-#include "RenderObject.h"
 #include "Mouse.h"
 
 #include <GLFW\glfw3.h>
@@ -99,9 +97,6 @@ int main()
 	// Enables the automatic depth test, we won't have to worry about it no more
 	glEnable(GL_DEPTH_TEST);
 
-	ObjLoader ldr;
-	ldr.readOBJFile("quad.obj");
-	RenderObject tst(ldr.getData(),ldr.getIndices(), ldr.getTex());
 	// Creates necessary variables
 	// Camera, Horizontal angle, Vertical Angle, Position
 	Camera camera(180, -20, glm::vec3(0, 3, 7));
@@ -225,7 +220,7 @@ int main()
 
 	bool * showImguiWindow = new bool[fbo.nrOfTextures()];
 
-	fbo.addLight(glm::vec3(0, 4.0f, 3), glm::vec4(1, 0.5f, 0.1f, 50));
+	fbo.addLight(glm::vec3(0, 2.0f, 2.0f), glm::vec4(1, 0.5f, 0.1f, 50));
 
 	configShaderMatrices(&fbo, &programs, entities);
 
@@ -257,11 +252,9 @@ int main()
 		glUniformMatrix4fv(projID, 1, GL_FALSE, &projection[0][0]);
 
 		// Drawcall
-		//quad.draw(programs.getProgramID(0));
 		frontBackRender.render(&entities, camera.getPos(), programs.getProgramID(0));
 		
 
-		//tst.draw(programs.getProgramID(0));
 
 		glUseProgram(programs.getProgramID(1));
 

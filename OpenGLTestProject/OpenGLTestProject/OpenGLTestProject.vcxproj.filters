@@ -33,40 +33,19 @@
     <ClCompile Include="FrontBackRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IndexBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MeshHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Particle.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShaderHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Terrain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VertexArray.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VertexBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Mouse.cpp">
@@ -83,25 +62,10 @@
     <ClInclude Include="Framebuffer.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="IndexBuffer.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="Mesh.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="MeshHandler.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="Terrain.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexArray.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexBuffer.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="imgui\imgui_internal.h">
@@ -109,9 +73,6 @@
     </ClInclude>
     <ClInclude Include="imgui\imgui_impl_glfw_gl3.h">
       <Filter>Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexBufferLayout.h">
-      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="ShaderHandler.h">
       <Filter>Header</Filter>
@@ -133,12 +94,6 @@
     </ClInclude>
     <ClInclude Include="imgui\imgui.h">
       <Filter>Imgui</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderObject.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjLoader.h">
-      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="imgui\imconfig.h">
       <Filter>Imgui</Filter>
