@@ -9,12 +9,14 @@ Camera::Camera(glm::vec3 up, glm::vec3 forward, glm::vec3 pos, double speed)
 	this->speed = speed;
 }
 
+// takes angles (in degrees) on how the camera is angled, a vector of the position of the camera and a speed value showing how fast the camera moves
 Camera::Camera(double inHorizontalAngle, double inVerticalAngle, glm::vec3 pos, double speed)
 {
 	this->horizontalAngle = glm::radians(inHorizontalAngle);
 	this->verticalAngle = glm::radians(inVerticalAngle);
 	this->pos = pos;
 	this->speed = speed;
+
 	forward = glm::normalize(glm::vec3(cos(verticalAngle)*sin(horizontalAngle), sin(verticalAngle), cos(verticalAngle) * cos(horizontalAngle)));
 	right = glm::vec3(sin(horizontalAngle - 3.14f / 2.0f), 0, cos(horizontalAngle - 3.14f / 2.0f));
 	up = glm::cross(right, forward);
@@ -25,9 +27,9 @@ Camera::~Camera()
 	//nothing
 }
 
+//Update the camera position, angle and last mouse position. Polling glfw events happens in main
 void Camera::update(GLFWwindow * window, float dt)
 {
-	//glm::vec4 d = viewMat()*glm::vec4(pos,1.0);
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		pos += forward*dt*speed;
