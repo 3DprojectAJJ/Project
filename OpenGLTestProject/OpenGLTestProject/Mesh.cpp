@@ -1,36 +1,27 @@
 #include "Mesh.h"
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-// Reads an mtl file line by line, should only be used to add materials to a model loaded/loading by the objloader function
 bool Mesh::readMTLFile(const char * path)
 {
-	// opens the file
 	FILE * file;
 	file = fopen(path, "r");
 	int res = 0;
 	char lineHeader[128];
 
-	//while loopto check every line.
 	do
 	{
-		// get line
 		res = fscanf(file, "%s", lineHeader);
-
 		if (res == EOF)
 		{
 			break;
 		}
 
-		// Each if statement checks the header and acts according to value type.
-
-		// newmtl, a new material is to be defined
 		if (std::strcmp(lineHeader, "newmtl") == 0)
 		{
 			material mt;
 			materials.push_back(mt);
 			fscanf(file, "%s\n", &materials[materials.size() - 1].name);
 		}
-		// Specular term, determines "shininess" of an object
 		else if (std::strcmp(lineHeader, "Ns") == 0)
 		{
 			fscanf(file, "%d\n", &materials[materials.size() - 1].Ns);
@@ -51,43 +42,31 @@ bool Mesh::readMTLFile(const char * path)
 		{
 			fscanf(file, "%d\n", &materials[materials.size() - 1].illum);
 		}
-		// Ambient value of the material, the basic color of the material even if there would be no light in the world.
 		else if (std::strcmp(lineHeader, "Ka") == 0)
 		{
 			fscanf(file, "%f %f %f\n", &materials[materials.size() - 1].Ka.x, &materials[materials.size() - 1].Ka.y, &materials[materials.size() - 1].Ka.z);
 		}
-		// Diffuse value of the material, the color that will be added (depending on light color, angle and distance) for each light
 		else if (std::strcmp(lineHeader, "Kd") == 0)
 		{
 			fscanf(file, "%f %f %f\n", &materials[materials.size() - 1].Kd.x, &materials[materials.size() - 1].Kd.y, &materials[materials.size() - 1].Kd.z);
 		}
-		// Specular value of the material, the ratio of reflection of the specular term for all incoming light
 		else if (std::strcmp(lineHeader, "Ks") == 0)
 		{
 			fscanf(file, "%f %f %f\n", &materials[materials.size() - 1].Ks.x, &materials[materials.size() - 1].Ks.y, &materials[materials.size() - 1].Ks.z);
 		}
-		// Originally, a texture only to be used for diffuse values, but in this implementation will be used as the base texture for the model.
 		else if (std::strcmp(lineHeader, "map_Kd") == 0)
 		{
-			// this reads a filepath for texture file.
 			fscanf(file, "%s\n", &materials[materials.size() - 1].map_Kd);
 		}
 	} while (true);
-
 	std::fclose(file);
 
-	// Loads images defined by their given filepath.
 	for (int i = 0; i < materials.size(); i++)
 	{
 		materials[i].kdTex = loadImage(materials[i].map_Kd);
 	}
-
-	// Always returns true for now, for debugging, this should be changed in the future.
 	return true;
 }
-
-// Loads bmp file from a filepath
-// Theis function was created by following the tutorial "Tutorial 5 a textured cube" on the website "www.opengl-tutorial.org"
 GLuint Mesh::loadImage(const char * imagepath) {
 
 	unsigned char header[54];
@@ -98,7 +77,6 @@ GLuint Mesh::loadImage(const char * imagepath) {
 	unsigned char * data;
 
 	FILE * file = fopen(imagepath, "rb");
-
 	if (!file)
 	{
 		printf("Image could not be opened\n");
@@ -128,7 +106,7 @@ GLuint Mesh::loadImage(const char * imagepath) {
 	if (dataPos == 0)
 		dataPos = 54; // The BMP header is done that way
 
-	// Create a buffer
+					  // Create a buffer
 	data = new unsigned char[imageSize];
 
 	// Read the actual data from the file into the buffer
@@ -158,7 +136,6 @@ Mesh::~Mesh()
 	//Nothing
 }
 
-// Reads an OBJ file line by line and saves values to be used.
 bool Mesh::readOBJFile(const char * path)
 {
 	FILE * file;
@@ -168,6 +145,11 @@ bool Mesh::readOBJFile(const char * path)
 		return false;
 	}
 
+	std::vector<glm::vec3> tmpPositions;
+
+	std::vector<glm::vec2> tmpUVs;
+	std::vector<glm::vec3> tmpNormals;
+
 
 	int res = 0;
 	char lineHeader[128];
@@ -175,22 +157,18 @@ bool Mesh::readOBJFile(const char * path)
 
 	do
 	{
-		// Reads header
 		res = fscanf(file, "%s", lineHeader);
-
 		if (res == EOF)
 		{
 			break;
 		}
 
-		// v means vertex, a position
 		if (std::strcmp(lineHeader, "v") == 0)
 		{
 			glm::vec3 vertex;
 			fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
 			vertexPositions.push_back(vertex);
 		}
-		// vt is a UV value
 		else if (std::strcmp(lineHeader, "vt") == 0)
 		{
 			glm::vec2 uv;
@@ -198,26 +176,20 @@ bool Mesh::readOBJFile(const char * path)
 
 			vertexUVs.push_back(uv);
 		}
-		// vn is a normal of a vertex, this will not really be used in this program but nice to have for the future.
 		else if (strcmp(lineHeader, "vn") == 0)
 		{
 			glm::vec3 normal;
 			fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
 			vertexNormals.push_back(normal);
 		}
-		// f means that we will make a triangle out of some or all of the values read. These are saved to our member variables.
 		else if (strcmp(lineHeader, "f") == 0)
 		{
 			unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-			
 			int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2]);
-			
-			// if there arent 9 values, then we don't have a triangle with position, uv and normal values.
 			if (matches != 9)
 			{
 				return false;
 			}
-			// saves to the indices to the index array.
 			for (int i = 0; i < 3; i++)
 			{
 				index tmp;
@@ -230,14 +202,12 @@ bool Mesh::readOBJFile(const char * path)
 				posIndices.push_back(tmp.pos - 1);
 			}
 		}
-		// mtllib is a filepath to a library of materials.
 		else if (strcmp(lineHeader, "mtllib") == 0)
 		{
 			char path[128];
 			fscanf(file, "%s\n", &path);
 			readMTLFile(path);
 		}
-		// use the specified material, marks the start of a new set of verticies in the obj file.
 		else if (strcmp(lineHeader, "usemtl") == 0)
 		{
 			char tmp[128];
@@ -247,7 +217,6 @@ bool Mesh::readOBJFile(const char * path)
 				if (strcmp(tmp, materials[i].name) == 0)
 				{
 					currMaterial = i;
-					// nice to know where the sets are used if multiple materials are used.
 					if (!startOfMat.empty())
 					{
 						endOfMat.push_back(indices.size());
@@ -261,11 +230,9 @@ bool Mesh::readOBJFile(const char * path)
 	endOfMat.push_back(indices.size());
 
 	std::fclose(file);
-
 	return true;
 }
 
-// Creates the gl vao and buffer for the mesh.
 void Mesh::makeBuffer(GLuint program)
 {
 	glGenVertexArrays(1, &vao);
@@ -274,8 +241,6 @@ void Mesh::makeBuffer(GLuint program)
 	for (int i = 0; i < indices.size(); i++)
 	{
 		bool notInData = true;
-
-		// Checks if the specified vertex already exists. Keep in mind that just because vertices share the same position does not mean they can be used as the same.
 		for (int j = 0; j < data.size(); j+=21)
 		{
 			if (data[j] == vertexPositions[indices[i].pos - 1].x && data[j + 1] == vertexPositions[indices[i].pos - 1].y &&data[j + 2] == vertexPositions[indices[i].pos - 1].z)
@@ -283,8 +248,6 @@ void Mesh::makeBuffer(GLuint program)
 				notInData = false;
 			}
 		}
-
-		// Adds the vertex to data.
 		if (notInData)
 		{
 			data.push_back(vertexPositions[indices[i].pos - 1].x);
@@ -308,7 +271,6 @@ void Mesh::makeBuffer(GLuint program)
 
 			data.push_back(materials[indices[i].mat].Ns);
 
-			// if the vertex has normalmapping, also push those values.
 			if (normalID != 0)
 			{
 				data.push_back(tangents[i].x);
@@ -322,21 +284,26 @@ void Mesh::makeBuffer(GLuint program)
 		}
 	}
 
-	//create vbo
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*data.size(), &data[0], GL_STATIC_DRAW);
 
-	// gen index buffer
+
 	glGenBuffers(1, &elementbuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*posIndices.size(), &posIndices[0], GL_STATIC_DRAW);
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(3);
+	glDisableVertexAttribArray(4);
+	glDisableVertexAttribArray(5);
+	glDisableVertexAttribArray(6);
+	glDisableVertexAttribArray(7);
 }
 
-// Draw call
 void Mesh::draw(GLuint program)
 {
-	// Make sure that correct program, vbo and normalmap is used.
 	glUseProgram(program);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glActiveTexture(GL_TEXTURE1);
@@ -345,16 +312,13 @@ void Mesh::draw(GLuint program)
 	glUniform1i(glGetUniformLocation(program, "normalMap"), 1);
 	glUniform1i(glGetUniformLocation(program, "useNormalMap"), normalID);
 
-	// regular number of float values are 15.
 	GLsizei stride = 15*sizeof(float);
 
 	if (normalID != 0)
 	{
-		// if there is a normal map there are 21 float values instead of 15.
 		stride = 21 * sizeof(float);
 	}
 
-	// position
 	glEnableVertexAttribArray(0);
 
 	GLint vertexPos = glGetAttribLocation(program, "vertexPosition");
@@ -374,14 +338,14 @@ void Mesh::draw(GLuint program)
 		(void*)0
 	);
 
-	// UV
 	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	GLint vertexUV = glGetAttribLocation(program, "vertexUV");
 
 	if (vertexUV == -1)
 	{
 		OutputDebugStringA("Error, cannot find 'vertexUV' attribute in Vertex shader\n");
-		return;
+		//return;
 	}
 
 	glVertexAttribPointer(
@@ -393,15 +357,9 @@ void Mesh::draw(GLuint program)
 		(void*)(3*4)
 	);
 
-	// Ambient
 	glEnableVertexAttribArray(2);
+	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	GLint vertexAmbient = glGetAttribLocation(program, "vertexAmbient");
-
-	if (vertexAmbient == -1)
-	{
-		OutputDebugStringA("Error, cannot find 'vertexAmbient' attribute in Vertex shader\n");
-		return;
-	}
 
 	glVertexAttribPointer(
 		vertexAmbient,
@@ -412,15 +370,9 @@ void Mesh::draw(GLuint program)
 		(void*)((3 + 2)* 4)
 		);
 
-	// diffuse
 	glEnableVertexAttribArray(3);
+	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	GLint vertexDiffuse = glGetAttribLocation(program, "vertexDiffuse");
-
-	if (vertexDiffuse == -1)
-	{
-		OutputDebugStringA("Error, cannot find 'vertexDiffuse' attribute in Vertex shader\n");
-		return;
-	}
 
 	glVertexAttribPointer(
 		vertexDiffuse,
@@ -432,15 +384,9 @@ void Mesh::draw(GLuint program)
 	);
 
 
-	// Specular
 	glEnableVertexAttribArray(4);
+	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	GLint vertexSpecular = glGetAttribLocation(program, "vertexSpecular");
-
-	if (vertexSpecular == -1)
-	{
-		OutputDebugStringA("Error, cannot find 'vertexSpecular' attribute in Vertex shader\n");
-		return;
-	}
 
 	glVertexAttribPointer(
 		vertexSpecular,
@@ -451,15 +397,9 @@ void Mesh::draw(GLuint program)
 		(void*)((3 + 2 + 3 + 3) * 4)
 	);
 
-	// shininess value/ specular exponent
 	glEnableVertexAttribArray(5);
+	//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	GLint vertexSpecularExponent = glGetAttribLocation(program, "vertexSpecularExponent");
-
-	if (vertexSpecularExponent == -1)
-	{
-		OutputDebugStringA("Error, cannot find 'vertexSpecularExponent' attribute in Vertex shader\n");
-		return;
-	}
 
 	glVertexAttribPointer(
 		vertexSpecularExponent,
@@ -472,14 +412,14 @@ void Mesh::draw(GLuint program)
 
 	if (normalID != 0)
 	{
-		// tangents
 		glEnableVertexAttribArray(6);
+		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		GLint tangent = glGetAttribLocation(program, "tangents");
 
 		if (tangent == -1)
 		{
 			OutputDebugStringA("Error, cannot find 'tangents' attribute in Vertex shader\n");
-			return;
+			//return;
 		}
 
 		glVertexAttribPointer(
@@ -491,14 +431,14 @@ void Mesh::draw(GLuint program)
 			(void*)((3 + 2 + 3 + 3 + 3 + 1) * 4)
 		);
 
-		// bitangents.
 		glEnableVertexAttribArray(7);
+		//glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		GLint bitangent = glGetAttribLocation(program, "bitangents");
 
 		if (tangent == -1)
 		{
 			OutputDebugStringA("Error, cannot find 'bitangents' attribute in Vertex shader\n");
-			return;
+			//return;
 		}
 
 		glVertexAttribPointer(
@@ -513,26 +453,19 @@ void Mesh::draw(GLuint program)
 	// bind index buffer for positions
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 
-	// activate texture slot for base texture.
 	glActiveTexture(GL_TEXTURE0);
-	// bind current model matrix to uniform
 	glUniformMatrix4fv(glGetUniformLocation(program, "model"), 1, GL_FALSE, &world[0][0]);
 
-	// for each material we need to divide. the draw.
 	for (int i = 0; i < startOfMat.size(); i++)
 	{
 		glBindTexture(GL_TEXTURE_2D, materials[indices[i].mat].kdTex);
+		//GLuint tmp = glGetUniformLocation(program, "tex");
 		glUniform1i(glGetUniformLocation(program, "tex"), 0);
+		//glDrawArrays(GL_TRIANGLES, startOfMat[i], endOfMat[i]);
 		glDrawElements(GL_TRIANGLES, posIndices.size(), GL_UNSIGNED_INT, (void*)0);
 	}
 	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
-	glDisableVertexAttribArray(3);
-	glDisableVertexAttribArray(4);
-	glDisableVertexAttribArray(5);
-	glDisableVertexAttribArray(6);
-	glDisableVertexAttribArray(7);
+	//glDisableVertexAttribArray(1);
 }
 
 void Mesh::loadNormalMap(GLuint program, const char * path)
@@ -566,6 +499,14 @@ void Mesh::loadNormalMap(GLuint program, const char * path)
 		bitangents.push_back(bitangent);
 		bitangents.push_back(bitangent);
 	}
+
+	/*glGenBuffers(1, &tangentID);
+	glBindBuffer(GL_ARRAY_BUFFER, tangentID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*tangents.size(), &tangents[0], GL_STATIC_DRAW);
+
+	glGenBuffers(1, &bitangentID);
+	glBindBuffer(GL_ARRAY_BUFFER, bitangentID);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*bitangents.size(), &bitangents[0], GL_STATIC_DRAW);*/
 }
 
 std::vector<Mesh::vertexInfo> Mesh::getVertices() const
