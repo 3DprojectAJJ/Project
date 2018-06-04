@@ -39,7 +39,7 @@ void Framebuffer::init()
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, textures[i], 0);
 		}
 	}
-	// generate and bind the renderbuffers for tex and depth textures 
+	// generate and bind the renderbuffers for tex and depth textures (this is for our defferedrendering)
 	glGenRenderbuffers(1, &texID);
 	glBindRenderbuffer(GL_RENDERBUFFER, texID);
 	glRenderbufferStorageMultisample(GL_RENDERBUFFER, NUM_OF_TEXTURES, GL_DEPTH_COMPONENT, width, height);
@@ -79,23 +79,25 @@ void Framebuffer::init()
 
 void Framebuffer::shadowInit()
 {
+	//Generate framebuffer
 	glGenFramebuffers(1, &depthMapFBO);
-
+	//Generate texture
 	glGenTextures(1, &depthMap);
-
+	//Bind the texture
 	glBindTexture(GL_TEXTURE_2D, depthMap);
-
+	//Set the parameters for our texture
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
+	//Bind our framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-
+	//Set our texture to our framebuffer
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthMap, 0);
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
+	//Unbind our shadowframbuffer and bind back to our default buffer
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

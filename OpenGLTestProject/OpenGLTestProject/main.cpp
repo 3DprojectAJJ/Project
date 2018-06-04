@@ -54,35 +54,44 @@ void initImgui(GLFWwindow * window)
 	ImGui::StyleColorsDark();
 }
 
-GLuint configShaderMatrices(Framebuffer *fbo, ShaderHandler * programs, std::vector<Entity*> entities)
+void configShaderMatrices(Framebuffer *fbo, ShaderHandler * programs, std::vector<Entity*> entities)
 {
+	//Initialize the fbo with the shadowMap specifications
 	fbo->shadowInit();
+	//Setting up the matrix for the shadowmapping
 	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
 	glm::mat4 lightView = glm::lookAt(glm::vec3(0.0f, 4.0f, 3.0f), glm::vec3(0.0f, 1.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 lightSpaceMat = lightProjection * lightView;
 
+	//Send the light matrix to our fbo, used later on in the FBOFragmentShader as we need to have the space for the light
 	fbo->setLightSpaceMatrix(lightSpaceMat);
 
+	//Add a Vertex- and FragmentShader for our shadows
 	if (!programs->addShader("ShadowVertexShader.glsl", GL_VERTEX_SHADER)) {
 		OutputDebugStringA("ShadowVertexShader failed to compile\n");
 	}
 	if (!programs->addShader("ShadowFragmentShader.glsl", GL_FRAGMENT_SHADER)) {
-		OutputDebugStringA("ShadowFragmentShader failed to com,pile\n");
+		OutputDebugStringA("ShadowFragmentShader failed to compile\n");
 	}
 
+	//Create the program
 	programs->createProgram();
 
+	//Use the program last added, aka our shadow shaders
 	glUseProgram(programs->getProgramID(programs->getSize() - 1));
+	//Send our LightSpaceMat (Light matrix) as a uniform to our vertexshader for our shadow
 	glUniformMatrix4fv(glGetUniformLocation(programs->getProgramID(programs->getSize() - 1), "lightSpaceMat"), 1, GL_FALSE, &lightSpaceMat[0][0]);
 
+	//Bind our current fbo to the shadowFBO
 	fbo->bindShadowFBO();
 	glClear(GL_DEPTH_BUFFER_BIT);
+	//Draw our scene with our shadow shaders
 	for (int i = 0; i < entities.size(); i++)
 	{
 		entities[i]->draw(programs->getProgramID(programs->getSize() - 1));
 	}
+	//Bind back to our default fbo
 	fbo->unbindFBO(1024, 720);
-	return fbo->getDepthMap();
 }
 
 int main()
@@ -109,7 +118,7 @@ int main()
 	Mesh triangle("basicTriangle.obj");
 	// A handler of shaders that stores all our shaderprograms.
 	ShaderHandler programs;
-	// The framebuffer object that will be used for deferred rendering.
+	// The framebuffer object that will be used for deferred rendering and our shadowmapping.
 	Framebuffer fbo;
 	Mouse mouse;
 	glm::mat4 model;
@@ -181,7 +190,6 @@ int main()
 
 
 	triangle.makeBuffer(programs.getProgramID(0));
-	//terrain.loadNormalMap(programs.getProgramID(0), "groundNormal.bmp");
 
 	entities.push_back(&quad);
 	entities.push_back(&quad1);
@@ -220,8 +228,9 @@ int main()
 
 	bool * showImguiWindow = new bool[fbo.nrOfTextures()];
 
-	fbo.addLight(glm::vec3(0, 2.0f, 2.0f), glm::vec4(1, 0.5f, 0.1f, 50));
-
+	//Add the light to our world
+	fbo.addLight(glm::vec3(0, 4.0f, 3.0f), glm::vec4(1, 0.5f, 0.1f, 50));
+	//Configure the matrices for our shadowmapping
 	configShaderMatrices(&fbo, &programs, entities);
 
 
