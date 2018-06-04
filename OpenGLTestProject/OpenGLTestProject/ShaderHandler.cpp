@@ -13,6 +13,7 @@ ShaderHandler::~ShaderHandler()
 	// nothing
 }
 
+// Adds a shader from the given filepath and the given shader type. the shader ID is saved to the object for later use.
 bool ShaderHandler::addShader(const char * path, GLenum type)
 {
 	// buffer for error/debug output
@@ -51,6 +52,7 @@ bool ShaderHandler::addShader(const char * path, GLenum type)
 	return true;
 }
 
+// Uses all currently created shaders to make a program, then removes them from the object.
 bool ShaderHandler::createProgram()
 {
 	bool result = true;
