@@ -238,7 +238,7 @@ int main()
 		glfwSetTime(curr);
 		
 		// clears the scene and sets the background to the inputted color
-		glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		// Binds fbo so that the program draws to fbo textures
 		fbo.bindFBO();
 		// clears the fbo textures from earlier draws.
