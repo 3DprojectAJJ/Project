@@ -27,7 +27,6 @@ Camera::~Camera()
 
 void Camera::update(GLFWwindow * window, float dt)
 {
-	//glm::vec4 d = viewMat()*glm::vec4(pos,1.0);
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
 		pos += forward*dt*speed;

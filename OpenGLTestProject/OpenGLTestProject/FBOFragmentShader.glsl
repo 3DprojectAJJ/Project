@@ -16,7 +16,6 @@ uniform int nrOfLights;
 uniform sampler2D colorTexture;
 uniform sampler2D normalTexture;
 uniform sampler2D positionTexture;
-//uniform sampler2D depthTexture;
 
 uniform sampler2D ambientTexture;
 uniform sampler2D diffuseTexture;
@@ -26,17 +25,23 @@ uniform sampler2D depthMap;
 
 float ShadowCalculation(vec4 fragPosLightSpace)
 {
-	// perform perspective divide
+	float shadow = 0.0f;
+
+	//Do a perspective divide
 	vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-	// transform to [0,1] range
+	//Bring the projCoord in the 0 - 1 range
 	projCoords = projCoords * 0.5 + 0.5;
-	// get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+	//Get the closest depth from the light perspective
 	float closestDepth = texture(depthMap, projCoords.xy).r; 
-	// get depth of current fragment from light's perspective
+	//Get depth of current fragment from the light perspective
 	float currentDepth = projCoords.z;
-	// check whether current frag pos is in shadow
+	//Using a bias to pervent shadow acne
 	float bias = 0.0005;
-	float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+	// check whether current fragments position is in shadow
+	if(currentDepth - bias > closestDepth)
+		shadow = 1.0f;
+	else
+		shadow = 0.0f;
 
 	return shadow;
 }
@@ -68,10 +73,6 @@ void main(){
 		vec3 eye_direction = normalize(camPos - position);
 		for(int i = 0; i < nrOfLights; i++)
 		{
-			/*float diffuse = dot(normal, normalize(lightPosition[i] - position));
-			float distance = length(lightPosition[i] - position);
-			color += clamp(lightColor[i].xyz * diffuse * texture(colorTexture, UV).xyz * 1/(distance * distance) * lightColor[i].w, 0, 1);*/
-
 			// diffuse
 			vec3 light_ray = normalize(lightPosition[i] - position);
 			float distance = length(lightPosition[i] - position);

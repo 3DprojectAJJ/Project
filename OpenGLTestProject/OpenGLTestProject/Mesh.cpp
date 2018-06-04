@@ -505,14 +505,14 @@ void Mesh::loadNormalMap(GLuint program, const char * path)
 {
 	normalID = loadImage(path);
 
-	for (int i = 0; i < indices.size(); i+=3) {
-		glm::vec3 v0 = vertexPositions[indices[i].pos-1];
-		glm::vec3 v1 = vertexPositions[indices[i+1].pos-1];
-		glm::vec3 v2 = vertexPositions[indices[i+2].pos-1];
+	for (int i = 0; i < indices.size(); i += 3) {
+		glm::vec3 v0 = vertexPositions[indices[i].pos - 1];
+		glm::vec3 v1 = vertexPositions[indices[i + 1].pos - 1];
+		glm::vec3 v2 = vertexPositions[indices[i + 2].pos - 1];
 
-		glm::vec2 u0 = vertexUVs[indices[i].uv-1];
-		glm::vec2 u1 = vertexUVs[indices[i+1].uv-1];
-		glm::vec2 u2 = vertexUVs[indices[i+2].uv-1];
+		glm::vec2 u0 = vertexUVs[indices[i].uv - 1];
+		glm::vec2 u1 = vertexUVs[indices[i + 1].uv - 1];
+		glm::vec2 u2 = vertexUVs[indices[i + 2].uv - 1];
 
 		glm::vec3 dV1 = v1 - v0;
 		glm::vec3 dV2 = v2 - v0;
@@ -532,14 +532,6 @@ void Mesh::loadNormalMap(GLuint program, const char * path)
 		bitangents.push_back(bitangent);
 		bitangents.push_back(bitangent);
 	}
-
-	/*glGenBuffers(1, &tangentID);
-	glBindBuffer(GL_ARRAY_BUFFER, tangentID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*tangents.size(), &tangents[0], GL_STATIC_DRAW);
-
-	glGenBuffers(1, &bitangentID);
-	glBindBuffer(GL_ARRAY_BUFFER, bitangentID);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3)*bitangents.size(), &bitangents[0], GL_STATIC_DRAW);*/
 }
 
 std::vector<Mesh::vertexInfo> Mesh::getVertices() const

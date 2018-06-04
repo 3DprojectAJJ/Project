@@ -30,7 +30,7 @@ GLFWwindow * init()
 
 	// gives some "hints" for the window.
 	glfwWindowHint(GLFW_SAMPLES, 4); // 4x antialiasing
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // We want OpenGL 4.3
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // We want OpenGL 4.3
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // We don't want the old OpenGL
@@ -288,7 +288,6 @@ int main()
 		{		
 			ImGui::SetWindowSize(ImVec2(400, 420));
 			ImGui::SetWindowPos(ImVec2(0, 0));
-			ImGui::ImageButton((GLuint*)fbo.getDepthMap(), ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0));
 			for (int i = 0; i < fbo.nrOfTextures() - 1; i++) {
 				if (ImGui::ImageButton((GLuint*)fbo.getTexID()[i], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
 				{
