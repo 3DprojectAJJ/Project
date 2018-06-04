@@ -23,6 +23,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+//calculates the normal of a triangle
 vec3 calcNormal()
 {
 
@@ -31,20 +32,24 @@ vec3 calcNormal()
 	return normalize(cross(v1,v2));
 }
 
+
 void main()
 {
+	
 	vec3 normal = calcNormal();
+
+	// Check if the camera is viewing in the objects normal direction, if not the object won't be rendered
 	vec3 viewVector = (view*model*(gl_in[0].gl_Position + gl_in[1].gl_Position + gl_in[2].gl_Position)).xyz/3;
 	float d = dot(viewVector,(view * model * vec4(normal, 0)).xyz);
 
+	//Basicly passthrough to fragment shader.
 	if(d<0)
 	{
+		vec3 mNormal = normalize(model * vec4(normal, 0.0f)).xyz;
 
-	vec3 mNormal = normalize(model * vec4(normal, 0.0f)).xyz;
+		TBN = mat3(mTangents[0], mBitangents[0], mNormal);
 
-	TBN = mat3(mTangents[0], mBitangents[0], mNormal);
-
-	fragNormal = mNormal;
+		fragNormal = mNormal;
 
 		for(int i = 0; i < 3; i++)
 		{
