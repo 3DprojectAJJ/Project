@@ -1,14 +1,5 @@
 #include "Camera.h"
 
-Camera::Camera(glm::vec3 up, glm::vec3 forward, glm::vec3 pos, double speed)
-{
-	this->up = up;
-	this->forward = forward;
-	this->right = glm::cross(forward, up);
-	this->pos = pos;
-	this->speed = speed;
-}
-
 Camera::Camera(double inHorizontalAngle, double inVerticalAngle, glm::vec3 pos, double speed)
 {
 	this->horizontalAngle = glm::radians(inHorizontalAngle);

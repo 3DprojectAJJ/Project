@@ -121,7 +121,6 @@ int main()
 	// The framebuffer object that will be used for deferred rendering and our shadowmapping.
 	Framebuffer fbo;
 	Mouse mouse;
-	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 projection;
 	bool orbit = false;
@@ -270,7 +269,7 @@ int main()
 		glUniformMatrix4fv(pViewID, 1, GL_FALSE, &view[0][0]);
 		glUniformMatrix4fv(pProjID, 1, GL_FALSE, &projection[0][0]);
 
-		particle.update(programs.getProgramID(1), &camera, dt);
+		particle.update(programs.getProgramID(1), &camera, (float)dt);
 
 
 		//unbinds the fbo, we now draw to the window or default fbo instead
@@ -288,7 +287,7 @@ int main()
 		{		
 			ImGui::SetWindowSize(ImVec2(400, 420));
 			ImGui::SetWindowPos(ImVec2(0, 0));
-			for (int i = 0; i < fbo.nrOfTextures() - 1; i++) {
+			for (unsigned int i = 0; i < fbo.nrOfTextures() - 1; i++) {
 				if (ImGui::ImageButton((GLuint*)fbo.getTexID()[i], ImVec2(102, 77), ImVec2(0, 1), ImVec2(1, 0)))
 				{
 					showImguiWindow[i] = true;
@@ -312,7 +311,7 @@ int main()
 		glfwPollEvents();
 
 		// Updates the camera position and view direction
-		camera.update(Window, dt);
+		camera.update(Window, (float)dt);
 		if (glfwGetKey(Window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		{
 			orbit = !orbit;
@@ -327,7 +326,7 @@ int main()
 
 			int index = ((int)(x + 25) * 4) + ((int)(z + 25) * 4) * terrain.getWidth();
 
-			if (x >= -25 & x <= 25 & z >= -25 & z <= 25)
+			if (x >= -25 && x <= 25 && z >= -25 && z <= 25)
 
 			{
 				float y1 = terrain.getHeight((unsigned int)index);

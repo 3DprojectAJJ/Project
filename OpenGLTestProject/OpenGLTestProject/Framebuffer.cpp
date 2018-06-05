@@ -39,12 +39,8 @@ void Framebuffer::init()
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, textures[i], 0);
 		}
 	}
-	// generate and bind the renderbuffers for tex and depth textures (this is for our defferedrendering)
-	glGenRenderbuffers(1, &texID);
-	glBindRenderbuffer(GL_RENDERBUFFER, texID);
-	glRenderbufferStorageMultisample(GL_RENDERBUFFER, NUM_OF_TEXTURES, GL_DEPTH_COMPONENT, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_TEXTURE_2D, GL_RENDERBUFFER, texID);
-
+	// generate and bind the renderbuffers for depth texture (this is for our defferedrendering)
+	
 	glGenRenderbuffers(1, &depthID);
 	glBindRenderbuffer(GL_RENDERBUFFER, depthID);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);

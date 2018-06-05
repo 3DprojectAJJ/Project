@@ -54,8 +54,8 @@ void Mouse::update(GLFWwindow * window, glm::mat4 view, glm::mat4 projection)
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		if (xPos >= 0 && yPos >= 0 && xPos <= 1024 && yPos <= 720) {
-			glReadPixels(xPos, 720 - yPos, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		if (xPos >= 0 && yPos >= 0 && xPos <= width && yPos <= height) {
+			glReadPixels(xPos, height - yPos, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
 			if(data[0] != 0)
 			pickedIndex = (int)(data[0] - 1);
 		}

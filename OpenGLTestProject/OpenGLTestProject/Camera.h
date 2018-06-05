@@ -19,7 +19,6 @@ private:
 	double horizontalAngle;
 	double verticalAngle;
 public:
-	Camera(glm::vec3 up, glm::vec3 forward, glm::vec3 pos = glm::vec3(0, 0, 0), double speed = 10.0f);
 	Camera(double horisontalAngle, double verticalAngle, glm::vec3 pos = glm::vec3(0, 0, 0), double speed = 10.0f);
 	~Camera();
 

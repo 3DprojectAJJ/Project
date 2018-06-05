@@ -24,7 +24,6 @@ private:
 	GLint ambientLoc, diffuseLoc, specularLoc;
 	GLint shadowLoc;
 	GLuint depthID;
-	GLuint texID;
 	GLuint colorID;
 	GLuint quadID;
 	GLuint lightID;

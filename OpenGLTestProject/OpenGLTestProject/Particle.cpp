@@ -138,7 +138,7 @@ void ParticleEmitter::init(glm::vec3 position, glm::vec3 initalVelocity, float l
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	// Initialize with empty (NULL) buffer : it will be updated later, each frame.
-	glBufferData(GL_ARRAY_BUFFER, PARTICLE_NUM * 4 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, PARTICLE_NUM * 3 * sizeof(GLfloat), NULL, GL_STREAM_DRAW);
 
 	// The VBO containing the colors of the particles
 	glGenBuffers(1, &colorBuffer);

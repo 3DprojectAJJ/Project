@@ -268,13 +268,22 @@ void Mesh::makeBuffer(GLuint program)
 		// Check if the position already exists in the vector "data", if the position already is the same, we expect
 		// everything else to be the same and just save the index instead of the data.
 		bool notInData = true;
-		for (int j = 0; j < data.size(); j+=21)
-		{
-			if (data[j] == vertexPositions[indices[i].pos - 1].x && data[j + 1] == vertexPositions[indices[i].pos - 1].y &&data[j + 2] == vertexPositions[indices[i].pos - 1].z)
+		if(normalID != 0)
+			for (int j = 0; j < data.size(); j+=21)
 			{
-				notInData = false;
+				if (data[j] == vertexPositions[indices[i].pos - 1].x && data[j + 1] == vertexPositions[indices[i].pos - 1].y &&data[j + 2] == vertexPositions[indices[i].pos - 1].z)
+				{
+					notInData = false;
+				}
 			}
-		}
+		else
+			for (int j = 0; j < data.size(); j += 15)
+			{
+				if (data[j] == vertexPositions[indices[i].pos - 1].x && data[j + 1] == vertexPositions[indices[i].pos - 1].y &&data[j + 2] == vertexPositions[indices[i].pos - 1].z)
+				{
+					notInData = false;
+				}
+			}
 		// Adds all relevant data to "data"
 		if (notInData)
 		{
