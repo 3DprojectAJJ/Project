@@ -312,6 +312,7 @@ int main()
 
 		// Updates the camera position and view direction
 		camera.update(Window, (float)dt);
+
 		if (glfwGetKey(Window, GLFW_KEY_SPACE) == GLFW_PRESS)
 		{
 			orbit = !orbit;

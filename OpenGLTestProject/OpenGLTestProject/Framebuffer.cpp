@@ -238,6 +238,7 @@ void Framebuffer::draw(GLuint program, glm::vec3 camPos)
 	{
 		glDisable(GL_TEXTURE0 + i);
 	}
+	glDisable(GL_TEXTURE10);
 	glDisable(GL_TEXTURE_2D);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
