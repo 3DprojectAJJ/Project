@@ -2,7 +2,6 @@
 
 layout (location = 0) in vec3 vertexPosition;
 layout (location = 1) in vec2 vertexUV;
-//layout (location = 2) in vec3 vertexNormal;
 
 layout (location = 2) in vec3 vertexAmbient;
 layout (location = 3) in vec3 vertexDiffuse;
@@ -21,6 +20,7 @@ out vec4 s;
 out vec3 mTangents;
 out vec3 mBitangents;
 
+// Passes all values
 void main()
 {
 	gl_Position = vec4(vertexPosition, 1.0f);
